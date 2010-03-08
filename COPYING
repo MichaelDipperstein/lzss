@@ -1,5 +1,5 @@
-Huffman: Simple Huffman Encoding and Decoding Routines
-Copyright (C) 2002 by Michael Dipperstein (mdipper@cs.ucsb.edu)
+bitfile: Simple Bitwise File Read/Write Routines
+Copyright (C) 2004 by Michael Dipperstein (mdipper@cs.ucsb.edu)
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public

@@ -28,6 +28,8 @@ HISTORY
 -------
 01/30/04 - Initial release
 06/14/04 - Use incomplete type to hide definition of bitfile structure
+11/09/04 - Added a routine to convert an open bitfile_t to a FILE.
+           Added a routine to align a bitfile to the next byte.
 
 TODO
 ----

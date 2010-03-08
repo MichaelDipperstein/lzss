@@ -16,8 +16,12 @@
 ****************************************************************************
 *   UPDATES
 *
-*   $Id: bitfile.h,v 1.2 2004/06/15 13:16:10 michael Exp $
+*   $Id: bitfile.h,v 1.3 2004/11/09 14:16:58 michael Exp $
 *   $Log: bitfile.h,v $
+*   Revision 1.3  2004/11/09 14:16:58  michael
+*   Added functions to convert open bit_file_t to FILE and to
+*   align open bit_file_t to the next byte.
+*
 *   Revision 1.2  2004/06/15 13:16:10  michael
 *   Use incomplete type to hide definition of bitfile structure
 *
@@ -77,6 +81,10 @@ typedef struct bit_file_t bit_file_t;
 bit_file_t *BitFileOpen(const char *fileName, const BF_MODES mode);
 bit_file_t *MakeBitFile(FILE *stream, const BF_MODES mode);
 int BitFileClose(bit_file_t *stream);
+FILE *BitFileToFILE(bit_file_t *stream);
+
+/* toss spare bits and byte align file */
+int BitFileByteAlign(bit_file_t *stream);
 
 /* get/put character */
 int BitFileGetChar(bit_file_t *stream);

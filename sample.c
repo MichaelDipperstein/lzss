@@ -9,8 +9,11 @@
 ****************************************************************************
 *   HISTORY
 *
-*   $Id: sample.c,v 1.1.1.1 2004/02/09 05:31:42 michael Exp $
+*   $Id: sample.c,v 1.2 2004/11/09 14:19:22 michael Exp $
 *   $Log: sample.c,v $
+*   Revision 1.2  2004/11/09 14:19:22  michael
+*   Added examples of new functions BitFileToFILE and BitFileByteAlign
+*
 *   Revision 1.1.1.1  2004/02/09 05:31:42  michael
 *   Initial release
 *
@@ -61,6 +64,7 @@
 int main(int argc, char *argv[])
 {
     bit_file_t *bfp;
+    FILE *fp;
     int i, value;
 
     /* create bit file for writing */
@@ -123,6 +127,69 @@ int main(int argc, char *argv[])
          perror("closing file");
          return (EXIT_FAILURE);
     }
+    else
+    {
+        printf("closed file\n");
+    }
+
+    /* reopen file for appending */
+    bfp = BitFileOpen("testfile", BF_APPEND);
+
+    if (bfp == NULL)
+    {
+         perror("opening file");
+         return (EXIT_FAILURE);
+    }
+
+    /* append some chars */
+    value = (int)'A';
+    for (i = 0; i < NUM_CALLS; i++)
+    {
+        printf("appending char %c\n", value);
+        if(BitFilePutChar(value, bfp) == EOF)
+        {
+            perror("appending char");
+            BitFileClose(bfp);
+            return (EXIT_FAILURE);
+        }
+
+        value++;
+    }
+
+    /* convert to normal file */
+    fp = BitFileToFILE(bfp);
+
+    if (fp == NULL)
+    {
+         perror("converting to stdio FILE");
+         return (EXIT_FAILURE);
+    }
+    else
+    {
+        printf("converted to stdio FILE\n");
+    }
+
+    /* append some chars */
+    value = (int)'a';
+    for (i = 0; i < NUM_CALLS; i++)
+    {
+        printf("appending char %c\n", value);
+        if(fputc(value, fp) == EOF)
+        {
+            perror("appening char to FILE");
+            fclose(fp);
+            return (EXIT_FAILURE);
+        }
+
+        value++;
+    }
+
+    /* close file */
+    if (fclose(fp) == EOF)
+    {
+         perror("closing stdio FILE");
+         return (EXIT_FAILURE);
+    }
 
     /* now read back writes */
 
@@ -131,7 +198,7 @@ int main(int argc, char *argv[])
 
     if (bfp == NULL)
     {
-         perror("opening file");
+         perror("reopening file");
          return (EXIT_FAILURE);
     }
 
@@ -182,10 +249,67 @@ int main(int argc, char *argv[])
         }
     }
 
-    /* close bit file */
-    if (BitFileClose(bfp) != 0)
+    if (BitFileByteAlign(bfp) == EOF)
     {
-         perror("closing file");
+        fprintf(stderr, "failed to align file\n");
+        BitFileClose(bfp);
+        return (EXIT_FAILURE);
+    }
+    else
+    {
+        printf("byte aligning file\n");
+    }
+
+    /* read appended characters */
+    for (i = 0; i < NUM_CALLS; i++)
+    {
+        value = BitFileGetChar(bfp);
+        if(value == EOF)
+        {
+            perror("reading char");
+            BitFileClose(bfp);
+            return (EXIT_FAILURE);
+        }
+        else
+        {
+            printf("read %c\n", value);
+        }
+    }
+
+    /* convert to stdio FILE */
+    fp = BitFileToFILE(bfp);
+
+    if (fp == NULL)
+    {
+         perror("converting to stdio FILE");
+         return (EXIT_FAILURE);
+    }
+    else
+    {
+        printf("converted to stdio FILE\n");
+    }
+
+    /* read append some chars */
+    value = (int)'a';
+    for (i = 0; i < NUM_CALLS; i++)
+    {
+        value = fgetc(fp);
+        if(value == EOF)
+        {
+            perror("stdio reading char");
+            BitFileClose(bfp);
+            return (EXIT_FAILURE);
+        }
+        else
+        {
+            printf("stdio read %c\n", value);
+        }
+    }
+
+    /* close file */
+    if (fclose(fp) == EOF)
+    {
+         perror("closing stdio FILE");
          return (EXIT_FAILURE);
     }
 
