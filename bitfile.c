@@ -15,8 +15,11 @@
 ****************************************************************************
 *   UPDATES
 *
-*   $Id: bitfile.c,v 1.12 2008/01/25 07:03:49 michael Exp $
+*   $Id: bitfile.c,v 1.13 2008/09/15 04:10:20 michael Exp $
 *   $Log: bitfile.c,v $
+*   Revision 1.13  2008/09/15 04:10:20  michael
+*   Removed dead code.
+*
 *   Revision 1.12  2008/01/25 07:03:49  michael
 *   Added BitFileFlushOutput().
 *
@@ -654,6 +657,7 @@ int BitFileGetBits(bit_file_t *stream, void *bits, const unsigned int count)
     {
         /* read remaining bits */
         shifts = 8 - remaining;
+        bytes[offset] = 0;
 
         while (remaining > 0)
         {
@@ -800,7 +804,7 @@ int BitFileGetBitsInt(bit_file_t *stream, void *bits, const unsigned int count,
 ***************************************************************************/
 int BitFileGetBitsLE(bit_file_t *stream, void *bits, const unsigned int count)
 {
-    unsigned char *bytes, shifts;
+    unsigned char *bytes;
     int offset, remaining, returnValue;
 
     bytes = (unsigned char *)bits;
@@ -826,8 +830,6 @@ int BitFileGetBitsLE(bit_file_t *stream, void *bits, const unsigned int count)
     if (remaining != 0)
     {
         /* read remaining bits */
-        shifts = 8 - remaining;
-
         while (remaining > 0)
         {
             returnValue = BitFileGetBit(stream);
@@ -866,7 +868,7 @@ int BitFileGetBitsLE(bit_file_t *stream, void *bits, const unsigned int count)
 int BitFileGetBitsBE(bit_file_t *stream, void *bits, const unsigned int count,
     const size_t size)
 {
-    unsigned char *bytes, shifts;
+    unsigned char *bytes;
     int offset, remaining, returnValue;
 
     if (count > (size * 8))
@@ -898,8 +900,6 @@ int BitFileGetBitsBE(bit_file_t *stream, void *bits, const unsigned int count,
     if (remaining != 0)
     {
         /* read remaining bits */
-        shifts = 8 - remaining;
-
         while (remaining > 0)
         {
             returnValue = BitFileGetBit(stream);
