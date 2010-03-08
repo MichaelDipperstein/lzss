@@ -10,10 +10,11 @@ FILES
 bitfile.c       - Library implementing bitwise reading and writing for
                   sequential files.
 bitfile.h       - Header for bitfile library.
-sample.c        - Program demonstrating how to use the bitfile library. 
-LICENSE         - GNU Lesser General Public License
+COPYING         - GNU General Public License v3
+COPYING.LESSER  - GNU Lesser General Public License v3
 Makefile        - makefile for this project (assumes gcc compiler and GNU make)
 README          - this file
+sample.c        - Program demonstrating how to use the bitfile library.
 
 BUILDING
 --------
@@ -35,6 +36,8 @@ HISTORY
 12/05/05 - Added BitFileGetBitsInt and BitFilePutBitsInt
 06/06/06 - Corrected error in allocation of constants used to open underlying
            read/write/append files.
+08/26/07 - Updated license to LGPL v3.
+
 
 TODO
 ----

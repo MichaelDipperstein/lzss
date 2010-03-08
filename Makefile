@@ -1,8 +1,11 @@
 ############################################################################
 # Makefile for bitfile library and sample
 #
-#   $Id: Makefile,v 1.1.1.1 2004/02/09 05:31:42 michael Exp $
+#   $Id: Makefile,v 1.2 2007/07/10 05:32:53 michael Exp $
 #   $Log: Makefile,v $
+#   Revision 1.2  2007/07/10 05:32:53  michael
+#   Use -pedantic option when compiling code.
+#
 #   Revision 1.1.1.1  2004/02/09 05:31:42  michael
 #   Initial release
 #
@@ -10,7 +13,7 @@
 
 CC = gcc
 LD = gcc
-CFLAGS = -O2 -Wall -ansi -c
+CFLAGS = -O2 -Wall -ansi -pedantic -c
 LDFLAGS = -O2 -o
 
 # Treat NT and non-NT windows the same
