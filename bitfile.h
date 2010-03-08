@@ -16,8 +16,11 @@
 ****************************************************************************
 *   UPDATES
 *
-*   $Id: bitfile.h,v 1.6 2007/08/26 21:53:48 michael Exp $
+*   $Id: bitfile.h,v 1.7 2008/01/25 07:03:49 michael Exp $
 *   $Log: bitfile.h,v $
+*   Revision 1.7  2008/01/25 07:03:49  michael
+*   Added BitFileFlushOutput().
+*
 *   Revision 1.6  2007/08/26 21:53:48  michael
 *   Changes required for LGPL v3.
 *
@@ -95,6 +98,9 @@ FILE *BitFileToFILE(bit_file_t *stream);
 
 /* toss spare bits and byte align file */
 int BitFileByteAlign(bit_file_t *stream);
+
+/* fill byte with ones or zeros and write out results */
+int BitFileFlushOutput(bit_file_t *stream, const unsigned char onesFill);
 
 /* get/put character */
 int BitFileGetChar(bit_file_t *stream);

@@ -40,6 +40,7 @@ HISTORY
 12/30/07 - Corrected errors in BitFileOpen and MakeBitFile reported by an
            anonymous user.  Segment faults may have occurred if fopen returns
            a NULL.
+01/23/08 - Added BitFileFlushOutput.
 
 TODO
 ----
