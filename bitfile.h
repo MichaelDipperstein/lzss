@@ -2,7 +2,7 @@
 *                            Bit Stream File Header
 *
 *   File    : bitfile.h
-*   Purpose : Providea definitions and prototypes for a simple library of
+*   Purpose : Provides definitions and prototypes for a simple library of
 *             I/O functions for files that contain data in sizes that aren't
 *             integral bytes.
 *             An attempt was made to make the functions in this library
@@ -16,8 +16,11 @@
 ****************************************************************************
 *   UPDATES
 *
-*   $Id: bitfile.h,v 1.4 2005/12/06 15:06:37 michael Exp $
+*   $Id: bitfile.h,v 1.5 2006/06/03 19:33:11 michael Exp $
 *   $Log: bitfile.h,v $
+*   Revision 1.5  2006/06/03 19:33:11  michael
+*   Used spell checker to correct spelling.
+*
 *   Revision 1.4  2005/12/06 15:06:37  michael
 *   Added BitFileGetBitsInt and BitFilePutBitsInt for integer types.
 *
@@ -35,7 +38,7 @@
 ****************************************************************************
 *
 * Bitfile: Bit stream File I/O Routines
-* Copyright (C) 2004-2005 by Michael Dipperstein (mdipper@cs.ucsb.edu)
+* Copyright (C) 2004-2006 by Michael Dipperstein (mdipper@cs.ucsb.edu)
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public

@@ -33,6 +33,8 @@ HISTORY
 06/21/05 - Corrected BitFileGetBits/PutBits error that accessed an extra
            byte when given an integral number of bytes.
 12/05/05 - Added BitFileGetBitsInt and BitFilePutBitsInt
+06/06/06 - Corrected error in allocation of constants used to open underlying
+           read/write/append files.
 
 TODO
 ----

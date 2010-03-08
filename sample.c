@@ -9,8 +9,14 @@
 ****************************************************************************
 *   HISTORY
 *
-*   $Id: sample.c,v 1.4 2005/12/08 06:56:55 michael Exp $
+*   $Id: sample.c,v 1.6 2006/06/04 05:00:57 michael Exp $
 *   $Log: sample.c,v $
+*   Revision 1.6  2006/06/04 05:00:57  michael
+*   Reduce the number of warnings from SPlint.
+*
+*   Revision 1.5  2006/06/03 19:33:11  michael
+*   Used spell checker to correct spelling.
+*
 *   Revision 1.4  2005/12/08 06:56:55  michael
 *   Minor text corrections.
 *
@@ -61,8 +67,8 @@
 *   Function   : main
 *   Description: This function demonstrates the usage of each of the bit
 *                bit file functions.
-*   Parameters : argc - the number command line arguements (not used)
-*   Parameters : argv - array of command line arguements (not used)
+*   Parameters : argc - the number command line arguments (not used)
+*   Parameters : argv - array of command line arguments (not used)
 *   Effects    : Writes bit file, reads back results, printing them to
 *                stdout.
 *   Returned   : EXIT_SUCCESS
@@ -71,7 +77,16 @@ int main(int argc, char *argv[])
 {
     bit_file_t *bfp;
     FILE *fp;
-    int i, value;
+    int i, numCalls, value;
+    
+    if (argc < 2)
+    {
+        numCalls = NUM_CALLS;
+    }
+    else
+    {
+        numCalls = atoi(argv[1]);
+    }
 
     /* create bit file for writing */
     bfp = BitFileOpen("testfile", BF_WRITE);
@@ -84,13 +99,16 @@ int main(int argc, char *argv[])
 
     /* write chars */
     value = (int)'A';
-    for (i = 0; i < NUM_CALLS; i++)
+    for (i = 0; i < numCalls; i++)
     {
         printf("writing char %c\n", value);
         if(BitFilePutChar(value, bfp) == EOF)
         {
             perror("writing char");
-            BitFileClose(bfp);
+            if (0 != BitFileClose(bfp))
+            {
+                perror("closing bitfile");
+            }
             return (EXIT_FAILURE);
         }
 
@@ -99,28 +117,35 @@ int main(int argc, char *argv[])
         
     /* write single bits */
     value = 0;
-    for (i = 0; i < NUM_CALLS; i++)
+    for (i = 0; i < numCalls; i++)
     {
         printf("writing bit %d\n", value);
         if(BitFilePutBit(value, bfp) == EOF)
         {
             perror("writing bit");
-            BitFileClose(bfp);
+            if (0 != BitFileClose(bfp))
+            {
+                perror("closing bitfile");
+            }
             return (EXIT_FAILURE);
         }
 
-        value = !value;
+        value = 1 - value;
     }
 
     /* write ints as bits */
     value = 0x11111111;
-    for (i = 0; i < NUM_CALLS; i++)
+    for (i = 0; i < numCalls; i++)
     {
-        printf("writing bits %0X\n", value);
-        if(BitFilePutBits(bfp, &value, (8 * sizeof(int))) == EOF)
+        printf("writing bits %0X\n", (unsigned int)value);
+        if(BitFilePutBits(bfp, &value,
+            (unsigned int)(8 * sizeof(int))) == EOF)
         {
             perror("writing bits");
-            BitFileClose(bfp);
+            if (0 != BitFileClose(bfp))
+            {
+                perror("closing bitfile");
+            }
             return (EXIT_FAILURE);
         }
 
@@ -149,13 +174,16 @@ int main(int argc, char *argv[])
 
     /* append some chars */
     value = (int)'A';
-    for (i = 0; i < NUM_CALLS; i++)
+    for (i = 0; i < numCalls; i++)
     {
         printf("appending char %c\n", value);
         if(BitFilePutChar(value, bfp) == EOF)
         {
             perror("appending char");
-            BitFileClose(bfp);
+            if (0 != BitFileClose(bfp))
+            {
+                perror("closing bitfile");
+            }
             return (EXIT_FAILURE);
         }
 
@@ -164,13 +192,16 @@ int main(int argc, char *argv[])
 
     /* write some bits from an integer */
     value = 0x111;
-    for (i = 0; i < NUM_CALLS; i++)
+    for (i = 0; i < numCalls; i++)
     {
-        printf("writing 12 bits from an integer %03X\n", value);
+        printf("writing 12 bits from an integer %03X\n", (unsigned int)value);
         if(BitFilePutBitsInt(bfp, &value, 12, sizeof(value)) == EOF)
         {
             perror("writing bits from an integer");
-            BitFileClose(bfp);
+            if (0 != BitFileClose(bfp))
+            {
+                perror("closing bitfile");
+            }
             return (EXIT_FAILURE);
         }
 
@@ -192,13 +223,16 @@ int main(int argc, char *argv[])
 
     /* append some chars */
     value = (int)'a';
-    for (i = 0; i < NUM_CALLS; i++)
+    for (i = 0; i < numCalls; i++)
     {
         printf("appending char %c\n", value);
         if(fputc(value, fp) == EOF)
         {
-            perror("appening char to FILE");
-            fclose(fp);
+            perror("appending char to FILE");
+            if (fclose(fp) == EOF)
+            {
+                 perror("closing stdio FILE");
+            }
             return (EXIT_FAILURE);
         }
 
@@ -224,13 +258,16 @@ int main(int argc, char *argv[])
     }
 
     /* read chars */
-    for (i = 0; i < NUM_CALLS; i++)
+    for (i = 0; i < numCalls; i++)
     {
         value = BitFileGetChar(bfp);
         if(value == EOF)
         {
             perror("reading char");
-            BitFileClose(bfp);
+            if (0 != BitFileClose(bfp))
+            {
+                perror("closing bitfile");
+            }
             return (EXIT_FAILURE);
         }
         else
@@ -240,13 +277,16 @@ int main(int argc, char *argv[])
     }
 
     /* read single bits */
-    for (i = 0; i < NUM_CALLS; i++)
+    for (i = 0; i < numCalls; i++)
     {
         value = BitFileGetBit(bfp);
         if(value == EOF)
         {
             perror("reading bit");
-            BitFileClose(bfp);
+            if (0 != BitFileClose(bfp))
+            {
+                perror("closing bitfile");
+            }
             return (EXIT_FAILURE);
         }
         else
@@ -256,24 +296,30 @@ int main(int argc, char *argv[])
     }
 
     /* read ints as bits */
-    for (i = 0; i < NUM_CALLS; i++)
+    for (i = 0; i < numCalls; i++)
     {
-        if(BitFileGetBits(bfp, &value, (8 * sizeof(int))) == EOF)
+        if(BitFileGetBits(bfp, &value, (unsigned int)(8 * sizeof(int))) == EOF)
         {
             perror("reading bits");
-            BitFileClose(bfp);
+            if (0 != BitFileClose(bfp))
+            {
+                perror("closing bitfile");
+            }
             return (EXIT_FAILURE);
         }
         else
         {
-            printf("read bits %0X\n", value);
+            printf("read bits %0X\n", (unsigned int)value);
         }
     }
 
     if (BitFileByteAlign(bfp) == EOF)
     {
         fprintf(stderr, "failed to align file\n");
-        BitFileClose(bfp);
+        if (0 != BitFileClose(bfp))
+        {
+            perror("closing bitfile");
+        }
         return (EXIT_FAILURE);
     }
     else
@@ -282,13 +328,16 @@ int main(int argc, char *argv[])
     }
 
     /* read appended characters */
-    for (i = 0; i < NUM_CALLS; i++)
+    for (i = 0; i < numCalls; i++)
     {
         value = BitFileGetChar(bfp);
         if(value == EOF)
         {
             perror("reading char");
-            BitFileClose(bfp);
+            if (0 != BitFileClose(bfp))
+            {
+                perror("closing bitfile");
+            }
             return (EXIT_FAILURE);
         }
         else
@@ -298,18 +347,21 @@ int main(int argc, char *argv[])
     }
 
     /* read some bits into an integer */
-    for (i = 0; i < NUM_CALLS; i++)
+    for (i = 0; i < numCalls; i++)
     {
         value = 0;
         if(BitFileGetBitsInt(bfp, &value, 12, sizeof(value)) == EOF)
         {
             perror("reading bits from an integer");
-            BitFileClose(bfp);
+            if (0 != BitFileClose(bfp))
+            {
+                perror("closing bitfile");
+            }
             return (EXIT_FAILURE);
         }
         else
         {
-            printf("read 12 bits into an integer %03X\n", value);
+            printf("read 12 bits into an integer %03X\n", (unsigned int)value);
         }
     }
 
@@ -328,13 +380,16 @@ int main(int argc, char *argv[])
 
     /* read append some chars */
     value = (int)'a';
-    for (i = 0; i < NUM_CALLS; i++)
+    for (i = 0; i < numCalls; i++)
     {
         value = fgetc(fp);
         if(value == EOF)
         {
             perror("stdio reading char");
-            BitFileClose(bfp);
+            if (0 != BitFileClose(bfp))
+            {
+                perror("closing bitfile");
+            }
             return (EXIT_FAILURE);
         }
         else

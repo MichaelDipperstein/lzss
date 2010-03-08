@@ -15,8 +15,15 @@
 ****************************************************************************
 *   UPDATES
 *
-*   $Id: bitfile.c,v 1.6 2005/12/08 06:56:55 michael Exp $
+*   $Id: bitfile.c,v 1.7 2006/06/03 19:32:38 michael Exp $
 *   $Log: bitfile.c,v $
+*   Revision 1.7  2006/06/03 19:32:38  michael
+*   Corrected error reporetd anonymous.  The allocation of constants used to
+*   open underlying read/write/append files did not account for a terminating
+*   null.
+*
+*   Used spell checker to correct spelling.
+*
 *   Revision 1.6  2005/12/08 06:56:55  michael
 *   Minor text corrections.
 *
@@ -41,7 +48,7 @@
 ****************************************************************************
 *
 * Bitfile: Bit stream File I/O Routines
-* Copyright (C) 2004-2005 by Michael Dipperstein (mdipper@.ucsb.edu)
+* Copyright (C) 2004-2006 by Michael Dipperstein (mdipper@cs.ucsb.edu)
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public
@@ -127,7 +134,7 @@ int BitFileGetBitsBE(bit_file_t *stream, void *bits, const unsigned int count,
 ***************************************************************************/
 bit_file_t *BitFileOpen(const char *fileName, const BF_MODES mode)
 {
-    char modes[3][2] = {"rb", "wb", "ab"};  /* binary modes for fopen */
+    char modes[3][3] = {"rb", "wb", "ab"};  /* binary modes for fopen */
     bit_file_t *bf;
 
     bf = (bit_file_t *)malloc(sizeof(bit_file_t));
@@ -298,7 +305,7 @@ int BitFileClose(bit_file_t *stream)
 *   Description: This function flushes and frees the bitfile structure,
 *                returning a pointer to a stdio file.
 *   Parameters : stream - pointer to bit file stream being closed
-*   Effects    : The specified bitfile will be made useable as a stdio
+*   Effects    : The specified bitfile will be made usable as a stdio
 *                FILE.
 *   Returned   : Pointer to FILE.  NULL for failure.
 ***************************************************************************/
@@ -344,7 +351,7 @@ FILE *BitFileToFILE(bit_file_t *stream)
 *   Parameters : stream - pointer to bit file stream to align
 *   Effects    : Flushes out the bit buffer.
 *   Returned   : EOF if stream is NULL.  Otherwise, the contents of the
-*                biy buffer.
+*                bit buffer.
 ***************************************************************************/
 int BitFileByteAlign(bit_file_t *stream)
 {
@@ -677,7 +684,7 @@ int BitFilePutBits(bit_file_t *stream, void *bits, const unsigned int count)
 
 /***************************************************************************
 *   Function   : BitFileGetBitsInt
-*   Description: This function provides a machine independant layer that
+*   Description: This function provides a machine independent layer that
 *                allows a single function call to stuff an arbitrary number
 *                of bits into an integer type variable.
 *   Parameters : stream - pointer to bit file stream to read from
@@ -730,7 +737,7 @@ int BitFileGetBitsInt(bit_file_t *stream, void *bits, const unsigned int count,
 *                a little endian integer of length >= (count/8) + 1.
 *   Returned   : EOF for failure, otherwise the number of bits read.  If
 *                an EOF is reached before all the bits are read, bits
-*                will contain every bit through the last sucessful read.
+*                will contain every bit through the last successful read.
 ***************************************************************************/
 int BitFileGetBitsLE(bit_file_t *stream, void *bits, const unsigned int count)
 {
@@ -795,7 +802,7 @@ int BitFileGetBitsLE(bit_file_t *stream, void *bits, const unsigned int count)
 *                a big endian integer of length size.
 *   Returned   : EOF for failure, otherwise the number of bits read.  If
 *                an EOF is reached before all the bits are read, bits
-*                will contain every bit through the last sucessful read.
+*                will contain every bit through the last successful read.
 ***************************************************************************/
 int BitFileGetBitsBE(bit_file_t *stream, void *bits, const unsigned int count,
     const size_t size)
@@ -855,7 +862,7 @@ int BitFileGetBitsBE(bit_file_t *stream, void *bits, const unsigned int count,
 
 /***************************************************************************
 *   Function   : BitFilePutBitsInt
-*   Description: This function provides a machine independant layer that
+*   Description: This function provides a machine independent layer that
 *                allows a single function call to write an arbitrary number
 *                of bits from an integer type variable into a file.
 *   Parameters : stream - pointer to bit file stream to write to
