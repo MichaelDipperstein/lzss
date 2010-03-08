@@ -9,8 +9,11 @@
 ****************************************************************************
 *   HISTORY
 *
-*   $Id: optlist.c,v 1.1.1.1 2007/08/07 05:01:48 michael Exp $
+*   $Id: optlist.c,v 1.1.1.2 2007/09/04 04:45:42 michael Exp $
 *   $Log: optlist.c,v $
+*   Revision 1.1.1.2  2007/09/04 04:45:42  michael
+*   Added FreeOptList.
+*
 *   Revision 1.1.1.1  2007/08/07 05:01:48  michael
 *   Initial Release
 *
@@ -195,4 +198,31 @@ option_t *MakeOpt(const char option, char *const argument, const int index)
     }
 
     return opt;
+}
+
+/****************************************************************************
+*   Function   : FreeOptList
+*   Description: This function will free all the elements in an option_t
+*                type linked list starting from the node passed as a
+*                parameter.
+*   Parameters : list - head of linked list to be freed
+*   Effects    : All elements of the linked list pointed to by list will
+*                be freed and list will be set to NULL.
+*   Returned   : None
+****************************************************************************/
+void FreeOptList(option_t *list)
+{
+    option_t *head, *next;
+
+    head = list;
+    list = NULL;
+
+    while (head != NULL)
+    {
+        next = head->next;
+        free(head);
+        head = next;
+    }
+
+    return;
 }

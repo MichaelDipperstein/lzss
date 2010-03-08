@@ -9,8 +9,11 @@
 ****************************************************************************
 *   HISTORY
 *
-*   $Id: sample.c,v 1.1.1.1 2007/08/07 05:01:48 michael Exp $
+*   $Id: sample.c,v 1.1.1.2 2007/09/04 04:45:42 michael Exp $
 *   $Log: sample.c,v $
+*   Revision 1.1.1.2  2007/09/04 04:45:42  michael
+*   Added FreeOptList.
+*
 *   Revision 1.1.1.1  2007/08/07 05:01:48  michael
 *   Initial Release
 *
@@ -90,8 +93,8 @@ int main(int argc, char *argv[])
             printf("  -f : option without arguments.\n");
             printf("  -?  : print out command line options.\n\n");
 
-            free(thisOpt);    /* done with this item, free it */
-            continue;
+            FreeOptList(thisOpt);   /* free the rest of the list */
+            return EXIT_SUCCESS;
         }
 
         printf("found option %c\n", thisOpt->option);

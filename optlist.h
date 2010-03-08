@@ -9,8 +9,11 @@
 ****************************************************************************
 *   HISTORY
 *
-*   $Id: optlist.h,v 1.1.1.1 2007/08/07 05:01:48 michael Exp $
+*   $Id: optlist.h,v 1.1.1.2 2007/09/04 04:45:42 michael Exp $
 *   $Log: optlist.h,v $
+*   Revision 1.1.1.2  2007/09/04 04:45:42  michael
+*   Added FreeOptList.
+*
 *   Revision 1.1.1.1  2007/08/07 05:01:48  michael
 *   Initial Release
 *
@@ -66,5 +69,6 @@ typedef struct option_t
 *                               PROTOTYPES
 ***************************************************************************/
 option_t *GetOptList(int argc, char *const argv[], char *const options);
+void FreeOptList(option_t *list);
 
 #endif  /* ndef OPTLIST_H */
