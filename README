@@ -32,6 +32,7 @@ HISTORY
            Added a routine to align a bitfile to the next byte.
 06/21/05 - Corrected BitFileGetBits/PutBits error that accessed an extra
            byte when given an integral number of bytes.
+12/05/05 - Added BitFileGetBitsInt and BitFilePutBitsInt
 
 TODO
 ----

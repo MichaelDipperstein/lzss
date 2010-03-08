@@ -9,8 +9,14 @@
 ****************************************************************************
 *   HISTORY
 *
-*   $Id: sample.c,v 1.2 2004/11/09 14:19:22 michael Exp $
+*   $Id: sample.c,v 1.4 2005/12/08 06:56:55 michael Exp $
 *   $Log: sample.c,v $
+*   Revision 1.4  2005/12/08 06:56:55  michael
+*   Minor text corrections.
+*
+*   Revision 1.3  2005/12/06 15:06:37  michael
+*   Added BitFileGetBitsInt and BitFilePutBitsInt for integer types.
+*
 *   Revision 1.2  2004/11/09 14:19:22  michael
 *   Added examples of new functions BitFileToFILE and BitFileByteAlign
 *
@@ -21,7 +27,7 @@
 ****************************************************************************
 *
 * Sample: A bit file library sample usage program
-* Copyright (C) 2004 by Michael Dipperstein (mdipper@cs.ucsb.edu)
+* Copyright (C) 2004-2005 by Michael Dipperstein (mdipper@cs.ucsb.edu)
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public
@@ -105,7 +111,7 @@ int main(int argc, char *argv[])
 
         value = !value;
     }
-    
+
     /* write ints as bits */
     value = 0x11111111;
     for (i = 0; i < NUM_CALLS; i++)
@@ -154,6 +160,21 @@ int main(int argc, char *argv[])
         }
 
         value++;
+    }
+
+    /* write some bits from an integer */
+    value = 0x111;
+    for (i = 0; i < NUM_CALLS; i++)
+    {
+        printf("writing 12 bits from an integer %03X\n", value);
+        if(BitFilePutBitsInt(bfp, &value, 12, sizeof(value)) == EOF)
+        {
+            perror("writing bits from an integer");
+            BitFileClose(bfp);
+            return (EXIT_FAILURE);
+        }
+
+        value += 0x111;
     }
 
     /* convert to normal file */
@@ -217,7 +238,7 @@ int main(int argc, char *argv[])
             printf("read %c\n", value);
         }
     }
-        
+
     /* read single bits */
     for (i = 0; i < NUM_CALLS; i++)
     {
@@ -233,7 +254,7 @@ int main(int argc, char *argv[])
             printf("read bit %d\n", value);
         }
     }
-    
+
     /* read ints as bits */
     for (i = 0; i < NUM_CALLS; i++)
     {
@@ -273,6 +294,22 @@ int main(int argc, char *argv[])
         else
         {
             printf("read %c\n", value);
+        }
+    }
+
+    /* read some bits into an integer */
+    for (i = 0; i < NUM_CALLS; i++)
+    {
+        value = 0;
+        if(BitFileGetBitsInt(bfp, &value, 12, sizeof(value)) == EOF)
+        {
+            perror("reading bits from an integer");
+            BitFileClose(bfp);
+            return (EXIT_FAILURE);
+        }
+        else
+        {
+            printf("read 12 bits into an integer %03X\n", value);
         }
     }
 
