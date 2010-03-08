@@ -15,8 +15,12 @@
 ****************************************************************************
 *   UPDATES
 *
-*   $Id: bitfile.c,v 1.10 2007/08/26 21:53:48 michael Exp $
+*   $Id: bitfile.c,v 1.11 2007/12/30 23:55:30 michael Exp $
 *   $Log: bitfile.c,v $
+*   Revision 1.11  2007/12/30 23:55:30  michael
+*   Corrected errors in BitFileOpen and MakeBitFile reported by an anonymous
+*   user.  Segment faults may have occurred if fopen returned a NULL.
+*
 *   Revision 1.10  2007/08/26 21:53:48  michael
 *   Changes required for LGPL v3.
 *
@@ -170,6 +174,7 @@ bit_file_t *BitFileOpen(const char *fileName, const BF_MODES mode)
             bf->bitBuffer = 0;
             bf->bitCount = 0;
             bf->mode = mode;
+            bf->endian = DetermineEndianess();
 
             /***************************************************************
             *  TO DO: Consider using the last byte in a file to indicate
@@ -180,7 +185,6 @@ bit_file_t *BitFileOpen(const char *fileName, const BF_MODES mode)
         }
     }
 
-    bf->endian = DetermineEndianess();
     return (bf);
 }
 
@@ -224,10 +228,9 @@ bit_file_t *MakeBitFile(FILE *stream, const BF_MODES mode)
             bf->bitBuffer = 0;
             bf->bitCount = 0;
             bf->mode = mode;
+            bf->endian = DetermineEndianess();
         }
     }
-
-    bf->endian = DetermineEndianess();
 
     return (bf);
 }

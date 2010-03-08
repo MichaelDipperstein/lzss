@@ -37,7 +37,9 @@ HISTORY
 06/06/06 - Corrected error in allocation of constants used to open underlying
            read/write/append files.
 08/26/07 - Updated license to LGPL v3.
-
+12/30/07 - Corrected errors in BitFileOpen and MakeBitFile reported by an
+           anonymous user.  Segment faults may have occurred if fopen returns
+           a NULL.
 
 TODO
 ----
@@ -48,4 +50,4 @@ TODO
 
 AUTHOR
 ------
-Michael Dipperstein (mdipper@cs.ucsb.edu)
+Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)
