@@ -15,8 +15,12 @@
 ****************************************************************************
 *   UPDATES
 *
-*   $Id: bitfile.c,v 1.3 2004/11/09 14:16:58 michael Exp $
+*   $Id: bitfile.c,v 1.4 2005/06/23 04:34:18 michael Exp $
 *   $Log: bitfile.c,v $
+*   Revision 1.4  2005/06/23 04:34:18  michael
+*   Prevent BitfileGetBits/PutBits from accessing an extra byte when given
+*   an integral number of bytes.
+*
 *   Revision 1.3  2004/11/09 14:16:58  michael
 *   Added functions to convert open bit_file_t to FILE and to
 *   align open bit_file_t to the next byte.
@@ -507,24 +511,28 @@ int BitFileGetBits(bit_file_t *stream, void *bits, const unsigned int count)
         offset++;
     }
 
-    /* read remaining bits */
-    shifts = 8 - remaining;
-    while (remaining > 0)
+    if (remaining != 0)
     {
-        returnValue = BitFileGetBit(stream);
+        /* read remaining bits */
+        shifts = 8 - remaining;
 
-        if (returnValue == EOF)
+        while (remaining > 0)
         {
-            return EOF;
+            returnValue = BitFileGetBit(stream);
+
+            if (returnValue == EOF)
+            {
+                return EOF;
+            }
+
+            bytes[offset] <<= 1;
+            bytes[offset] |= (returnValue & 0x01);
+            remaining--;
         }
 
-        bytes[offset] <<= 1;
-        bytes[offset] |= (returnValue & 0x01);
-        remaining--;
+        /* shift last bits into position */
+        bytes[offset] <<= shifts;
     }
-
-    /* shift last bits into position */
-    bytes[offset] <<= shifts;
 
     return count;
 }
@@ -572,19 +580,22 @@ int BitFilePutBits(bit_file_t *stream, void *bits, const unsigned int count)
         offset++;
     }
 
-    /* write remaining bits */
-    tmp = bytes[offset];
-    while (remaining > 0)
+    if (remaining != 0)
     {
-        returnValue = BitFilePutBit((tmp & 0x80), stream);
-
-        if (returnValue == EOF)
+        /* write remaining bits */
+        tmp = bytes[offset];
+        while (remaining > 0)
         {
-            return EOF;
-        }
+            returnValue = BitFilePutBit((tmp & 0x80), stream);
 
-        tmp <<= 1;
-        remaining--;
+            if (returnValue == EOF)
+            {
+                return EOF;
+            }
+
+            tmp <<= 1;
+            remaining--;
+        }
     }
 
     return count;

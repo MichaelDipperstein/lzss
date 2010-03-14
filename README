@@ -99,6 +99,8 @@ HISTORY
             * Upgraded to latest bitfile library.
             * Add the option to pass compression/decompression routines file
               pointers instead of file names.
+06/21/05  - Corrected BitFileGetBits/PutBits error that accessed an extra
+            byte when given an integral number of bytes.
 
 TODO
 ----
