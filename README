@@ -1,12 +1,13 @@
 DESCRIPTION
 -----------
-This archive contains a simple and readable ANSI C implementation of LZSS
-coding and decoding.  This implementation is not intended to be the best,
+This archive contains a simple and readable ANSI C library implementing LZSS
+encoding and decoding.  This implementation is not intended to be the best,
 fastest, smallest, or any other performance related adjective.
 
-This archive also contains more complex, but still readable ANSI C
-implementations of LZSS which use linked lists and hash tables to speed
-up the encoding process.
+Included in this library is a sample program demonstrating the usage of the
+encode and decoding routines.  The library has been designed so that it may
+be linked with different sliding window search routines which can speed up
+the compression time at the cost of additional memory space.
 
 More information on LZSS encoding may be found at:
 http://www.datacompression.info/LZSS.shtml
@@ -14,23 +15,36 @@ http://www.datacompression.info/LZSS.shtml
 FILES
 -----
 COPYING         - Rules for copying and distributing LGPL software
+bitfile.c       - Library to allow bitwise reading and writing of files.
+bitfile.h       - Header for bitfile library.
+brute.c         - File implementing brute force search for strings matching the
+                  strings to be encoded.
 getopt.c        - LGPL version of getopt source from GNU project
 getopt.h        - LGPL version of getopt headers from GNU project
+hash.c          - File implementing hash table search for strings matching the
+                  strings to be encoded.
 LICENSE         - GNU Lesser General Public License
-lzhash.c        - LZSS encoding/decoding using hash tables to speed up encode
-lzlist.c        - LZSS encoding/decoding using linked lists to speed up encode
+list.c          - File implementing linked list indexed search for strings
+                  matching the strings to be encoded.
+lzlocal.h       - Header file defining interface to be used by files
+                  implementing searches for strings matching strings to be
+                  encoded.
+lzsample.c      - Sample program demonstrating usage of encode and decode
+                  routines.
 lzss.c          - LZSS encoding/decoding source
+lzss.h          - LZSS encoding/decoding header files
 Makefile        - makefile for this project (assumes gcc compiler and GNU make)
 README          - this file
 
 BUILDING
 --------
 To build these files with GNU make and gcc, simply enter "make" from the
-command line.
+command line.  Edit the variable FMOBJ to choose the version of find match
+which will be used.
 
 USAGE
 -----
-Usage: lzss <options>
+Usage: lzsample <options>
 
 options:
   -c : Encode input file to output file.
@@ -59,6 +73,12 @@ HISTORY
             algorithm description.
 12/11/03  - Added version with linked lists to speed up encode.
 12/12/03  - Added version with hash table to speed up encode.
+02/21/04  - Major changes:
+            * Separated encode/decode, match finding, and main.
+            * Use bitfiles for reading/writing files
+            * Use traditional LZSS encoding where the coded/uncoded bits
+              precede the symbol they are associated with, rather than
+              aggregating the bits.
 
 TODO
 ----
