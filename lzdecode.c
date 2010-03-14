@@ -30,8 +30,12 @@
 *   11/07/04    Separated encode and decode functions for improved
 *               modularity.
 *
-*   $Id: lzdecode.c,v 1.5 2006/12/26 04:09:09 michael Exp $
+*   $Id: lzdecode.c,v 1.6 2007/03/25 05:11:32 michael Exp $
 *   $Log: lzdecode.c,v $
+*   Revision 1.6  2007/03/25 05:11:32  michael
+*   Corrected file closure error reported by "Carl@Yahoo" .  Now  both input
+*   and output files are closed.
+*
 *   Revision 1.5  2006/12/26 04:09:09  michael
 *   Updated e-mail address and minor text clean-up.
 *
@@ -267,7 +271,7 @@ int DecodeLZSSByName(char *inFile, char *outFile)
 
     /* close files */
     fclose(fpIn);
-    fclose(fpIn);
+    fclose(fpOut);
 
     return (returnValue);
 }

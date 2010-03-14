@@ -15,8 +15,11 @@
 ****************************************************************************
 *   UPDATES
 *
-*   $Id: bitfile.c,v 1.7 2006/06/03 19:32:38 michael Exp $
+*   $Id: bitfile.c,v 1.8 2007/02/06 06:22:07 michael Exp $
 *   $Log: bitfile.c,v $
+*   Revision 1.8  2007/02/06 06:22:07  michael
+*   Used trim program to remove trailing spaces.
+*
 *   Revision 1.7  2006/06/03 19:32:38  michael
 *   Corrected error reporetd anonymous.  The allocation of constants used to
 *   open underlying read/write/append files did not account for a terminating
@@ -239,7 +242,7 @@ endian_t DetermineEndianess(void)
     endian_test_t endianTest;
 
     endianTest.word = 1;
-    
+
     if (endianTest.bytes[0] == 1)
     {
         /* LSB is 1st byte (little endian)*/
