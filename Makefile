@@ -1,8 +1,15 @@
 ############################################################################
 # Makefile for lzss encode/decode library and sample program
 #
-#   $Id: Makefile,v 1.3 2004/11/08 05:54:18 michael Exp $
+#   $Id: Makefile,v 1.5 2007/09/20 04:34:45 michael Exp $
 #   $Log: Makefile,v $
+#   Revision 1.5  2007/09/20 04:34:45  michael
+#   Replace getopt with optlist.
+#   Changes required for LGPL v3.
+#
+#   Revision 1.4  2007/07/16 02:16:15  michael
+#   Use -pedantic option when compiling.
+#
 #   Revision 1.3  2004/11/08 05:54:18  michael
 #   1. Split encode and decode routines for smarter linking
 #   2. Renamed lzsample.c sample.c to match my other samples
@@ -22,11 +29,11 @@
 ############################################################################
 CC = gcc
 LD = gcc
-CFLAGS = -I. -O3 -Wall -ansi -c
+CFLAGS = -I. -O3 -Wall -pedantic -ansi -c
 LDFLAGS = -O3 -o
 
 # libraries
-LIBS = -L. -llzss -lgetopt
+LIBS = -L. -llzss -loptlist
 
 # Treat NT and non-NT windows the same
 ifeq ($(OS),Windows_NT)
@@ -51,12 +58,12 @@ FMOBJ = hash.o
 
 LZOBJS = $(FMOBJ) lzencode.o lzdecode.o lzvars.o
 
-all:		sample$(EXE) liblzss.a libgetopt.a
+all:		sample$(EXE) liblzss.a liboptlist.a
 
-sample$(EXE):	sample.o liblzss.a libgetopt.a
+sample$(EXE):	sample.o liblzss.a liboptlist.a
 		$(LD) $< $(LIBS) $(LDFLAGS) $@
 
-sample.o:	sample.c lzss.h getopt.h
+sample.o:	sample.c lzss.h optlist.h
 		$(CC) $(CFLAGS) $<
 
 liblzss.a:	$(LZOBJS) bitfile.o
@@ -84,11 +91,11 @@ lzvars.o:	lzvars.c lzlocal.h
 bitfile.o:	bitfile.c bitfile.h
 		$(CC) $(CFLAGS) $<
 
-libgetopt.a:	getopt.o
-		ar crv libgetopt.a getopt.o
-		ranlib libgetopt.a
+liboptlist.a:	optlist.o
+		ar crv liboptlist.a optlist.o
+		ranlib liboptlist.a
 
-getopt.o:	getopt.c getopt.h
+optlist.o:	optlist.c optlist.h
 		$(CC) $(CFLAGS) $<
 
 comp$(EXE):	comp.o $(FMOBJ) lzencode.o lzvars.o bitfile.o

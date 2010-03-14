@@ -10,6 +10,7 @@ be linked with different sliding window search routines which can speed up
 the compression time at the cost of additional memory space.
 
 More information on LZSS encoding may be found at:
+http://michael.dipperstein.com/lzss
 http://www.datacompression.info/LZSS.shtml
 
 FILES
@@ -20,12 +21,11 @@ bitfile.h       - Header for bitfile library.
 brute.c         - File implementing brute force search for strings matching the
                   strings to be encoded.
 comp.c          - Simple example of a compression only program.
+COPYING         - Rules for copying and distributing GPL software
+COPYING.LESSER  - Rules for copying and distributing LGPL software
 decomp.c        - Simple example of a decompression only program.
-getopt.c        - LGPL version of getopt source from GNU project
-getopt.h        - LGPL version of getopt headers from GNU project
 hash.c          - File implementing hash table search for strings matching the
                   strings to be encoded.
-LICENSE         - GNU Lesser General Public License
 list.c          - File implementing linked list indexed search for strings
                   matching the strings to be encoded.
 lzlocal.h       - Header file defining interface to be used by files
@@ -36,6 +36,8 @@ lzencode.c      - LZSS encoding source
 lzss.h          - LZSS encoding/decoding header files
 lzvars.c        - Variables used by both lzencode and lzdecode
 Makefile        - makefile for this project (assumes gcc compiler and GNU make)
+optlist.c       - Source code for GetOptlist function and supporting functions
+optlist.h       - Header file to be included by code using the optlist library
 README          - this file
 sample.c        - Sample program demonstrating usage of encode and decode
                   routines.
@@ -108,6 +110,8 @@ HISTORY
 12/25/06  - Corrected bug in allocation of default decode output.
           - Minor comment corrections
 03/24/07  - Closes output file in EncodeLZSSByName and DecodeLZSSByName
+08/30/07  - Explicitly licensed under LGPL version 3.
+          - Replaces getopt() with optlist library.
 
 TODO
 ----

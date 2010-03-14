@@ -14,8 +14,12 @@
 *
 *   11/07/04    Name changed to sample.c
 *
-*   $Id: sample.c,v 1.4 2006/12/26 04:09:09 michael Exp $
+*   $Id: sample.c,v 1.5 2007/09/20 04:34:45 michael Exp $
 *   $Log: sample.c,v $
+*   Revision 1.5  2007/09/20 04:34:45  michael
+*   Replace getopt with optlist.
+*   Changes required for LGPL v3.
+*
 *   Revision 1.4  2006/12/26 04:09:09  michael
 *   Updated e-mail address and minor text clean-up.
 *
@@ -35,21 +39,23 @@
 ****************************************************************************
 *
 * SAMPLE: Sample usage of LZSS Library
-* Copyright (C) 2004 by Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)
+* Copyright (C) 2004, 2006, 2007 by
+* Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)
 *
-* This library is free software; you can redistribute it and/or
-* modify it under the terms of the GNU Lesser General Public
-* License as published by the Free Software Foundation; either
-* version 2.1 of the License, or (at your option) any later version.
+* This file is part of the lzss library.
 *
-* This library is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-* Lesser General Public License for more details.
+* The lzss library is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public License as
+* published by the Free Software Foundation; either version 3 of the
+* License, or (at your option) any later version.
 *
-* You should have received a copy of the GNU Lesser General Public
-* License along with this library; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+* The lzss library is distributed in the hope that it will be useful, but
+* WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser
+* General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *
 ***************************************************************************/
 
@@ -60,7 +66,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "lzss.h"
-#include "getopt.h"
+#include "optlist.h"
 
 /***************************************************************************
 *                            TYPE DEFINITIONS
@@ -101,7 +107,7 @@ char *RemovePath(char *fullPath);
 ****************************************************************************/
 int main(int argc, char *argv[])
 {
-    int opt;
+    option_t *optList, *thisOpt;
     FILE *fpIn, *fpOut;      /* pointer to open input & output files */
     MODES mode;
 
@@ -111,9 +117,12 @@ int main(int argc, char *argv[])
     mode = ENCODE;
 
     /* parse command line */
-    while ((opt = getopt(argc, argv, "cdtni:o:h?")) != -1)
+    optList = GetOptList(argc, argv, "cdi:o:h?");
+    thisOpt = optList;
+
+    while (thisOpt != NULL)
     {
-        switch(opt)
+        switch(thisOpt->option)
         {
             case 'c':       /* compression mode */
                 mode = ENCODE;
@@ -134,11 +143,12 @@ int main(int argc, char *argv[])
                         fclose(fpOut);
                     }
 
+                    FreeOptList(optList);
                     exit(EXIT_FAILURE);
                 }
 
                 /* open input file as binary */
-                fpIn = fopen(optarg, "rb");
+                fpIn = fopen(thisOpt->argument, "rb");
                 if (fpIn == NULL)
                 {
                     perror("Opening input file");
@@ -148,6 +158,7 @@ int main(int argc, char *argv[])
                         fclose(fpOut);
                     }
 
+                    FreeOptList(optList);
                     exit(EXIT_FAILURE);
                 }
                 break;
@@ -163,11 +174,12 @@ int main(int argc, char *argv[])
                         fclose(fpIn);
                     }
 
+                    FreeOptList(optList);
                     exit(EXIT_FAILURE);
                 }
 
                 /* open output file as binary */
-                fpOut = fopen(optarg, "wb");
+                fpOut = fopen(thisOpt->argument, "wb");
                 if (fpOut == NULL)
                 {
                     perror("Opening output file");
@@ -177,6 +189,7 @@ int main(int argc, char *argv[])
                         fclose(fpIn);
                     }
 
+                    FreeOptList(optList);
                     exit(EXIT_FAILURE);
                 }
                 break;
@@ -192,8 +205,14 @@ int main(int argc, char *argv[])
                 printf("  -h | ?  : Print out command line options.\n\n");
                 printf("Default: %s -c -i stdin -o stdout\n",
                     RemovePath(argv[0]));
+
+                FreeOptList(optList);
                 return(EXIT_SUCCESS);
         }
+
+        optList = thisOpt->next;
+        free(thisOpt);
+        thisOpt = optList;
     }
 
 

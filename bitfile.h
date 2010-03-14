@@ -16,8 +16,11 @@
 ****************************************************************************
 *   UPDATES
 *
-*   $Id: bitfile.h,v 1.5 2006/06/03 19:33:11 michael Exp $
+*   $Id: bitfile.h,v 1.6 2007/08/26 21:53:48 michael Exp $
 *   $Log: bitfile.h,v $
+*   Revision 1.6  2007/08/26 21:53:48  michael
+*   Changes required for LGPL v3.
+*
 *   Revision 1.5  2006/06/03 19:33:11  michael
 *   Used spell checker to correct spelling.
 *
@@ -38,21 +41,22 @@
 ****************************************************************************
 *
 * Bitfile: Bit stream File I/O Routines
-* Copyright (C) 2004-2006 by Michael Dipperstein (mdipper@cs.ucsb.edu)
+* Copyright (C) 2004-2007 by Michael Dipperstein (mdipper@cs.ucsb.edu)
 *
-* This library is free software; you can redistribute it and/or
-* modify it under the terms of the GNU Lesser General Public
-* License as published by the Free Software Foundation; either
-* version 2.1 of the License, or (at your option) any later version.
+* This file is part of the bit file library.
 *
-* This library is distributed in the hope that it will be useful,
+* The bit file library is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public License as
+* published by the Free Software Foundation; either version 3 of the
+* License, or (at your option) any later version.
+*
+* The bit file library is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-* Lesser General Public License for more details.
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser
+* General Public License for more details.
 *
-* You should have received a copy of the GNU Lesser General Public
-* License along with this library; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+* You should have received a copy of the GNU Lesser General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *
 ***************************************************************************/
 
