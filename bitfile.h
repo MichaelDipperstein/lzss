@@ -16,8 +16,11 @@
 ****************************************************************************
 *   UPDATES
 *
-*   $Id: bitfile.h,v 1.3 2004/11/09 14:16:58 michael Exp $
+*   $Id: bitfile.h,v 1.4 2005/12/06 15:06:37 michael Exp $
 *   $Log: bitfile.h,v $
+*   Revision 1.4  2005/12/06 15:06:37  michael
+*   Added BitFileGetBitsInt and BitFilePutBitsInt for integer types.
+*
 *   Revision 1.3  2004/11/09 14:16:58  michael
 *   Added functions to convert open bit_file_t to FILE and to
 *   align open bit_file_t to the next byte.
@@ -32,7 +35,7 @@
 ****************************************************************************
 *
 * Bitfile: Bit stream File I/O Routines
-* Copyright (C) 2004 by Michael Dipperstein (mdipper@cs.ucsb.edu)
+* Copyright (C) 2004-2005 by Michael Dipperstein (mdipper@cs.ucsb.edu)
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public
@@ -94,8 +97,18 @@ int BitFilePutChar(const int c, bit_file_t *stream);
 int BitFileGetBit(bit_file_t *stream);
 int BitFilePutBit(const int c, bit_file_t *stream);
 
-/* get/put number of bits */
+/* get/put number of bits (most significant bit to least significat bit) */
 int BitFileGetBits(bit_file_t *stream, void *bits, const unsigned int count);
 int BitFilePutBits(bit_file_t *stream, void *bits, const unsigned int count);
+
+/***************************************************************************
+* get/put number of bits from integer types (short, int, long, ...)
+* machine endiness is accounted for.
+* size is the size of the data structure pointer to by bits.
+***************************************************************************/
+int BitFileGetBitsInt(bit_file_t *stream, void *bits, const unsigned int count,
+    const size_t size);
+int BitFilePutBitsInt(bit_file_t *stream, void *bits, const unsigned int count,
+    const size_t size);
 
 #endif /* _BITFILE_H_ */

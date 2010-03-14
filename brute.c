@@ -10,8 +10,12 @@
 ****************************************************************************
 *   UPDATES
 *
-*   $Id: brute.c,v 1.1 2004/02/22 17:21:37 michael Exp $
+*   $Id: brute.c,v 1.2 2005/12/28 06:03:30 michael Exp $
 *   $Log: brute.c,v $
+*   Revision 1.2  2005/12/28 06:03:30  michael
+*   Use slower but clearer Get/PutBitsInt for reading/writing bits.
+*   Replace mod with conditional Wrap macro.
+*
 *   Revision 1.1  2004/02/22 17:21:37  michael
 *   Initial revision of brute force search.  Mostly code removed from lzss.c.
 *
@@ -77,12 +81,13 @@ void InitializeSearchStructures()
 *                length of the match.  If there is no match a length of
 *                zero will be returned.
 ****************************************************************************/
-encoded_string_t FindMatch(int windowHead, int uncodedHead)
+encoded_string_t FindMatch(unsigned int windowHead, unsigned int uncodedHead)
 {
     encoded_string_t matchData;
-    int i, j;
+    unsigned int i, j;
 
     matchData.length = 0;
+    matchData.offset = 0;
     i = windowHead;  /* start at the beginning of the sliding window */
     j = 0;
 
@@ -93,8 +98,8 @@ encoded_string_t FindMatch(int windowHead, int uncodedHead)
             /* we matched one how many more match? */
             j = 1;
 
-            while(slidingWindow[(i + j) % WINDOW_SIZE] ==
-                uncodedLookahead[(uncodedHead + j) % MAX_CODED])
+            while(slidingWindow[Wrap((i + j), WINDOW_SIZE)] ==
+                uncodedLookahead[Wrap((uncodedHead + j), MAX_CODED)])
             {
                 if (j >= MAX_CODED)
                 {
@@ -116,7 +121,7 @@ encoded_string_t FindMatch(int windowHead, int uncodedHead)
             break;
         }
 
-        i = (i + 1) % WINDOW_SIZE;
+        i = Wrap((i + 1), WINDOW_SIZE);
         if (i == windowHead)
         {
             /* we wrapped around */
@@ -140,7 +145,7 @@ encoded_string_t FindMatch(int windowHead, int uncodedHead)
 *                are removed and new ones are added.
 *   Returned   : None
 ****************************************************************************/
-void ReplaceChar(int charIndex, unsigned char replacement)
+void ReplaceChar(unsigned int charIndex, unsigned char replacement)
 {
     slidingWindow[charIndex] = replacement;
 }

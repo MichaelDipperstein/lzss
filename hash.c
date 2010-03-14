@@ -9,8 +9,21 @@
 *
 ****************************************************************************
 *   UPDATES
-*   $Id: hash.c,v 1.1 2004/02/22 17:23:02 michael Exp $
+*   $Id: hash.c,v 1.5 2005/12/29 14:37:56 michael Exp $
 *   $Log: hash.c,v $
+*   Revision 1.5  2005/12/29 14:37:56  michael
+*   Remove debug statements.
+*
+*   Revision 1.4  2005/12/29 14:32:56  michael
+*   Correct algorithm for replacing characters in dictionary.
+*
+*   Revision 1.3  2005/12/29 07:06:24  michael
+*   Let the hash table size vary with the size of the sliding window.
+*
+*   Revision 1.2  2005/12/28 06:03:30  michael
+*   Use slower but clearer Get/PutBitsInt for reading/writing bits.
+*   Replace mod with conditional Wrap macro.
+*
 *   Revision 1.1  2004/02/22 17:23:02  michael
 *   Initial revision of hash table search.  Mostly code from lzhash.c.
 *
@@ -51,7 +64,7 @@
 ***************************************************************************/
 #define NULL_INDEX      (WINDOW_SIZE + 1)
 
-#define HASH_SIZE       1024     /* size of hash table */
+#define HASH_SIZE       (WINDOW_SIZE >> 2)  /* size of hash table */
 
 /***************************************************************************
 *                            GLOBAL VARIABLES
@@ -75,11 +88,11 @@ unsigned int next[WINDOW_SIZE];             /* indices of next in hash list */
 *   Function   : HashKey
 *   Description: This function generates a hash key for a (MAX_UNCODED + 1)
 *                long string located either in the sliding window or the
-*                uncoded lookahead.  The key generation algorithm is supposed
-*                identical to the algorithm used by gzip.  As reported in
-*                K. Sadakane, H. Imai. "Improving the Speed of LZ77
-*                Compression by Hashing and Suffix Sorting". IEICE Trans.
-*                Fundamentals, Vol. E83-A, No. 12 (December 2000)
+*                uncoded lookahead.  The key generation algorithm is
+*                supposed to be based on the algorithm used by gzip.  As
+*                reported in K. Sadakane, H. Imai. "Improving the Speed of
+*                LZ77 Compression by Hashing and Suffix Sorting". IEICE
+*                Trans. Fundamentals, Vol. E83-A, No. 12 (December 2000)
 *   Parameters : offset - offset into either the uncoded lookahead or the
 *                         sliding window.
 *                lookahead - TRUE iff offset is an offset into the uncoded
@@ -89,7 +102,7 @@ unsigned int next[WINDOW_SIZE];             /* indices of next in hash list */
 *                length of the match.  If there is no match a length of
 *                zero will be returned.
 ****************************************************************************/
-int HashKey(int offset, char lookahead)
+unsigned int HashKey(unsigned int offset, unsigned char lookahead)
 {
     int i, hashKey;
 
@@ -102,7 +115,7 @@ int HashKey(int offset, char lookahead)
         {
             hashKey = (hashKey << 5) ^ (uncodedLookahead[offset]);
             hashKey %= HASH_SIZE;
-            offset = (offset + 1) % MAX_CODED;
+            offset = Wrap((offset + 1), MAX_CODED);
         }
     }
     else
@@ -112,7 +125,7 @@ int HashKey(int offset, char lookahead)
         {
             hashKey = (hashKey << 5) ^ (slidingWindow[offset]);
             hashKey %= HASH_SIZE;
-            offset = (offset + 1) % WINDOW_SIZE;
+            offset = Wrap((offset + 1), WINDOW_SIZE);
         }
     }
 
@@ -134,14 +147,14 @@ int HashKey(int offset, char lookahead)
 ****************************************************************************/
 void InitializeSearchStructures()
 {
-    int i;
+    unsigned int i;
 
     /************************************************************************
     * Since the encode routine only fills the sliding window one character,
     * there is only one hash key for the entier sliding window.  That means
     * all positions are in the same linked list.
     ************************************************************************/
-    for (i = 0; i < WINDOW_SIZE; i++)
+    for (i = 0; i < (WINDOW_SIZE - 1); i++)
     {
         next[i] = i + 1;
     }
@@ -169,12 +182,14 @@ void InitializeSearchStructures()
 *                length of the match.  If there is no match a length of
 *                zero will be returned.
 ****************************************************************************/
-encoded_string_t FindMatch(int windowHead, int uncodedHead)
+encoded_string_t FindMatch(unsigned int windowHead, unsigned int uncodedHead)
 {
     encoded_string_t matchData;
-    int i, j;
+    unsigned int i, j;
 
     matchData.length = 0;
+    matchData.offset = 0;
+
     i = hashTable[HashKey(uncodedHead, TRUE)];  /* start of proper list */
     j = 0;
 
@@ -185,8 +200,8 @@ encoded_string_t FindMatch(int windowHead, int uncodedHead)
             /* we matched one how many more match? */
             j = 1;
 
-            while(slidingWindow[(i + j) % WINDOW_SIZE] ==
-                uncodedLookahead[(uncodedHead + j) % MAX_CODED])
+            while(slidingWindow[Wrap((i + j), WINDOW_SIZE)] ==
+                uncodedLookahead[Wrap((uncodedHead + j), MAX_CODED)])
             {
                 if (j >= MAX_CODED)
                 {
@@ -225,9 +240,9 @@ encoded_string_t FindMatch(int windowHead, int uncodedHead)
 *                to the end of the appropriate linked list.
 *   Returned   : NONE
 ****************************************************************************/
-void AddString(int charIndex)
+void AddString(unsigned int charIndex)
 {
-    int i, hashKey;
+    unsigned int i, hashKey;
 
     /* inserted character will be at the end of the list */
     next[charIndex] = NULL_INDEX;
@@ -243,6 +258,7 @@ void AddString(int charIndex)
 
     /* find the end of the list */
     i = hashTable[hashKey];
+
     while(next[i] != NULL_INDEX)
     {
         i = next[i];
@@ -263,10 +279,10 @@ void AddString(int charIndex)
 *                from its linked list.
 *   Returned   : NONE
 ****************************************************************************/
-void RemoveString(int charIndex)
+void RemoveString(unsigned int charIndex)
 {
-    int i, hashKey;
-    int nextIndex;
+    unsigned int i, hashKey;
+    unsigned int nextIndex;
 
     nextIndex = next[charIndex];        /* remember where this points to */
     next[charIndex] = NULL_INDEX;
@@ -282,6 +298,7 @@ void RemoveString(int charIndex)
 
     /* find character pointing to ours */
     i = hashTable[hashKey];
+
     while(next[i] != charIndex)
     {
         i = next[i];
@@ -304,21 +321,23 @@ void RemoveString(int charIndex)
 *                are removed and new ones are added.
 *   Returned   : NONE
 ****************************************************************************/
-void ReplaceChar(int charIndex, unsigned char replacement)
+void ReplaceChar(unsigned int charIndex, unsigned char replacement)
 {
-    int firstIndex, i;
+    unsigned int firstIndex, i;
 
-    firstIndex = charIndex - (MAX_UNCODED + 1);
-
-    if (firstIndex < 0)
+    if (charIndex < MAX_UNCODED)
     {
-        firstIndex = WINDOW_SIZE + firstIndex;
+        firstIndex = (WINDOW_SIZE + charIndex) - MAX_UNCODED;
+    }
+    else
+    {
+        firstIndex = charIndex - MAX_UNCODED;
     }
 
     /* remove all hash entries containing character at char index */
     for (i = 0; i < (MAX_UNCODED + 1); i++)
     {
-        RemoveString((firstIndex + i) % WINDOW_SIZE);
+        RemoveString(Wrap((firstIndex + i), WINDOW_SIZE));
     }
 
     slidingWindow[charIndex] = replacement;
@@ -326,6 +345,6 @@ void ReplaceChar(int charIndex, unsigned char replacement)
     /* add all hash entries containing character at char index */
     for (i = 0; i < (MAX_UNCODED + 1); i++)
     {
-        AddString((firstIndex + i) % WINDOW_SIZE);
+        AddString(Wrap((firstIndex + i), WINDOW_SIZE));
     }
 }

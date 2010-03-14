@@ -101,6 +101,10 @@ HISTORY
               pointers instead of file names.
 06/21/05  - Corrected BitFileGetBits/PutBits error that accessed an extra
             byte when given an integral number of bytes.
+12/27/05  - Major changes:
+            * Use slower but clearer Get/PutBitsInt for reading/writing bits.
+            * Replace mod with conditional Wrap macro.
+            * Allow hash table to change size with dictionary.
 
 TODO
 ----

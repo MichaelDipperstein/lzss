@@ -30,8 +30,12 @@
 *   11/07/04    Separated encode and decode functions for improved
 *               modularity.
 *
-*   $Id: lzdecode.c,v 1.2 2004/11/13 22:51:00 michael Exp $
+*   $Id: lzdecode.c,v 1.3 2005/12/28 06:03:30 michael Exp $
 *   $Log: lzdecode.c,v $
+*   Revision 1.3  2005/12/28 06:03:30  michael
+*   Use slower but clearer Get/PutBitsInt for reading/writing bits.
+*   Replace mod with conditional Wrap macro.
+*
 *   Revision 1.2  2004/11/13 22:51:00  michael
 *   Provide distinct names for by file and by name functions and add some
 *   comments to make their usage clearer.
@@ -112,7 +116,8 @@ int DecodeLZSSByFile(FILE *fpIn, FILE *fpOut)
 {
     bit_file_t *bfpIn;
 
-    int  i, c, nextChar;
+    int c;
+    unsigned int i, nextChar;
     encoded_string_t code;              /* offset/length code for string */
 
     if (fpIn == NULL)
@@ -137,10 +142,7 @@ int DecodeLZSSByFile(FILE *fpIn, FILE *fpOut)
     * use the same values.  If common characters are used, there's an
     * increased chance of matching to the earlier strings.
     ************************************************************************/
-    for (i = 0; i < WINDOW_SIZE; i++)
-    {
-        slidingWindow[i] = ' ';
-    }
+    memset(slidingWindow, ' ', WINDOW_SIZE * sizeof(unsigned char));
 
     nextChar = 0;
 
@@ -163,25 +165,27 @@ int DecodeLZSSByFile(FILE *fpIn, FILE *fpOut)
             /* write out byte and put it in sliding window */
             putc(c, fpOut);
             slidingWindow[nextChar] = c;
-            nextChar = (nextChar + 1) % WINDOW_SIZE;
+            nextChar = Wrap((nextChar + 1), WINDOW_SIZE);
         }
         else
         {
             /* offset and length */
-            if ((code.offset = BitFileGetChar(bfpIn)) == EOF)
+            code.offset = 0;
+            code.length = 0;
+
+            if ((BitFileGetBitsInt(bfpIn, &code.offset, OFFSET_BITS,
+                sizeof(unsigned int))) == EOF)
             {
                 break;
             }
 
-            if ((code.length = BitFileGetChar(bfpIn)) == EOF)
+            if ((BitFileGetBitsInt(bfpIn, &code.length, LENGTH_BITS,
+                sizeof(unsigned int))) == EOF)
             {
                 break;
             }
 
-            /* unpack offset and length */
-            code.offset <<= 4;
-            code.offset |= ((code.length & 0x00F0) >> 4);
-            code.length = (code.length & 0x000F) + MAX_UNCODED + 1;
+            code.length += MAX_UNCODED + 1;
 
             /****************************************************************
             * Write out decoded string to file and lookahead.  It would be
@@ -191,7 +195,7 @@ int DecodeLZSSByFile(FILE *fpIn, FILE *fpOut)
             ****************************************************************/
             for (i = 0; i < code.length; i++)
             {
-                c = slidingWindow[(code.offset + i) % WINDOW_SIZE];
+                c = slidingWindow[Wrap((code.offset + i), WINDOW_SIZE)];
                 putc(c, fpOut);
                 uncodedLookahead[i] = c;
             }
@@ -203,7 +207,7 @@ int DecodeLZSSByFile(FILE *fpIn, FILE *fpOut)
                     uncodedLookahead[i];
             }
 
-            nextChar = (nextChar + code.length) % WINDOW_SIZE;
+            nextChar = Wrap((nextChar + code.length), WINDOW_SIZE);
         }
     }
 

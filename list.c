@@ -10,8 +10,12 @@
 ****************************************************************************
 *   UPDATES
 *
-*   $Id: list.c,v 1.1 2004/02/22 17:24:02 michael Exp $
+*   $Id: list.c,v 1.2 2005/12/28 06:03:30 michael Exp $
 *   $Log: list.c,v $
+*   Revision 1.2  2005/12/28 06:03:30  michael
+*   Use slower but clearer Get/PutBitsInt for reading/writing bits.
+*   Replace mod with conditional Wrap macro.
+*
 *   Revision 1.1  2004/02/22 17:24:02  michael
 *   Initial revision of linked list search.  Mostly code from lzlist.c.
 *
@@ -75,7 +79,7 @@ unsigned int next[WINDOW_SIZE];             /* indices of next in list */
 ****************************************************************************/
 void InitializeSearchStructures()
 {
-    int i;
+    unsigned int i;
 
     for (i = 0; i < WINDOW_SIZE; i++)
     {
@@ -106,12 +110,13 @@ void InitializeSearchStructures()
 *                length of the match.  If there is no match a length of
 *                zero will be returned.
 ****************************************************************************/
-encoded_string_t FindMatch(int windowHead, int uncodedHead)
+encoded_string_t FindMatch(unsigned int windowHead, unsigned int uncodedHead)
 {
     encoded_string_t matchData;
-    int i, j;
+    unsigned int i, j;
 
     matchData.length = 0;
+    matchData.offset = 0;
     i = lists[uncodedLookahead[uncodedHead]];   /* start of proper list */
 
     while (i != NULL_INDEX)
@@ -119,8 +124,8 @@ encoded_string_t FindMatch(int windowHead, int uncodedHead)
         /* the list insures we matched one, how many more match? */
         j = 1;
 
-        while(slidingWindow[(i + j) % WINDOW_SIZE] ==
-            uncodedLookahead[(uncodedHead + j) % MAX_CODED])
+        while(slidingWindow[Wrap((i + j), WINDOW_SIZE)] ==
+            uncodedLookahead[Wrap((uncodedHead + j), MAX_CODED)])
         {
             if (j >= MAX_CODED)
             {
@@ -157,9 +162,9 @@ encoded_string_t FindMatch(int windowHead, int uncodedHead)
 *                appropriate linked list.
 *   Returned   : NONE
 ****************************************************************************/
-void AddChar(int charIndex)
+void AddChar(unsigned int charIndex)
 {
-    int i;
+    unsigned int i;
 
     /* inserted character will be at the end of the list */
     next[charIndex] = NULL_INDEX;
@@ -192,10 +197,10 @@ void AddChar(int charIndex)
 *                and the list is appropriately reconnected.
 *   Returned   : NONE
 ****************************************************************************/
-void RemoveChar(int charIndex)
+void RemoveChar(unsigned int charIndex)
 {
-    int i;
-    int nextIndex;
+    unsigned int i;
+    unsigned int nextIndex;
 
     nextIndex = next[charIndex];        /* remember where this points to */
     next[charIndex] = NULL_INDEX;
@@ -231,7 +236,7 @@ void RemoveChar(int charIndex)
 *                are removed and new ones are added.
 *   Returned   : None
 ****************************************************************************/
-void ReplaceChar(int charIndex, unsigned char replacement)
+void ReplaceChar(unsigned int charIndex, unsigned char replacement)
 {
     RemoveChar(charIndex);
     slidingWindow[charIndex] = replacement;

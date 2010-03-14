@@ -30,8 +30,12 @@
 *   11/07/04    Separated encode and decode functions for improved
 *               modularity.
 *
-*   $Id: lzencode.c,v 1.2 2004/11/13 22:51:00 michael Exp $
+*   $Id: lzencode.c,v 1.3 2005/12/28 06:03:30 michael Exp $
 *   $Log: lzencode.c,v $
+*   Revision 1.3  2005/12/28 06:03:30  michael
+*   Use slower but clearer Get/PutBitsInt for reading/writing bits.
+*   Replace mod with conditional Wrap macro.
+*
 *   Revision 1.2  2004/11/13 22:51:00  michael
 *   Provide distinct names for by file and by name functions and add some
 *   comments to make their usage clearer.
@@ -114,9 +118,11 @@ int EncodeLZSSByFile(FILE *fpIn, FILE *fpOut)
     bit_file_t *bfpOut;
 
     encoded_string_t matchData;
-    int i, c;
-    int len;                        /* length of string */
-    int windowHead, uncodedHead;    /* head of sliding window and lookahead */
+    unsigned int i, c;
+    unsigned int len;                       /* length of string */
+
+    /* head of sliding window and lookahead */
+    unsigned int windowHead, uncodedHead;
 
     /* use stdin if no input file */
     if (fpIn == NULL)
@@ -143,10 +149,7 @@ int EncodeLZSSByFile(FILE *fpIn, FILE *fpOut)
     * use the same values.  If common characters are used, there's an
     * increased chance of matching to the earlier strings.
     ************************************************************************/
-    for (i = 0; i < WINDOW_SIZE; i++)
-    {
-        slidingWindow[i] = ' ';
-    }
+    memset(slidingWindow, ' ', WINDOW_SIZE * sizeof(unsigned char));
 
     /************************************************************************
     * Copy MAX_CODED bytes from the input file into the uncoded lookahead
@@ -185,12 +188,17 @@ int EncodeLZSSByFile(FILE *fpIn, FILE *fpOut)
         }
         else
         {
+            unsigned int adjustedLen;
+
+            /* adjust the length of the match so minimun encoded len is 0*/
+            adjustedLen = matchData.length - (MAX_UNCODED + 1);
+
             /* match length > MAX_UNCODED.  Encode as offset and length. */
             BitFilePutBit(ENCODED, bfpOut);
-            BitFilePutChar((unsigned char)((matchData.offset & 0x0FFF) >> 4),
-                bfpOut);
-            BitFilePutChar((unsigned char)(((matchData.offset & 0x000F) << 4) |
-                (matchData.length - (MAX_UNCODED + 1))), bfpOut);
+            BitFilePutBitsInt(bfpOut, &matchData.offset, OFFSET_BITS,
+                sizeof(unsigned int));
+            BitFilePutBitsInt(bfpOut, &adjustedLen, LENGTH_BITS,
+                sizeof(unsigned int));
         }
 
         /********************************************************************
@@ -203,8 +211,8 @@ int EncodeLZSSByFile(FILE *fpIn, FILE *fpOut)
             /* add old byte into sliding window and new into lookahead */
             ReplaceChar(windowHead, uncodedLookahead[uncodedHead]);
             uncodedLookahead[uncodedHead] = c;
-            windowHead = (windowHead + 1) % WINDOW_SIZE;
-            uncodedHead = (uncodedHead + 1) % MAX_CODED;
+            windowHead = Wrap((windowHead + 1), WINDOW_SIZE);
+            uncodedHead = Wrap((uncodedHead + 1), MAX_CODED);
             i++;
         }
 
@@ -213,8 +221,8 @@ int EncodeLZSSByFile(FILE *fpIn, FILE *fpOut)
         {
             ReplaceChar(windowHead, uncodedLookahead[uncodedHead]);
             /* nothing to add to lookahead here */
-            windowHead = (windowHead + 1) % WINDOW_SIZE;
-            uncodedHead = (uncodedHead + 1) % MAX_CODED;
+            windowHead = Wrap((windowHead + 1), WINDOW_SIZE);
+            uncodedHead = Wrap((uncodedHead + 1), MAX_CODED);
             len--;
             i++;
         }
