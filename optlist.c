@@ -9,8 +9,11 @@
 ****************************************************************************
 *   HISTORY
 *
-*   $Id: optlist.c,v 1.1.1.2 2007/09/04 04:45:42 michael Exp $
+*   $Id: optlist.c,v 1.2 2008/12/25 05:33:28 michael Exp $
 *   $Log: optlist.c,v $
+*   Revision 1.2  2008/12/25 05:33:28  michael
+*   Add support for multiple options following a single dash ('-').
+*
 *   Revision 1.1.1.2  2007/09/04 04:45:42  michael
 *   Added FreeOptList.
 *
@@ -63,6 +66,7 @@
 *                               PROTOTYPES
 ***************************************************************************/
 option_t *MakeOpt(const char option, char *const argument, const int index);
+int MatchOpt(const char argument, char *const options);
 
 /***************************************************************************
 *                                FUNCTIONS
@@ -98,7 +102,7 @@ option_t *GetOptList(const int argc, char *const argv[], char *const options)
 {
     int nextArg;
     option_t *head, *tail;
-    int optIndex;
+    int optIndex, argIndex;
 
     /* start with first argument and nothing found */
     nextArg = 1;
@@ -108,24 +112,14 @@ option_t *GetOptList(const int argc, char *const argv[], char *const options)
     /* loop through all of the command line arguments */
     while (nextArg < argc)
     {
-        if ((strlen(argv[nextArg]) > 1) && ('-' == argv[nextArg][0]))
+        argIndex = 1;
+
+        while ((strlen(argv[nextArg]) > argIndex) && ('-' == argv[nextArg][0]))
         {
-            /* possible option */
-            optIndex = 0;
-
             /* attempt to find a matching option */
-            while ((options[optIndex] != '\0') &&
-                (options[optIndex] != argv[nextArg][1]))
-            {
-                do
-                {
-                    optIndex++;
-                }
-                while ((options[optIndex] != '\0') &&
-                    (':' == options[optIndex]));
-            }
+            optIndex = MatchOpt(argv[nextArg][argIndex], options);
 
-            if (options[optIndex] == argv[nextArg][1])
+            if (options[optIndex] == argv[nextArg][argIndex])
             {
                 /* we found the matching option */
                 if (NULL == head)
@@ -142,10 +136,12 @@ option_t *GetOptList(const int argc, char *const argv[], char *const options)
                 if (':' == options[optIndex + 1])
                 {
                     /* the option found should have a text arguement */
-                    if (strlen(argv[nextArg]) > 2)
+                    argIndex++;
+
+                    if (strlen(argv[nextArg]) > argIndex)
                     {
                         /* no space between argument and option */
-                        tail->argument = &(argv[nextArg][2]);
+                        tail->argument = &(argv[nextArg][argIndex]);
                         tail->argIndex = nextArg;
                     }
                     else if (nextArg < argc)
@@ -155,8 +151,12 @@ option_t *GetOptList(const int argc, char *const argv[], char *const options)
                         tail->argument = argv[nextArg];
                         tail->argIndex = nextArg;
                     }
+
+                    break; /* done with argv[nextArg] */
                 }
             }
+
+            argIndex++;
         }
 
         nextArg++;
@@ -225,4 +225,38 @@ void FreeOptList(option_t *list)
     }
 
     return;
+}
+
+/****************************************************************************
+*   Function   : MatchOpt
+*   Description: This function searches for an arguement in an option list.
+*                It will return the index to the option matching the
+*                arguement or the index to the NULL if none is found.
+*   Parameters : arguement - character arguement to be matched to an
+*                            option in the option list
+*                options - getopt style option list.  A NULL terminated
+*                          string of single character options.  Follow an
+*                          option with a colon to indicate that it requires
+*                          an argument.
+*   Effects    : None
+*   Returned   : Index of argument in option list.  Index of end of string
+*                if arguement does not appear in the option list.
+****************************************************************************/
+int MatchOpt(const char argument, char *const options)
+{
+    int optIndex = 0;
+
+    /* attempt to find a matching option */
+    while ((options[optIndex] != '\0') &&
+        (options[optIndex] != argument))
+    {
+        do
+        {
+            optIndex++;
+        }
+        while ((options[optIndex] != '\0') &&
+            (':' == options[optIndex]));
+    }
+
+    return optIndex;
 }

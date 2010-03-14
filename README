@@ -26,6 +26,9 @@ COPYING.LESSER  - Rules for copying and distributing LGPL software
 decomp.c        - Simple example of a decompression only program.
 hash.c          - File implementing hash table search for strings matching the
                   strings to be encoded.
+kmp.c           - File implementing the Knuth-Morris-Pratt string matching
+                  algorithm to search for strings matching the strings to be
+                  encoded.
 list.c          - File implementing linked list indexed search for strings
                   matching the strings to be encoded.
 lzlocal.h       - Header file defining interface to be used by files
@@ -112,10 +115,19 @@ HISTORY
 03/24/07  - Closes output file in EncodeLZSSByName and DecodeLZSSByName
 08/30/07  - Explicitly licensed under LGPL version 3.
           - Replaces getopt() with optlist library.
+02/11/10  - Added code that uses the Knuth-Morris-Pratt string matching
+            algorithm to search for string matches during the encoding process.
 
 TODO
 ----
-- Use suffix trees to search the sliding window.
+- Experiment with string matching techniques and data structures
+  - suffix trees
+  - suffix arrays
+  - multi-byte hash keys
+  - Boyer-Moore
+- Use a lazy encoding process.
+  - Defer writing a code word until it is determined that a longer match
+    isn't formed by adding the next symbols from the unecoded stream.
 
 AUTHOR
 ------

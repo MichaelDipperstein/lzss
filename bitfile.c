@@ -15,8 +15,18 @@
 ****************************************************************************
 *   UPDATES
 *
-*   $Id: bitfile.c,v 1.10 2007/08/26 21:53:48 michael Exp $
+*   $Id: bitfile.c,v 1.13 2008/09/15 04:10:20 michael Exp $
 *   $Log: bitfile.c,v $
+*   Revision 1.13  2008/09/15 04:10:20  michael
+*   Removed dead code.
+*
+*   Revision 1.12  2008/01/25 07:03:49  michael
+*   Added BitFileFlushOutput().
+*
+*   Revision 1.11  2007/12/30 23:55:30  michael
+*   Corrected errors in BitFileOpen and MakeBitFile reported by an anonymous
+*   user.  Segment faults may have occurred if fopen returned a NULL.
+*
 *   Revision 1.10  2007/08/26 21:53:48  michael
 *   Changes required for LGPL v3.
 *
@@ -170,6 +180,7 @@ bit_file_t *BitFileOpen(const char *fileName, const BF_MODES mode)
             bf->bitBuffer = 0;
             bf->bitCount = 0;
             bf->mode = mode;
+            bf->endian = DetermineEndianess();
 
             /***************************************************************
             *  TO DO: Consider using the last byte in a file to indicate
@@ -180,7 +191,6 @@ bit_file_t *BitFileOpen(const char *fileName, const BF_MODES mode)
         }
     }
 
-    bf->endian = DetermineEndianess();
     return (bf);
 }
 
@@ -224,10 +234,9 @@ bit_file_t *MakeBitFile(FILE *stream, const BF_MODES mode)
             bf->bitBuffer = 0;
             bf->bitCount = 0;
             bf->mode = mode;
+            bf->endian = DetermineEndianess();
         }
     }
-
-    bf->endian = DetermineEndianess();
 
     return (bf);
 }
@@ -360,8 +369,9 @@ FILE *BitFileToFILE(bit_file_t *stream)
 *                the bit buffer.
 *   Parameters : stream - pointer to bit file stream to align
 *   Effects    : Flushes out the bit buffer.
-*   Returned   : EOF if stream is NULL.  Otherwise, the contents of the
-*                bit buffer.
+*   Returned   : EOF if stream is NULL or write fails.  Writes return the
+*                byte aligned contents of the bit buffer.  Reads returns
+*                the unaligned contents of the bit buffer.
 ***************************************************************************/
 int BitFileByteAlign(bit_file_t *stream)
 {
@@ -382,6 +392,48 @@ int BitFileByteAlign(bit_file_t *stream)
             (stream->bitBuffer) <<= 8 - (stream->bitCount);
             fputc(stream->bitBuffer, stream->fp);   /* handle error? */
         }
+    }
+
+    stream->bitBuffer = 0;
+    stream->bitCount = 0;
+
+    return (returnValue);
+}
+
+/***************************************************************************
+*   Function   : BitFileFlushOutput
+*   Description: This function flushes the output bit buffer.  This means
+*                left justifying any pending bits, and filling spare bits
+*                with the fill value.
+*   Parameters : stream - pointer to bit file stream to align
+*                onesFill - non-zero if spare bits are filled with ones
+*   Effects    : Flushes out the bit buffer, filling spare bits with ones
+*                or zeros.
+*   Returned   : EOF if stream is NULL or not writeable.  Otherwise, the
+*                bit buffer value written. -1 if no data was written.
+***************************************************************************/
+int BitFileFlushOutput(bit_file_t *stream, const unsigned char onesFill)
+{
+    int returnValue;
+
+    if (stream == NULL)
+    {
+        return(EOF);
+    }
+
+    returnValue = -1;
+
+    /* write out any unwritten bits */
+    if (stream->bitCount != 0)
+    {
+        stream->bitBuffer <<= (8 - stream->bitCount);
+
+        if (onesFill)
+        {
+            stream->bitBuffer |= (0xFF >> stream->bitCount);
+        }
+
+        returnValue = fputc(stream->bitBuffer, stream->fp);
     }
 
     stream->bitBuffer = 0;
@@ -605,6 +657,7 @@ int BitFileGetBits(bit_file_t *stream, void *bits, const unsigned int count)
     {
         /* read remaining bits */
         shifts = 8 - remaining;
+        bytes[offset] = 0;
 
         while (remaining > 0)
         {
@@ -751,7 +804,7 @@ int BitFileGetBitsInt(bit_file_t *stream, void *bits, const unsigned int count,
 ***************************************************************************/
 int BitFileGetBitsLE(bit_file_t *stream, void *bits, const unsigned int count)
 {
-    unsigned char *bytes, shifts;
+    unsigned char *bytes;
     int offset, remaining, returnValue;
 
     bytes = (unsigned char *)bits;
@@ -777,8 +830,6 @@ int BitFileGetBitsLE(bit_file_t *stream, void *bits, const unsigned int count)
     if (remaining != 0)
     {
         /* read remaining bits */
-        shifts = 8 - remaining;
-
         while (remaining > 0)
         {
             returnValue = BitFileGetBit(stream);
@@ -817,7 +868,7 @@ int BitFileGetBitsLE(bit_file_t *stream, void *bits, const unsigned int count)
 int BitFileGetBitsBE(bit_file_t *stream, void *bits, const unsigned int count,
     const size_t size)
 {
-    unsigned char *bytes, shifts;
+    unsigned char *bytes;
     int offset, remaining, returnValue;
 
     if (count > (size * 8))
@@ -849,8 +900,6 @@ int BitFileGetBitsBE(bit_file_t *stream, void *bits, const unsigned int count,
     if (remaining != 0)
     {
         /* read remaining bits */
-        shifts = 8 - remaining;
-
         while (remaining > 0)
         {
             returnValue = BitFileGetBit(stream);

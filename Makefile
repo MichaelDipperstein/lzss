@@ -1,8 +1,11 @@
 ############################################################################
 # Makefile for lzss encode/decode library and sample program
 #
-#   $Id: Makefile,v 1.5 2007/09/20 04:34:45 michael Exp $
+#   $Id: Makefile,v 1.6 2010/02/12 05:18:41 michael Exp $
 #   $Log: Makefile,v $
+#   Revision 1.6  2010/02/12 05:18:41  michael
+#   Include implementation of the Knuth-Morris-Pratt search optimization.
+#
 #   Revision 1.5  2007/09/20 04:34:45  michael
 #   Replace getopt with optlist.
 #   Changes required for LGPL v3.
@@ -41,8 +44,13 @@ ifeq ($(OS),Windows_NT)
 endif
 
 ifeq ($(OS),Windows)
-	EXE = .exe
-	DEL = del
+	ifeq ($(OSTYPE), cygwin)
+		EXE = .exe
+		DEL = rm
+	else
+		EXE = .exe
+		DEL = del
+	endif
 else	#assume Linux/Unix
 	EXE =
 	DEL = rm
@@ -50,11 +58,13 @@ endif
 
 # define the method to be used for searching for matches (choose one)
 # brute force
-# FMOBJ = brute.o
+FMOBJ = brute.o
 # linked list
 # FMOBJ = list.o
 # hash table
-FMOBJ = hash.o
+# FMOBJ = hash.o
+# Knuth–Morris–Pratt search
+# FMOBJ = kmp.o
 
 LZOBJS = $(FMOBJ) lzencode.o lzdecode.o lzvars.o
 
@@ -79,10 +89,13 @@ lzdecode.o:	lzdecode.c lzlocal.h bitfile.h
 brute.o:	brute.c lzlocal.h
 		$(CC) $(CFLAGS) $<
 
-list.o:	        list.c lzlocal.h
+list.o:		list.c lzlocal.h
 		$(CC) $(CFLAGS) $<
 
-hash.o:	        hash.c lzlocal.h
+hash.o:		hash.c lzlocal.h
+		$(CC) $(CFLAGS) $<
+
+kmp.o:		kmp.c lzlocal.h
 		$(CC) $(CFLAGS) $<
 
 lzvars.o:	lzvars.c lzlocal.h
@@ -104,7 +117,7 @@ comp$(EXE):	comp.o $(FMOBJ) lzencode.o lzvars.o bitfile.o
 comp.o:		comp.c lzss.h
 		$(CC) $(CFLAGS) $<
 
-decomp$(EXE):	decomp.o lzdecode.o lzvars.o bitfile.o 
+decomp$(EXE):	decomp.o lzdecode.o lzvars.o bitfile.o
 		$(LD) $^ $(LDFLAGS) $@
 
 decomp.o:	decomp.c lzss.h
