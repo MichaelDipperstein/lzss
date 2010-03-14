@@ -9,8 +9,11 @@
 ****************************************************************************
 *   UPDATES
 *
-*   $Id: comp.c,v 1.1 2004/11/08 06:06:07 michael Exp $
+*   $Id: comp.c,v 1.2 2006/12/26 04:09:09 michael Exp $
 *   $Log: comp.c,v $
+*   Revision 1.2  2006/12/26 04:09:09  michael
+*   Updated e-mail address and minor text clean-up.
+*
 *   Revision 1.1  2004/11/08 06:06:07  michael
 *   Initial revision of super simple compression and decompression samples.
 *
@@ -18,7 +21,7 @@
 ****************************************************************************
 *
 * COMP: Super simple sample demonstraiting use of LZSS compression routine.
-* Copyright (C) 2004 by Michael Dipperstein (mdipper@cs.ucsb.edu)
+* Copyright (C) 2004 by Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public
@@ -63,7 +66,7 @@ int main(int argc, char *argv[])
         printf("Invalid arguments\n");
         printf("Correct format:\n");
         printf("%s <compressed file> <decompressed file>\n", argv[0]);
-        
+
         return 0;
     }
 

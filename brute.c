@@ -10,8 +10,11 @@
 ****************************************************************************
 *   UPDATES
 *
-*   $Id: brute.c,v 1.2 2005/12/28 06:03:30 michael Exp $
+*   $Id: brute.c,v 1.3 2006/12/26 04:09:09 michael Exp $
 *   $Log: brute.c,v $
+*   Revision 1.3  2006/12/26 04:09:09  michael
+*   Updated e-mail address and minor text clean-up.
+*
 *   Revision 1.2  2005/12/28 06:03:30  michael
 *   Use slower but clearer Get/PutBitsInt for reading/writing bits.
 *   Replace mod with conditional Wrap macro.
@@ -24,7 +27,7 @@
 *
 * Brute: Brute force matching routines used by LZSS Encoding/Decoding
 *        Routine
-* Copyright (C) 2004 by Michael Dipperstein (mdipper@cs.ucsb.edu)
+* Copyright (C) 2004 by Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public
@@ -106,7 +109,7 @@ encoded_string_t FindMatch(unsigned int windowHead, unsigned int uncodedHead)
                     break;
                 }
                 j++;
-            };
+            }
 
             if (j > matchData.length)
             {
@@ -136,13 +139,10 @@ encoded_string_t FindMatch(unsigned int windowHead, unsigned int uncodedHead)
 *   Function   : ReplaceChar
 *   Description: This function replaces the character stored in
 *                slidingWindow[charIndex] with the one specified by
-*                replacement.  The hash table entries effected by the
-*                replacement are also corrected.
+*                replacement.
 *   Parameters : charIndex - sliding window index of the character to be
 *                            removed from the linked list.
-*   Effects    : slidingWindow[charIndex] is replaced by replacement.  Old
-*                hash entries for strings containing slidingWindow[charIndex]
-*                are removed and new ones are added.
+*   Effects    : slidingWindow[charIndex] is replaced by replacement.
 *   Returned   : None
 ****************************************************************************/
 void ReplaceChar(unsigned int charIndex, unsigned char replacement)

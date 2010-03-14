@@ -11,8 +11,11 @@
 ****************************************************************************
 *   UPDATES
 *
-*   $Id: lzlocal.h,v 1.3 2005/12/28 05:58:52 michael Exp $
+*   $Id: lzlocal.h,v 1.4 2006/12/26 04:09:09 michael Exp $
 *   $Log: lzlocal.h,v $
+*   Revision 1.4  2006/12/26 04:09:09  michael
+*   Updated e-mail address and minor text clean-up.
+*
 *   Revision 1.3  2005/12/28 05:58:52  michael
 *   Add Wrap macro to replace mod when value is less than twice the limit.
 *
@@ -28,7 +31,7 @@
 ****************************************************************************
 *
 * LZSS: An ANSI C LZSS Encoding/Decoding Routine
-* Copyright (C) 2004 by Michael Dipperstein (mdipper@cs.ucsb.edu)
+* Copyright (C) 2004 by Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public

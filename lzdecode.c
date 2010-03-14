@@ -30,8 +30,15 @@
 *   11/07/04    Separated encode and decode functions for improved
 *               modularity.
 *
-*   $Id: lzdecode.c,v 1.3 2005/12/28 06:03:30 michael Exp $
+*   $Id: lzdecode.c,v 1.5 2006/12/26 04:09:09 michael Exp $
 *   $Log: lzdecode.c,v $
+*   Revision 1.5  2006/12/26 04:09:09  michael
+*   Updated e-mail address and minor text clean-up.
+*
+*   Revision 1.4  2006/12/26 02:05:00  michael
+*   Corrected bug identified by Andrej Sinicyn which resulted in stdin being
+*   used as the default output for decoded data.
+*
 *   Revision 1.3  2005/12/28 06:03:30  michael
 *   Use slower but clearer Get/PutBitsInt for reading/writing bits.
 *   Replace mod with conditional Wrap macro.
@@ -50,7 +57,7 @@
 ****************************************************************************
 *
 * LZDecode: An ANSI C LZSS Decoding Routines
-* Copyright (C) 2003-2004 by Michael Dipperstein (mdipper@cs.ucsb.edu)
+* Copyright (C) 2003-2004 by Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public
@@ -132,7 +139,7 @@ int DecodeLZSSByFile(FILE *fpIn, FILE *fpOut)
     }
 
     /* use stdout if no output file */
-    if (fpIn == NULL)
+    if (fpOut == NULL)
     {
         fpOut = stdout;
     }

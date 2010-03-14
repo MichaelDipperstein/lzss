@@ -3,7 +3,7 @@
 *
 *   File    : lzdecode.c
 *   Purpose : Use lzss coding (Storer and Szymanski's modified LZ77) to
-*             decompress lzss  encoded files.
+*             compress lzss data files.
 *   Author  : Michael Dipperstein
 *   Date    : November 07, 2004
 *
@@ -30,8 +30,11 @@
 *   11/07/04    Separated encode and decode functions for improved
 *               modularity.
 *
-*   $Id: lzencode.c,v 1.3 2005/12/28 06:03:30 michael Exp $
+*   $Id: lzencode.c,v 1.4 2006/12/26 04:09:09 michael Exp $
 *   $Log: lzencode.c,v $
+*   Revision 1.4  2006/12/26 04:09:09  michael
+*   Updated e-mail address and minor text clean-up.
+*
 *   Revision 1.3  2005/12/28 06:03:30  michael
 *   Use slower but clearer Get/PutBitsInt for reading/writing bits.
 *   Replace mod with conditional Wrap macro.
@@ -50,7 +53,7 @@
 ****************************************************************************
 *
 * LZEncode: An ANSI C LZSS Encoding Routines
-* Copyright (C) 2003-2004 by Michael Dipperstein (mdipper@cs.ucsb.edu)
+* Copyright (C) 2003-2004 by Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public
@@ -183,7 +186,7 @@ int EncodeLZSSByFile(FILE *fpIn, FILE *fpOut)
             /* not long enough match.  write uncoded flag and character */
             BitFilePutBit(UNCODED, bfpOut);
             BitFilePutChar(uncodedLookahead[uncodedHead], bfpOut);
-            
+
             matchData.length = 1;   /* set to 1 for 1 byte uncoded */
         }
         else

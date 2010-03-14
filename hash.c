@@ -9,8 +9,11 @@
 *
 ****************************************************************************
 *   UPDATES
-*   $Id: hash.c,v 1.5 2005/12/29 14:37:56 michael Exp $
+*   $Id: hash.c,v 1.6 2006/12/26 04:09:09 michael Exp $
 *   $Log: hash.c,v $
+*   Revision 1.6  2006/12/26 04:09:09  michael
+*   Updated e-mail address and minor text clean-up.
+*
 *   Revision 1.5  2005/12/29 14:37:56  michael
 *   Remove debug statements.
 *
@@ -32,7 +35,7 @@
 *
 * Hash: Hash table optimized matching routines used by LZSS
 *       Encoding/Decoding Routine
-* Copyright (C) 2004 by Michael Dipperstein (mdipper@cs.ucsb.edu)
+* Copyright (C) 2004 by Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public
@@ -139,7 +142,7 @@ unsigned int HashKey(unsigned int offset, unsigned char lookahead)
 *                sliding window.  For hashed searches, this means that a
 *                hash table pointing to linked lists is initialized.
 *   Parameters : None
-*   Effects    : None
+*   Effects    : The hash table and next array are initialized.
 *   Returned   : None
 *
 *   NOTE: This function assumes that the sliding window is initially filled
@@ -150,9 +153,9 @@ void InitializeSearchStructures()
     unsigned int i;
 
     /************************************************************************
-    * Since the encode routine only fills the sliding window one character,
-    * there is only one hash key for the entier sliding window.  That means
-    * all positions are in the same linked list.
+    * Since the encode routine only fills the sliding window with one
+    * character, there is only one hash key for the entier sliding window.
+    * That means all positions are in the same linked list.
     ************************************************************************/
     for (i = 0; i < (WINDOW_SIZE - 1); i++)
     {
@@ -208,7 +211,7 @@ encoded_string_t FindMatch(unsigned int windowHead, unsigned int uncodedHead)
                     break;
                 }
                 j++;
-            };
+            }
 
             if (j > matchData.length)
             {

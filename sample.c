@@ -12,10 +12,13 @@
 *   Revision 1.1  2004/02/22 17:36:30  michael
 *   Initial revision.  Mostly code form old lzss.c.
 *
-*   11/07/04	Name changed to sample.c
+*   11/07/04    Name changed to sample.c
 *
-*   $Id: sample.c,v 1.3 2004/11/13 22:51:01 michael Exp $
+*   $Id: sample.c,v 1.4 2006/12/26 04:09:09 michael Exp $
 *   $Log: sample.c,v $
+*   Revision 1.4  2006/12/26 04:09:09  michael
+*   Updated e-mail address and minor text clean-up.
+*
 *   Revision 1.3  2004/11/13 22:51:01  michael
 *   Provide distinct names for by file and by name functions and add some
 *   comments to make their usage clearer.
@@ -32,7 +35,7 @@
 ****************************************************************************
 *
 * SAMPLE: Sample usage of LZSS Library
-* Copyright (C) 2004 by Michael Dipperstein (mdipper@cs.ucsb.edu)
+* Copyright (C) 2004 by Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public

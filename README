@@ -105,6 +105,8 @@ HISTORY
             * Use slower but clearer Get/PutBitsInt for reading/writing bits.
             * Replace mod with conditional Wrap macro.
             * Allow hash table to change size with dictionary.
+12/25/06  - Corrected bug in allocation of default decode output.
+          - Minor comment corrections
 
 TODO
 ----
@@ -112,4 +114,4 @@ TODO
 
 AUTHOR
 ------
-Michael Dipperstein (mdipper@cs.ucsb.edu)
+Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)

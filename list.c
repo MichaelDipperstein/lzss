@@ -10,8 +10,11 @@
 ****************************************************************************
 *   UPDATES
 *
-*   $Id: list.c,v 1.2 2005/12/28 06:03:30 michael Exp $
+*   $Id: list.c,v 1.3 2006/12/26 04:09:09 michael Exp $
 *   $Log: list.c,v $
+*   Revision 1.3  2006/12/26 04:09:09  michael
+*   Updated e-mail address and minor text clean-up.
+*
 *   Revision 1.2  2005/12/28 06:03:30  michael
 *   Use slower but clearer Get/PutBitsInt for reading/writing bits.
 *   Replace mod with conditional Wrap macro.
@@ -24,7 +27,7 @@
 *
 * List: Linked list optimized matching routines used by LZSS
 *       Encoding/Decoding Routine
-* Copyright (C) 2004 by Michael Dipperstein (mdipper@cs.ucsb.edu)
+* Copyright (C) 2004 by Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public
@@ -71,7 +74,7 @@ unsigned int next[WINDOW_SIZE];             /* indices of next in list */
 *                means that linked lists of strings all starting with
 *                the same character are initialized.
 *   Parameters : None
-*   Effects    : None
+*   Effects    : Initializes lists and next array
 *   Returned   : None
 *
 *   NOTE: This function assumes that the sliding window is initially filled
@@ -132,7 +135,7 @@ encoded_string_t FindMatch(unsigned int windowHead, unsigned int uncodedHead)
                 break;
             }
             j++;
-        };
+        }
 
         if (j > matchData.length)
         {
@@ -214,6 +217,7 @@ void RemoveChar(unsigned int charIndex)
 
     /* find character pointing to ours */
     i = lists[slidingWindow[charIndex]];
+
     while(next[i] != charIndex)
     {
         i = next[i];
@@ -227,12 +231,12 @@ void RemoveChar(unsigned int charIndex)
 *   Function   : ReplaceChar
 *   Description: This function replaces the character stored in
 *                slidingWindow[charIndex] with the one specified by
-*                replacement.  The hash table entries effected by the
+*                replacement.  The linked list entries effected by the
 *                replacement are also corrected.
 *   Parameters : charIndex - sliding window index of the character to be
 *                            removed from the linked list.
 *   Effects    : slidingWindow[charIndex] is replaced by replacement.  Old
-*                hash entries for strings containing slidingWindow[charIndex]
+*                list entries for strings containing slidingWindow[charIndex]
 *                are removed and new ones are added.
 *   Returned   : None
 ****************************************************************************/

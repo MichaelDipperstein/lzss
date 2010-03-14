@@ -10,8 +10,11 @@
 ****************************************************************************
 *   UPDATES
 *
-*   $Id: lzvars.c,v 1.1 2004/11/08 05:54:18 michael Exp $
+*   $Id: lzvars.c,v 1.2 2006/12/26 04:09:09 michael Exp $
 *   $Log: lzvars.c,v $
+*   Revision 1.2  2006/12/26 04:09:09  michael
+*   Updated e-mail address and minor text clean-up.
+*
 *   Revision 1.1  2004/11/08 05:54:18  michael
 *   1. Split encode and decode routines for smarter linking
 *   2. Renamed lzsample.c sample.c to match my other samples
@@ -21,7 +24,7 @@
 ****************************************************************************
 *
 * LZvars: Global variables used in ANSI C LZSS Encoding/Decoding Routines
-* Copyright (C) 2002-2004 by Michael Dipperstein (mdipper@cs.ucsb.edu)
+* Copyright (C) 2002-2004 by Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public

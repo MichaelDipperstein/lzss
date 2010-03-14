@@ -11,8 +11,11 @@
 ****************************************************************************
 *   UPDATES
 *
-*   $Id: lzss.h,v 1.3 2004/11/13 22:51:00 michael Exp $
+*   $Id: lzss.h,v 1.4 2006/12/26 04:09:09 michael Exp $
 *   $Log: lzss.h,v $
+*   Revision 1.4  2006/12/26 04:09:09  michael
+*   Updated e-mail address and minor text clean-up.
+*
 *   Revision 1.3  2004/11/13 22:51:00  michael
 *   Provide distinct names for by file and by name functions and add some
 *   comments to make their usage clearer.
@@ -29,7 +32,7 @@
 ****************************************************************************
 *
 * LZSS: An ANSI C LZSS Encoding/Decoding Routine
-* Copyright (C) 2004 by Michael Dipperstein (mdipper@cs.ucsb.edu)
+* Copyright (C) 2004 by Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public
