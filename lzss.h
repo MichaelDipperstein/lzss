@@ -11,8 +11,17 @@
 ****************************************************************************
 *   UPDATES
 *
-*   $Id: lzss.h,v 1.1 2004/02/22 17:37:50 michael Exp $
+*   $Id: lzss.h,v 1.3 2004/11/13 22:51:00 michael Exp $
 *   $Log: lzss.h,v $
+*   Revision 1.3  2004/11/13 22:51:00  michael
+*   Provide distinct names for by file and by name functions and add some
+*   comments to make their usage clearer.
+*
+*   Revision 1.2  2004/11/08 05:54:18  michael
+*   1. Split encode and decode routines for smarter linking
+*   2. Renamed lzsample.c sample.c to match my other samples
+*   3. Makefile now builds code as libraries for better LGPL compliance.
+*
 *   Revision 1.1  2004/02/22 17:37:50  michael
 *   Initial revision of headers for encode and decode routines.
 *
@@ -41,9 +50,39 @@
 #define _LZSS_H
 
 /***************************************************************************
+*                             INCLUDED FILES
+***************************************************************************/
+#include <stdio.h>
+
+/***************************************************************************
+*                                 MACROS
+***************************************************************************/
+/* macros for compatibility with older library */
+#define EncodeLZSS(in, out)     EncodeLZSSByName((in), (out))
+#define DecodeLZSS(in, out)     DecodeLZSSByName((in), (out))
+
+/***************************************************************************
 *                               PROTOTYPES
 ***************************************************************************/
-void EncodeLZSS(char *inFile, char *outFile);
-void DecodeLZSS(char *inFile, char *outFile);
+/***************************************************************************
+* LZSS encoding and decoding prototypes for functions with file name
+* parameters.  Provide these functions with name of the file to be
+* encoded/decoded (inFile) and the name of the target file (outFile).
+* These functions return EXIT_SUCCESS or EXIT_FAILURE.
+***************************************************************************/
+int EncodeLZSSByName(char *inFile, char *outFile);
+int DecodeLZSSByName(char *inFile, char *outFile);
+
+/***************************************************************************
+* LZSS encoding and decoding prototypes for functions with file pointer
+* parameters.  Provide these functions with a pointer to the open binary
+* file to be encoded/decoded (fpIn) and pointer to the open binary target
+* file (fpOut).  It is the job of the function caller to open the files
+* prior to callings these functions and to close the file after these
+* functions have been called.
+* These functions return EXIT_SUCCESS or EXIT_FAILURE.
+***************************************************************************/
+int EncodeLZSSByFile(FILE *fpIn, FILE *fpOut);
+int DecodeLZSSByFile(FILE *fpIn, FILE *fpOut);
 
 #endif      /* ndef _LZSS_H */

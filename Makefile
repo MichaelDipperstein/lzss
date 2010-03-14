@@ -1,8 +1,13 @@
 ############################################################################
 # Makefile for lzss encode/decode library and sample program
 #
-#   $Id: Makefile,v 1.2 2004/02/22 17:12:41 michael Exp $
+#   $Id: Makefile,v 1.3 2004/11/08 05:54:18 michael Exp $
 #   $Log: Makefile,v $
+#   Revision 1.3  2004/11/08 05:54:18  michael
+#   1. Split encode and decode routines for smarter linking
+#   2. Renamed lzsample.c sample.c to match my other samples
+#   3. Makefile now builds code as libraries for better LGPL compliance.
+#
 #   Revision 1.2  2004/02/22 17:12:41  michael
 #   - Separated encode/decode, match finding, and main.
 #   - Use bitfiles for reading/writing files
@@ -17,8 +22,11 @@
 ############################################################################
 CC = gcc
 LD = gcc
-CFLAGS = -O2 -Wall -ansi -c
-LDFLAGS = -O2 -o
+CFLAGS = -I. -O3 -Wall -ansi -c
+LDFLAGS = -O3 -o
+
+# libraries
+LIBS = -L. -llzss -lgetopt
 
 # Treat NT and non-NT windows the same
 ifeq ($(OS),Windows_NT)
@@ -35,21 +43,30 @@ endif
 
 # define the method to be used for searching for matches (choose one)
 # brute force
-FMOBJ = brute.o
+# FMOBJ = brute.o
 # linked list
 # FMOBJ = list.o
 # hash table
-# FMOBJ = hash.o
+FMOBJ = hash.o
 
-all:		lzsample$(EXE)
+LZOBJS = $(FMOBJ) lzencode.o lzdecode.o lzvars.o
 
-lzsample$(EXE):	lzsample.o lzss.o bitfile.o getopt.o $(FMOBJ)
-		$(LD) $^ $(LDFLAGS) $@
+all:		sample$(EXE) liblzss.a libgetopt.a
 
-lzsample.o:	lzsample.c lzss.h getopt.h
+sample$(EXE):	sample.o liblzss.a libgetopt.a
+		$(LD) $< $(LIBS) $(LDFLAGS) $@
+
+sample.o:	sample.c lzss.h getopt.h
 		$(CC) $(CFLAGS) $<
 
-lzss.o:		lzss.c lzlocal.h bitfile.h
+liblzss.a:	$(LZOBJS) bitfile.o
+		ar crv liblzss.a $(LZOBJS) bitfile.o
+		ranlib liblzss.a
+
+lzencode.o:	lzencode.c lzlocal.h bitfile.h
+		$(CC) $(CFLAGS) $<
+
+lzdecode.o:	lzdecode.c lzlocal.h bitfile.h
 		$(CC) $(CFLAGS) $<
 
 brute.o:	brute.c lzlocal.h
@@ -61,12 +78,32 @@ list.o:	        list.c lzlocal.h
 hash.o:	        hash.c lzlocal.h
 		$(CC) $(CFLAGS) $<
 
-getopt.o:	getopt.c getopt.h
+lzvars.o:	lzvars.c lzlocal.h
 		$(CC) $(CFLAGS) $<
 
 bitfile.o:	bitfile.c bitfile.h
 		$(CC) $(CFLAGS) $<
 
+libgetopt.a:	getopt.o
+		ar crv libgetopt.a getopt.o
+		ranlib libgetopt.a
+
+getopt.o:	getopt.c getopt.h
+		$(CC) $(CFLAGS) $<
+
+comp$(EXE):	comp.o $(FMOBJ) lzencode.o lzvars.o bitfile.o
+		$(LD) $^ $(LDFLAGS) $@
+
+comp.o:		comp.c lzss.h
+		$(CC) $(CFLAGS) $<
+
+decomp$(EXE):	decomp.o lzdecode.o lzvars.o bitfile.o 
+		$(LD) $^ $(LDFLAGS) $@
+
+decomp.o:	decomp.c lzss.h
+		$(CC) $(CFLAGS) $<
+
 clean:
 		$(DEL) *.o
-		$(DEL) lzsample$(EXE)
+		$(DEL) *.a
+		$(DEL) sample$(EXE)

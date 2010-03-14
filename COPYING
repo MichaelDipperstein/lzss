@@ -1,5 +1,5 @@
-Huffman: Simple LZSS Encoding and Decoding Routines
-Copyright (C) 2003 by Michael Dipperstein (mdipper@cs.ucsb.edu)
+LZSS: Simple LZSS Encoding and Decoding Library
+Copyright (C) 2003-2003 by Michael Dipperstein (mdipper@cs.ucsb.edu)
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public

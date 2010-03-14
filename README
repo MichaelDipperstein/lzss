@@ -19,6 +19,8 @@ bitfile.c       - Library to allow bitwise reading and writing of files.
 bitfile.h       - Header for bitfile library.
 brute.c         - File implementing brute force search for strings matching the
                   strings to be encoded.
+comp.c          - Simple example of a compression only program.
+decomp.c        - Simple example of a decompression only program.
 getopt.c        - LGPL version of getopt source from GNU project
 getopt.h        - LGPL version of getopt headers from GNU project
 hash.c          - File implementing hash table search for strings matching the
@@ -29,22 +31,32 @@ list.c          - File implementing linked list indexed search for strings
 lzlocal.h       - Header file defining interface to be used by files
                   implementing searches for strings matching strings to be
                   encoded.
-lzsample.c      - Sample program demonstrating usage of encode and decode
-                  routines.
-lzss.c          - LZSS encoding/decoding source
+lzdecode.c      - LZSS decoding source
+lzencode.c      - LZSS encoding source
 lzss.h          - LZSS encoding/decoding header files
+lzvars.c        - Variables used by both lzencode and lzdecode
 Makefile        - makefile for this project (assumes gcc compiler and GNU make)
 README          - this file
+sample.c        - Sample program demonstrating usage of encode and decode
+                  routines.
 
 BUILDING
 --------
-To build these files with GNU make and gcc, simply enter "make" from the
-command line.  Edit the variable FMOBJ to choose the version of find match
-which will be used.
+To build these files with GNU make and gcc:
+1. Edit the variable FMOBJ to choose the version of find match which
+   will be used.
+2. Windows users should define the environment variable OS to be Windows or
+   Windows_NT.  This is often already done.
+3. Enter the command "make" from the command line.
+
+
+The sample programs comp and decomp are not built by default.  To build these
+programs on Unix/Linux use the commands "make comp" and "make decomp".  Windows
+users should use the commands "make comp.exe" and "make decomp.exe"
 
 USAGE
 -----
-Usage: lzsample <options>
+Usage: sample <options>
 
 options:
   -c : Encode input file to output file.
@@ -79,6 +91,14 @@ HISTORY
             * Use traditional LZSS encoding where the coded/uncoded bits
               precede the symbol they are associated with, rather than
               aggregating the bits.
+11/08/04  - Major changes:
+            * Split encode and decode routines for to allow for separate
+              linking (see comp.c and decomp.c)
+            * Makefile now builds code as libraries.  This should make LGPL
+              compliance a bit easier.
+            * Upgraded to latest bitfile library.
+            * Add the option to pass compression/decompression routines file
+              pointers instead of file names.
 
 TODO
 ----

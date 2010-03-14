@@ -10,6 +10,14 @@
 *   Date    : December 11, 2003
 *
 ****************************************************************************
+*   UPDATES
+*   $Id: lzlist.c,v 1.1.1.1 2004/01/21 06:25:49 michael Exp $
+*   $Log: lzlist.c,v $
+*   Revision 1.1.1.1  2004/01/21 06:25:49  michael
+*   Initial version
+*
+*
+****************************************************************************
 *
 * LZLIST: An ANSI C LZss Encoding/Decoding Routine
 * Copyright (C) 2003 by Michael Dipperstein (mdipper@cs.ucsb.edu)

@@ -15,8 +15,15 @@
 ****************************************************************************
 *   UPDATES
 *
-*   $Id: bitfile.c,v 1.1.1.1 2004/02/09 05:31:42 michael Exp $
+*   $Id: bitfile.c,v 1.3 2004/11/09 14:16:58 michael Exp $
 *   $Log: bitfile.c,v $
+*   Revision 1.3  2004/11/09 14:16:58  michael
+*   Added functions to convert open bit_file_t to FILE and to
+*   align open bit_file_t to the next byte.
+*
+*   Revision 1.2  2004/06/15 13:15:58  michael
+*   Use incomplete type to hide definition of bitfile structure
+*
 *   Revision 1.1.1.1  2004/02/09 05:31:42  michael
 *   Initial release
 *
@@ -48,6 +55,18 @@
 #include <stdlib.h>
 #include <errno.h>
 #include "bitfile.h"
+
+/***************************************************************************
+*                            TYPE DEFINITIONS
+***************************************************************************/
+
+struct bit_file_t
+{
+    FILE *fp;                   /* file pointer used by stdio functions */
+    unsigned char bitBuffer;    /* bits waiting to be read/written */
+    unsigned char bitCount;     /* number of bits in bitBuffer */
+    BF_MODES mode;              /* open for read, write, or append */
+};
 
 /***************************************************************************
 *                                FUNCTIONS
@@ -195,6 +214,86 @@ int BitFileClose(bit_file_t *stream)
     free(stream);
 
     return(returnValue);
+}
+
+/***************************************************************************
+*   Function   : BitFileToFILE
+*   Description: This function flushes and frees the bitfile structure,
+*                returning a pointer to a stdio file.
+*   Parameters : stream - pointer to bit file stream being closed
+*   Effects    : The specified bitfile will be made useable as a stdio
+*                FILE.
+*   Returned   : Pointer to FILE.  NULL for failure.
+***************************************************************************/
+FILE *BitFileToFILE(bit_file_t *stream)
+{
+    FILE *fp = NULL;
+
+    if (stream == NULL)
+    {
+        return(NULL);
+    }
+
+    if ((stream->mode == BF_WRITE) || (stream->mode == BF_APPEND))
+    {
+        /* write out any unwritten bits */
+        if (stream->bitCount != 0)
+        {
+            (stream->bitBuffer) <<= 8 - (stream->bitCount);
+            fputc(stream->bitBuffer, stream->fp);   /* handle error? */
+        }
+    }
+
+    /***********************************************************************
+    *  TO DO: Consider writing an additional byte indicating the number of
+    *  valid bits (bitCount) in the previous byte.
+    ***********************************************************************/
+
+    /* close file */
+    fp = stream->fp;
+
+    /* free memory allocated for bit file */
+    free(stream);
+
+    return(fp);
+}
+
+/***************************************************************************
+*   Function   : BitFileByteAlign
+*   Description: This function aligns the bitfile to the nearest byte.  For
+*                output files, this means writing out the bit buffer with
+*                extra bits set to 0.  For input files, this means flushing
+*                the bit buffer.
+*   Parameters : stream - pointer to bit file stream to align
+*   Effects    : Flushes out the bit buffer.
+*   Returned   : EOF if stream is NULL.  Otherwise, the contents of the
+*                biy buffer.
+***************************************************************************/
+int BitFileByteAlign(bit_file_t *stream)
+{
+    int returnValue;
+
+    if (stream == NULL)
+    {
+        return(EOF);
+    }
+
+    returnValue = stream->bitBuffer;
+
+    if ((stream->mode == BF_WRITE) || (stream->mode == BF_APPEND))
+    {
+        /* write out any unwritten bits */
+        if (stream->bitCount != 0)
+        {
+            (stream->bitBuffer) <<= 8 - (stream->bitCount);
+            fputc(stream->bitBuffer, stream->fp);   /* handle error? */
+        }
+    }
+
+    stream->bitBuffer = 0;
+    stream->bitCount = 0;
+
+    return (returnValue);
 }
 
 /***************************************************************************

@@ -1,31 +1,27 @@
 /***************************************************************************
-*          Lempel, Ziv, Storer, and Szymanski Encoding and Decoding
+*            Lempel, Ziv, Storer, and Szymanski Global Variables
 *
-*   File    : lzlocal.h
-*   Purpose : Internal headers for LZSS encode and decode routines.
-*             Contains the prototypes to be used by the different match
-*             finding algorithms.
+*   File    : lzvars.c
+*   Purpose : Declare global variables used lzss coding
+*             compress/decompress files.
 *   Author  : Michael Dipperstein
-*   Date    : February 18, 2004
+*   Date    : November 07, 2003
 *
 ****************************************************************************
 *   UPDATES
 *
-*   $Id: lzlocal.h,v 1.2 2004/11/08 05:54:18 michael Exp $
-*   $Log: lzlocal.h,v $
-*   Revision 1.2  2004/11/08 05:54:18  michael
+*   $Id: lzvars.c,v 1.1 2004/11/08 05:54:18 michael Exp $
+*   $Log: lzvars.c,v $
+*   Revision 1.1  2004/11/08 05:54:18  michael
 *   1. Split encode and decode routines for smarter linking
 *   2. Renamed lzsample.c sample.c to match my other samples
 *   3. Makefile now builds code as libraries for better LGPL compliance.
 *
-*   Revision 1.1  2004/02/22 17:32:40  michael
-*   Initial revision of header files for sliding window search implementations.
-*
 *
 ****************************************************************************
 *
-* LZSS: An ANSI C LZSS Encoding/Decoding Routine
-* Copyright (C) 2004 by Michael Dipperstein (mdipper@cs.ucsb.edu)
+* LZvars: Global variables used in ANSI C LZSS Encoding/Decoding Routines
+* Copyright (C) 2002-2004 by Michael Dipperstein (mdipper@cs.ucsb.edu)
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public
@@ -42,41 +38,31 @@
 * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 *
 ***************************************************************************/
-#ifndef _LZSS_LOCAL_H
-#define _LZSS_LOCAL_H
+
+/***************************************************************************
+*                             INCLUDED FILES
+***************************************************************************/
+#include "lzlocal.h"
 
 /***************************************************************************
 *                            TYPE DEFINITIONS
 ***************************************************************************/
-/* unpacked encoded offset and length, gets packed into 12 bits and 4 bits*/
-typedef struct encoded_string_t
-{
-    int offset;     /* offset to start of longest match */
-    int length;     /* length of longest match */
-} encoded_string_t;
 
 /***************************************************************************
 *                                CONSTANTS
 ***************************************************************************/
-#define FALSE   0
-#define TRUE    1
 
-#define WINDOW_SIZE     4096   /* size of sliding window (12 bits) */
-
-/* maximum match length not encoded and encoded (4 bits) */
-#define MAX_UNCODED     2
-#define MAX_CODED       (15 + MAX_UNCODED + 1)
-
-#define ENCODED     0       /* encoded string */
-#define UNCODED     1       /* unencoded character */
+/***************************************************************************
+*                            GLOBAL VARIABLES
+***************************************************************************/
+/* cyclic buffer sliding window of already read characters */
+unsigned char slidingWindow[WINDOW_SIZE];
+unsigned char uncodedLookahead[MAX_CODED];
 
 /***************************************************************************
 *                               PROTOTYPES
 ***************************************************************************/
-void InitializeSearchStructures(void);
 
-encoded_string_t FindMatch(int windowHead, int uncodedHead);
-
-void ReplaceChar(int charIndex, unsigned char replacement);
-
-#endif      /* ndef _LZSS_LOCAL_H */
+/***************************************************************************
+*                                FUNCTIONS
+***************************************************************************/
