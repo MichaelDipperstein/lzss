@@ -65,6 +65,8 @@ FMOBJ = brute.o
 # FMOBJ = hash.o
 # Knuth–Morris–Pratt search
 # FMOBJ = kmp.o
+# binary tree
+# FMOBJ = tree.o
 
 LZOBJS = $(FMOBJ) lzencode.o lzdecode.o lzvars.o
 
@@ -96,6 +98,9 @@ hash.o:		hash.c lzlocal.h
 		$(CC) $(CFLAGS) $<
 
 kmp.o:		kmp.c lzlocal.h
+		$(CC) $(CFLAGS) $<
+
+tree.o:		tree.c lzlocal.h
 		$(CC) $(CFLAGS) $<
 
 lzvars.o:	lzvars.c lzlocal.h

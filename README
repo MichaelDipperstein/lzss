@@ -44,12 +44,14 @@ optlist.h       - Header file to be included by code using the optlist library
 README          - this file
 sample.c        - Sample program demonstrating usage of encode and decode
                   routines.
+tree.c          - File implementing a sorted binary tree to index and search
+                  for strings matching the strings to be encoded.
 
 BUILDING
 --------
 To build these files with GNU make and gcc:
-1. Edit the variable FMOBJ to choose the version of find match which
-   will be used.
+1. Edit the Makefile variable FMOBJ to choose the string matching technique
+   which will be used.
 2. Windows users should define the environment variable OS to be Windows or
    Windows_NT.  This is often already done.
 3. Enter the command "make" from the command line.
@@ -117,6 +119,9 @@ HISTORY
           - Replaces getopt() with optlist library.
 02/11/10  - Added code that uses the Knuth-Morris-Pratt string matching
             algorithm to search for string matches during the encoding process.
+08/16/10  - Added code that uses a binary tree to sort strings as they are
+            added to the sliding window and to search for string matches during
+            the encoding process.
 
 TODO
 ----
@@ -125,6 +130,7 @@ TODO
   - suffix arrays
   - multi-byte hash keys
   - Boyer-Moore
+  - hash/binary tree combo, using one tree for each hash key
 - Use a lazy encoding process.
   - Defer writing a code word until it is determined that a longer match
     isn't formed by adding the next symbols from the unecoded stream.
