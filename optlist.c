@@ -66,7 +66,7 @@
 *                               PROTOTYPES
 ***************************************************************************/
 option_t *MakeOpt(const char option, char *const argument, const int index);
-int MatchOpt(const char argument, char *const options);
+size_t MatchOpt(const char argument, char *const options);
 
 /***************************************************************************
 *                                FUNCTIONS
@@ -102,7 +102,8 @@ option_t *GetOptList(const int argc, char *const argv[], char *const options)
 {
     int nextArg;
     option_t *head, *tail;
-    int optIndex, argIndex;
+    size_t optIndex;
+    size_t argIndex;
 
     /* start with first argument and nothing found */
     nextArg = 1;
@@ -173,7 +174,7 @@ option_t *GetOptList(const int argc, char *const argv[], char *const options)
 *   Parameters : option - this option character
 *                argument - pointer string containg the argument for option.
 *                           Use NULL for no argument
-*                index - argv[index] contains argument us OL_NOINDEX for
+*                index - argv[index] contains argument use OL_NOINDEX for
 *                        no argument
 *   Effects    : A new option_t type variable is created on the heap.
 *   Returned   : Pointer to newly created and initialized option_t type
@@ -242,9 +243,9 @@ void FreeOptList(option_t *list)
 *   Returned   : Index of argument in option list.  Index of end of string
 *                if arguement does not appear in the option list.
 ****************************************************************************/
-int MatchOpt(const char argument, char *const options)
+size_t MatchOpt(const char argument, char *const options)
 {
-    int optIndex = 0;
+    size_t optIndex = 0;
 
     /* attempt to find a matching option */
     while ((options[optIndex] != '\0') &&
