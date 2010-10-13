@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
             printf("  -d : option excepting argument.\n");
             printf("  -e : option without arguments.\n");
             printf("  -f : option without arguments.\n");
-            printf("  -?  : print out command line options.\n\n");
+            printf("  -? : print out command line options.\n\n");
 
             FreeOptList(thisOpt);   /* free the rest of the list */
             return EXIT_SUCCESS;
