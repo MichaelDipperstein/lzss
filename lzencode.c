@@ -130,7 +130,8 @@ int EncodeLZSSByFile(FILE *fpIn, FILE *fpOut)
     bit_file_t *bfpOut;
 
     encoded_string_t matchData;
-    unsigned int i, c;
+	int c;
+    unsigned int i;
     unsigned int len;                       /* length of string */
 
     /* head of sliding window and lookahead */
