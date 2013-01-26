@@ -13,7 +13,7 @@
 
 CC = gcc
 LD = gcc
-CFLAGS = -O2 -Wall -ansi -pedantic -c
+CFLAGS = -O2 -Wall -Wextra -ansi -pedantic -c
 LDFLAGS = -O2 -o
 
 # Treat NT and non-NT windows the same
