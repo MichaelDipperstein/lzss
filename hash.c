@@ -195,6 +195,7 @@ encoded_string_t FindMatch(unsigned int windowHead, unsigned int uncodedHead)
     encoded_string_t matchData;
     unsigned int i, j;
 
+    (void)windowHead;       /* prevents unused variable warning */
     matchData.length = 0;
     matchData.offset = 0;
 

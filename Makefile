@@ -66,7 +66,7 @@ FMOBJ = brute.o
 # Knuth–Morris–Pratt search
 # FMOBJ = kmp.o
 # binary tree
-# FMOBJ = tree.o
+FMOBJ = tree.o
 
 LZOBJS = $(FMOBJ) lzencode.o lzdecode.o lzvars.o
 

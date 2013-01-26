@@ -65,10 +65,10 @@ typedef struct tree_node_t
 *                                 MACROS
 ***************************************************************************/
 /* reattach children after a node insertion */
-#define FixChildren(idx)	if (tree[(idx)].leftChild != NULL_INDEX)\
-								tree[tree[(idx)].leftChild].parent = (idx);\
-							if (tree[(idx)].rightChild != NULL_INDEX)\
-								tree[tree[(idx)].rightChild].parent = (idx);
+#define FixChildren(idx)    if (tree[(idx)].leftChild != NULL_INDEX)\
+                                tree[tree[(idx)].leftChild].parent = (idx);\
+                            if (tree[(idx)].rightChild != NULL_INDEX)\
+                                tree[tree[(idx)].rightChild].parent = (idx);
 
 
 /***************************************************************************
@@ -78,8 +78,8 @@ typedef struct tree_node_t
 extern unsigned char slidingWindow[WINDOW_SIZE];
 extern unsigned char uncodedLookahead[MAX_CODED];
 
-tree_node_t tree[WINDOW_SIZE];		/* tree[n] is node for slidingWindow[n] */
-unsigned int treeRoot;				/* index of the root of the tree */
+tree_node_t tree[WINDOW_SIZE];      /* tree[n] is node for slidingWindow[n] */
+unsigned int treeRoot;              /* index of the root of the tree */
 
 /***************************************************************************
 *                               PROTOTYPES
@@ -98,7 +98,7 @@ void DumpTree(unsigned int root);
 *                process of matching uncoded strings to strings in the
 *                sliding window.  For binary searches, this means that the
 *                last MAX_CODED length string in the sliding window will be
-* 				 made the root of the tree, and have no children.  This only
+*                made the root of the tree, and have no children.  This only
 *                works if the sliding window is filled with identical
 *                symbols.
 *   Parameters : None
@@ -112,7 +112,7 @@ void InitializeSearchStructures()
 {
     unsigned int i;
 
-	/* clear out all tree node pointers */
+    /* clear out all tree node pointers */
     for (i = 0; i < WINDOW_SIZE; i++)
     {
         tree[i].leftChild = NULL_INDEX;
@@ -147,6 +147,7 @@ encoded_string_t FindMatch(unsigned int windowHead, unsigned int uncodedHead)
     unsigned int i, j;
     int compare;
 
+    (void)windowHead;       /* prevents unused variable warning */
     matchData.length = 0;
     matchData.offset = 0;
 
@@ -181,7 +182,7 @@ encoded_string_t FindMatch(unsigned int windowHead, unsigned int uncodedHead)
 
         if (j >= MAX_CODED)
         {
-			/* we found the largest allowed match */
+            /* we found the largest allowed match */
             matchData.length = MAX_CODED;
             break;
         }

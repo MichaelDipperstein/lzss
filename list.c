@@ -111,7 +111,7 @@ void InitializeSearchStructures()
 *   Description: This function will search through the slidingWindow
 *                dictionary for the longest sequence matching the MAX_CODED
 *                long string stored in uncodedLookahed.
-*   Parameters : windowHead - head of sliding window
+*   Parameters : windowHead - head of sliding window (unused)
 *                uncodedHead - head of uncoded lookahead buffer
 *   Effects    : None
 *   Returned   : The sliding window index where the match starts and the
@@ -123,6 +123,7 @@ encoded_string_t FindMatch(unsigned int windowHead, unsigned int uncodedHead)
     encoded_string_t matchData;
     unsigned int i, j;
 
+    (void)windowHead;       /* prevents unused variable warning */
     matchData.length = 0;
     matchData.offset = 0;
     i = lists[uncodedLookahead[uncodedHead]];   /* start of proper list */
