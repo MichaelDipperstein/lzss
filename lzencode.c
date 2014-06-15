@@ -208,9 +208,9 @@ int EncodeLZSSByFile(FILE *fpIn, FILE *fpOut)
 
             /* match length > MAX_UNCODED.  Encode as offset and length. */
             BitFilePutBit(ENCODED, bfpOut);
-            BitFilePutBitsInt(bfpOut, &matchData.offset, OFFSET_BITS,
+            BitFilePutBitsNum(bfpOut, &matchData.offset, OFFSET_BITS,
                 sizeof(unsigned int));
-            BitFilePutBitsInt(bfpOut, &adjustedLen, LENGTH_BITS,
+            BitFilePutBitsNum(bfpOut, &adjustedLen, LENGTH_BITS,
                 sizeof(unsigned int));
         }
 

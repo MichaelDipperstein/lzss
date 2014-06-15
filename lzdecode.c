@@ -189,13 +189,13 @@ int DecodeLZSSByFile(FILE *fpIn, FILE *fpOut)
             code.offset = 0;
             code.length = 0;
 
-            if ((BitFileGetBitsInt(bfpIn, &code.offset, OFFSET_BITS,
+            if ((BitFileGetBitsNum(bfpIn, &code.offset, OFFSET_BITS,
                 sizeof(unsigned int))) == EOF)
             {
                 break;
             }
 
-            if ((BitFileGetBitsInt(bfpIn, &code.length, LENGTH_BITS,
+            if ((BitFileGetBitsNum(bfpIn, &code.length, LENGTH_BITS,
                 sizeof(unsigned int))) == EOF)
             {
                 break;
