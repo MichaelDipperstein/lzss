@@ -7,39 +7,9 @@
 *   Date    : February 8, 2004
 *
 ****************************************************************************
-*   HISTORY
-*
-*   $Id: sample.c,v 1.8 2007/08/26 21:53:48 michael Exp $
-*   $Log: sample.c,v $
-*   Revision 1.8  2007/08/26 21:53:48  michael
-*   Changes required for LGPL v3.
-*
-*   Revision 1.7  2007/02/06 06:22:07  michael
-*   Used trim program to remove trailing spaces.
-*
-*   Revision 1.6  2006/06/04 05:00:57  michael
-*   Reduce the number of warnings from SPlint.
-*
-*   Revision 1.5  2006/06/03 19:33:11  michael
-*   Used spell checker to correct spelling.
-*
-*   Revision 1.4  2005/12/08 06:56:55  michael
-*   Minor text corrections.
-*
-*   Revision 1.3  2005/12/06 15:06:37  michael
-*   Added BitFileGetBitsInt and BitFilePutBitsInt for integer types.
-*
-*   Revision 1.2  2004/11/09 14:19:22  michael
-*   Added examples of new functions BitFileToFILE and BitFileByteAlign
-*
-*   Revision 1.1.1.1  2004/02/09 05:31:42  michael
-*   Initial release
-*
-*
-****************************************************************************
 *
 * Sample: A bit file library sample usage program
-* Copyright (C) 2004-2007 by Michael Dipperstein (mdipper@cs.ucsb.edu)
+* Copyright (C) 2004-2014 by Michael Dipperstein (mdipper@alumni.cs.ucsb.edu)
 *
 * This file is part of the bit file library.
 *
@@ -202,7 +172,7 @@ int main(int argc, char *argv[])
     for (i = 0; i < numCalls; i++)
     {
         printf("writing 12 bits from an integer %03X\n", (unsigned int)value);
-        if(BitFilePutBitsInt(bfp, &value, 12, sizeof(value)) == EOF)
+        if(BitFilePutBitsNum(bfp, &value, 12, sizeof(value)) == EOF)
         {
             perror("writing bits from an integer");
             if (0 != BitFileClose(bfp))
@@ -357,7 +327,7 @@ int main(int argc, char *argv[])
     for (i = 0; i < numCalls; i++)
     {
         value = 0;
-        if(BitFileGetBitsInt(bfp, &value, 12, sizeof(value)) == EOF)
+        if(BitFileGetBitsNum(bfp, &value, 12, sizeof(value)) == EOF)
         {
             perror("reading bits from an integer");
             if (0 != BitFileClose(bfp))

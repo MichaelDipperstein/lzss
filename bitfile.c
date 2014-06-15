@@ -13,61 +13,9 @@
 *   Date    : January 9, 2004
 *
 ****************************************************************************
-*   UPDATES
-*
-*   $Id: bitfile.c,v 1.13 2008/09/15 04:10:20 michael Exp $
-*   $Log: bitfile.c,v $
-*   Revision 1.13  2008/09/15 04:10:20  michael
-*   Removed dead code.
-*
-*   Revision 1.12  2008/01/25 07:03:49  michael
-*   Added BitFileFlushOutput().
-*
-*   Revision 1.11  2007/12/30 23:55:30  michael
-*   Corrected errors in BitFileOpen and MakeBitFile reported by an anonymous
-*   user.  Segment faults may have occurred if fopen returned a NULL.
-*
-*   Revision 1.10  2007/08/26 21:53:48  michael
-*   Changes required for LGPL v3.
-*
-*   Revision 1.9  2007/07/10 05:34:07  michael
-*   Remove ',' after last element in the enum endian_t.
-*
-*   Revision 1.8  2007/02/06 06:22:07  michael
-*   Used trim program to remove trailing spaces.
-*
-*   Revision 1.7  2006/06/03 19:32:38  michael
-*   Corrected error reporetd anonymous.  The allocation of constants used to
-*   open underlying read/write/append files did not account for a terminating
-*   null.
-*
-*   Used spell checker to correct spelling.
-*
-*   Revision 1.6  2005/12/08 06:56:55  michael
-*   Minor text corrections.
-*
-*   Revision 1.5  2005/12/06 15:06:37  michael
-*   Added BitFileGetBitsInt and BitFilePutBitsInt for integer types.
-*
-*   Revision 1.4  2005/06/23 04:34:18  michael
-*   Prevent BitfileGetBits/PutBits from accessing an extra byte when given
-*   an integral number of bytes.
-*
-*   Revision 1.3  2004/11/09 14:16:58  michael
-*   Added functions to convert open bit_file_t to FILE and to
-*   align open bit_file_t to the next byte.
-*
-*   Revision 1.2  2004/06/15 13:15:58  michael
-*   Use incomplete type to hide definition of bitfile structure
-*
-*   Revision 1.1.1.1  2004/02/09 05:31:42  michael
-*   Initial release
-*
-*
-****************************************************************************
 *
 * Bitfile: Bit stream File I/O Routines
-* Copyright (C) 2004-2007 by Michael Dipperstein (mdipper@cs.ucsb.edu)
+* Copyright (C) 2004-2014 by Michael Dipperstein (mdipper@alumni.cs.ucsb.edu)
 *
 * This file is part of the bit file library.
 *
@@ -97,21 +45,29 @@
 *                            TYPE DEFINITIONS
 ***************************************************************************/
 
+/***************************************************************************
+* type to point to the kind of functions that put/get bits from/to numerical
+* data types (short, int, long, ...)
+* parameters: file pointer, data structure, number of bits, sizeof data.
+***************************************************************************/
+typedef int (*num_func_t)(bit_file_t*, void*, const unsigned int, const size_t);
+
+struct bit_file_t
+{
+    FILE *fp;                   /* file pointer used by stdio functions */
+    unsigned char bitBuffer;    /* bits waiting to be read/written */
+    unsigned char bitCount;     /* number of bits in bitBuffer */
+    num_func_t PutBitsNumFunc;  /* endian specific BitFilePutBitsNum */
+    num_func_t GetBitsNumFunc;  /* endian specific BitFileGetBitsNum */
+    BF_MODES mode;              /* open for read, write, or append */
+};
+
 typedef enum
 {
     BF_UNKNOWN_ENDIAN,
     BF_LITTLE_ENDIAN,
     BF_BIG_ENDIAN
 } endian_t;
-
-struct bit_file_t
-{
-    FILE *fp;                   /* file pointer used by stdio functions */
-    endian_t endian;            /* endianess of architecture */
-    unsigned char bitBuffer;    /* bits waiting to be read/written */
-    unsigned char bitCount;     /* number of bits in bitBuffer */
-    BF_MODES mode;              /* open for read, write, or append */
-};
 
 /* union used to test for endianess */
 typedef union
@@ -125,11 +81,13 @@ typedef union
 ***************************************************************************/
 endian_t DetermineEndianess(void);
 
-int BitFilePutBitsLE(bit_file_t *stream, void *bits, const unsigned int count);
+int BitFilePutBitsLE(bit_file_t *stream, void *bits, const unsigned int count,
+    const size_t size);
 int BitFilePutBitsBE(bit_file_t *stream, void *bits, const unsigned int count,
     const size_t size);
 
-int BitFileGetBitsLE(bit_file_t *stream, void *bits, const unsigned int count);
+int BitFileGetBitsLE(bit_file_t *stream, void *bits, const unsigned int count,
+    const size_t size);
 int BitFileGetBitsBE(bit_file_t *stream, void *bits, const unsigned int count,
     const size_t size);
 
@@ -180,10 +138,28 @@ bit_file_t *BitFileOpen(const char *fileName, const BF_MODES mode)
             bf->bitBuffer = 0;
             bf->bitCount = 0;
             bf->mode = mode;
-            bf->endian = DetermineEndianess();
+
+            switch (DetermineEndianess())
+            {
+                case BF_LITTLE_ENDIAN:
+                    bf->PutBitsNumFunc = &BitFilePutBitsLE;
+                    bf->GetBitsNumFunc = &BitFileGetBitsLE;
+                    break;
+
+                case BF_BIG_ENDIAN:
+                    bf->PutBitsNumFunc = &BitFilePutBitsBE;
+                    bf->GetBitsNumFunc = &BitFileGetBitsBE;
+                    break;
+
+                case BF_UNKNOWN_ENDIAN:
+                default:
+                    bf->PutBitsNumFunc = NULL;
+                    bf->GetBitsNumFunc = NULL;
+                    break;
+            }
 
             /***************************************************************
-            *  TO DO: Consider using the last byte in a file to indicate
+            * TO DO: Consider using the last byte in a file to indicate
             * the number of bits in the previous byte that actually have
             * data.  If I do that, I'll need special handling of files
             * opened with a mode of BF_APPEND.
@@ -234,7 +210,25 @@ bit_file_t *MakeBitFile(FILE *stream, const BF_MODES mode)
             bf->bitBuffer = 0;
             bf->bitCount = 0;
             bf->mode = mode;
-            bf->endian = DetermineEndianess();
+
+            switch (DetermineEndianess())
+            {
+                case BF_LITTLE_ENDIAN:
+                    bf->PutBitsNumFunc = &BitFilePutBitsLE;
+                    bf->GetBitsNumFunc = &BitFileGetBitsLE;
+                    break;
+
+                case BF_BIG_ENDIAN:
+                    bf->PutBitsNumFunc = &BitFilePutBitsBE;
+                    bf->GetBitsNumFunc = &BitFileGetBitsBE;
+                    break;
+
+                case BF_UNKNOWN_ENDIAN:
+                default:
+                    bf->PutBitsNumFunc = NULL;
+                    bf->GetBitsNumFunc = NULL;
+                    break;
+            }
         }
     }
 
@@ -746,7 +740,7 @@ int BitFilePutBits(bit_file_t *stream, void *bits, const unsigned int count)
 }
 
 /***************************************************************************
-*   Function   : BitFileGetBitsInt
+*   Function   : BitFileGetBitsNum
 *   Description: This function provides a machine independent layer that
 *                allows a single function call to stuff an arbitrary number
 *                of bits into an integer type variable.
@@ -758,33 +752,24 @@ int BitFilePutBits(bit_file_t *stream, void *bits, const unsigned int count)
 *                file stream.  The bit buffer will be modified as necessary.
 *                the bits will be written to "bits" from least significant
 *                byte to most significant byte.
-*   Returned   : EOF for failure, otherwise the number of bits read by the
-*                called function.
+*   Returned   : EOF for failure including unsupported architecture,
+*                otherwise the number of bits read by the called function.
 ***************************************************************************/
-int BitFileGetBitsInt(bit_file_t *stream, void *bits, const unsigned int count,
+int BitFileGetBitsNum(bit_file_t *stream, void *bits, const unsigned int count,
     const size_t size)
 {
-    int returnValue;
-
     if ((stream == NULL) || (bits == NULL))
     {
         return(EOF);
     }
 
-    if (stream->endian == BF_LITTLE_ENDIAN)
+    if (NULL == stream->GetBitsNumFunc)
     {
-        returnValue = BitFileGetBitsLE(stream, bits, count);
-    }
-    else if (stream->endian == BF_BIG_ENDIAN)
-    {
-        returnValue = BitFileGetBitsBE(stream, bits, count, size);
-    }
-    else
-    {
-        returnValue = EOF;
+        return(EOF);
     }
 
-    return returnValue;
+    /* call function that correctly handles endianess */
+    return (stream->GetBitsNumFunc)(stream, bits, count, size);
 }
 
 /***************************************************************************
@@ -795,6 +780,7 @@ int BitFileGetBitsInt(bit_file_t *stream, void *bits, const unsigned int count,
 *   Parameters : stream - pointer to bit file stream to read from
 *                bits - address to store bits read
 *                count - number of bits to read
+*                size - sizeof type containing "bits"
 *   Effects    : Reads bits from the bit buffer and file stream.  The bit
 *                buffer will be modified as necessary.  bits is treated as
 *                a little endian integer of length >= (count/8) + 1.
@@ -802,13 +788,14 @@ int BitFileGetBitsInt(bit_file_t *stream, void *bits, const unsigned int count,
 *                an EOF is reached before all the bits are read, bits
 *                will contain every bit through the last successful read.
 ***************************************************************************/
-int BitFileGetBitsLE(bit_file_t *stream, void *bits, const unsigned int count)
+int BitFileGetBitsLE(bit_file_t *stream, void *bits, const unsigned int count,
+    const size_t size)
 {
     unsigned char *bytes;
     int offset, remaining, returnValue;
 
+    (void)size;
     bytes = (unsigned char *)bits;
-
     offset = 0;
     remaining = count;
 
@@ -920,7 +907,7 @@ int BitFileGetBitsBE(bit_file_t *stream, void *bits, const unsigned int count,
 }
 
 /***************************************************************************
-*   Function   : BitFilePutBitsInt
+*   Function   : BitFilePutBitsNum
 *   Description: This function provides a machine independent layer that
 *                allows a single function call to write an arbitrary number
 *                of bits from an integer type variable into a file.
@@ -932,34 +919,26 @@ int BitFileGetBitsBE(bit_file_t *stream, void *bits, const unsigned int count,
 *                file stream.  The bit buffer will be modified as necessary.
 *                the bits will be written to the file stream from least
 *                significant byte to most significant byte.
-*   Returned   : EOF for failure, otherwise the number of bits written.  If
-*                an error occurs after a partial write, the partially
-*                written bits will not be unwritten.
+*   Returned   : EOF for failure including unsupported architecture,
+*                otherwise the number of bits written.  If an error occurs
+*                after a partial write, the partially written bits will not
+*                be unwritten.
 ***************************************************************************/
-int BitFilePutBitsInt(bit_file_t *stream, void *bits, const unsigned int count,
+int BitFilePutBitsNum(bit_file_t *stream, void *bits, const unsigned int count,
     const size_t size)
 {
-    int returnValue;
-
     if ((stream == NULL) || (bits == NULL))
     {
         return(EOF);
     }
 
-    if (stream->endian == BF_LITTLE_ENDIAN)
+    if (NULL == stream->PutBitsNumFunc)
     {
-        returnValue = BitFilePutBitsLE(stream, bits, count);
-    }
-    else if (stream->endian == BF_BIG_ENDIAN)
-    {
-        returnValue = BitFilePutBitsBE(stream, bits, count, size);
-    }
-    else
-    {
-        returnValue = EOF;
+        return(EOF);
     }
 
-    return returnValue;
+    /* call function that correctly handles endianess */
+    return (stream->PutBitsNumFunc)(stream, bits, count, size);
 }
 
 /***************************************************************************
@@ -970,6 +949,7 @@ int BitFilePutBitsInt(bit_file_t *stream, void *bits, const unsigned int count,
 *   Parameters : stream - pointer to bit file stream to write to
 *                bits - pointer to bits to write
 *                count - number of bits to write
+*                size - sizeof type containing "bits"
 *   Effects    : Writes bits to the bit buffer and file stream.  The bit
 *                buffer will be modified as necessary.  bits is treated as
 *                a little endian integer of length >= (count/8) + 1.
@@ -977,11 +957,13 @@ int BitFilePutBitsInt(bit_file_t *stream, void *bits, const unsigned int count,
 *                an error occurs after a partial write, the partially
 *                written bits will not be unwritten.
 ***************************************************************************/
-int BitFilePutBitsLE(bit_file_t *stream, void *bits, const unsigned int count)
+int BitFilePutBitsLE(bit_file_t *stream, void *bits, const unsigned int count,
+    const size_t size)
 {
     unsigned char *bytes, tmp;
     int offset, remaining, returnValue;
 
+    (void)size;
     bytes = (unsigned char *)bits;
     offset = 0;
     remaining = count;

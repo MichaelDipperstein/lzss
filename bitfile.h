@@ -14,37 +14,9 @@
 *   Date    : January 9, 2004
 *
 ****************************************************************************
-*   UPDATES
-*
-*   $Id: bitfile.h,v 1.7 2008/01/25 07:03:49 michael Exp $
-*   $Log: bitfile.h,v $
-*   Revision 1.7  2008/01/25 07:03:49  michael
-*   Added BitFileFlushOutput().
-*
-*   Revision 1.6  2007/08/26 21:53:48  michael
-*   Changes required for LGPL v3.
-*
-*   Revision 1.5  2006/06/03 19:33:11  michael
-*   Used spell checker to correct spelling.
-*
-*   Revision 1.4  2005/12/06 15:06:37  michael
-*   Added BitFileGetBitsInt and BitFilePutBitsInt for integer types.
-*
-*   Revision 1.3  2004/11/09 14:16:58  michael
-*   Added functions to convert open bit_file_t to FILE and to
-*   align open bit_file_t to the next byte.
-*
-*   Revision 1.2  2004/06/15 13:16:10  michael
-*   Use incomplete type to hide definition of bitfile structure
-*
-*   Revision 1.1.1.1  2004/02/09 05:31:42  michael
-*   Initial release
-*
-*
-****************************************************************************
 *
 * Bitfile: Bit stream File I/O Routines
-* Copyright (C) 2004-2007 by Michael Dipperstein (mdipper@cs.ucsb.edu)
+* Copyright (C) 2004-2014 by Michael Dipperstein (mdipper@alumni.cs.ucsb.edu)
 *
 * This file is part of the bit file library.
 *
@@ -115,13 +87,17 @@ int BitFileGetBits(bit_file_t *stream, void *bits, const unsigned int count);
 int BitFilePutBits(bit_file_t *stream, void *bits, const unsigned int count);
 
 /***************************************************************************
-* get/put number of bits from integer types (short, int, long, ...)
-* machine endiness is accounted for.
-* size is the size of the data structure pointer to by bits.
+* get/put a number of bits from numerical types (short, int, long, ...)
+*
+* For these functions, the first bit in/out is the least significant bit of
+* the least significant byte, so machine endiness is accounted for.  Only
+* big endian and little endian architectures are currently supported.
+*
+* NOTE: size is the sizeof() for the data structure pointed to by bits.
 ***************************************************************************/
-int BitFileGetBitsInt(bit_file_t *stream, void *bits, const unsigned int count,
+int BitFileGetBitsNum(bit_file_t *stream, void *bits, const unsigned int count,
     const size_t size);
-int BitFilePutBitsInt(bit_file_t *stream, void *bits, const unsigned int count,
+int BitFilePutBitsNum(bit_file_t *stream, void *bits, const unsigned int count,
     const size_t size);
 
 #endif /* _BITFILE_H_ */
