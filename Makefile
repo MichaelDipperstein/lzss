@@ -58,7 +58,7 @@ endif
 
 # define the method to be used for searching for matches (choose one)
 # brute force
-FMOBJ = brute.o
+# FMOBJ = brute.o
 # linked list
 # FMOBJ = list.o
 # hash table
