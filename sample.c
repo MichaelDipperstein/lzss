@@ -1,27 +1,16 @@
 /***************************************************************************
 *                           OptList Usage Sample
 *
-*   File    : sample.cpp
+*   File    : sample.c
 *   Purpose : Demonstrates usage of optlist library.
 *   Author  : Michael Dipperstein
 *   Date    : July 23, 2004
 *
 ****************************************************************************
-*   HISTORY
-*
-*   $Id: sample.c,v 1.1.1.2 2007/09/04 04:45:42 michael Exp $
-*   $Log: sample.c,v $
-*   Revision 1.1.1.2  2007/09/04 04:45:42  michael
-*   Added FreeOptList.
-*
-*   Revision 1.1.1.1  2007/08/07 05:01:48  michael
-*   Initial Release
-*
-*
-****************************************************************************
 *
 * Sample: A optlist library sample usage program
-* Copyright (C) 2007 by Michael Dipperstein (mdipper@cs.ucsb.edu)
+* Copyright (C) 2007, 2014 by
+* Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)
 *
 * This file is part of the optlist library.
 *
@@ -45,13 +34,11 @@
 ***************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "optlist.h"
 
 /***************************************************************************
 *                               PROTOTYPES
 ***************************************************************************/
-char *RemovePath(char *fullPath);
 
 /***************************************************************************
 *                                FUNCTIONS
@@ -83,7 +70,7 @@ int main(int argc, char *argv[])
 
         if ('?' == thisOpt->option)
         {
-            printf("Usage: %s <options>\n\n", RemovePath(argv[0]));
+            printf("Usage: %s <options>\n\n", FindFileName(argv[0]));
             printf("options:\n");
             printf("  -a : option excepting argument.\n");
             printf("  -b : option without arguments.\n");
@@ -114,37 +101,3 @@ int main(int argc, char *argv[])
 
     return EXIT_SUCCESS;
 }
-
-/****************************************************************************
-*   Function   : RemovePath
-*   Description: This is function accepts a pointer to the name of a file
-*                along with path information and returns a pointer to the
-*                character that is not part of the path.
-*   Parameters : fullPath - pointer to an array of characters containing
-*                           a file name and possible path modifiers.
-*   Effects    : None
-*   Returned   : Returns a pointer to the first character after any path
-*                information.
-****************************************************************************/
-char *RemovePath(char *fullPath)
-{
-    int i;
-    char *start, *tmp;                          /* start of file name */
-    const char delim[3] = {'\\', '/', ':'};     /* path deliminators */
-
-    start = fullPath;
-
-    /* find the first character after all file path delimiters */
-    for (i = 0; i < 3; i++)
-    {
-        tmp = strrchr(start, delim[i]);
-
-        if (tmp != NULL)
-        {
-            start = tmp + 1;
-        }
-    }
-
-    return start;
-}
-

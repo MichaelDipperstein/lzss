@@ -7,20 +7,10 @@
 *   Date    : August 1, 2007
 *
 ****************************************************************************
-*   HISTORY
-*
-*   $Id: optlist.h,v 1.1.1.2 2007/09/04 04:45:42 michael Exp $
-*   $Log: optlist.h,v $
-*   Revision 1.1.1.2  2007/09/04 04:45:42  michael
-*   Added FreeOptList.
-*
-*   Revision 1.1.1.1  2007/08/07 05:01:48  michael
-*   Initial Release
-*
-****************************************************************************
 *
 * OptList: A command line option parsing library
-* Copyright (C) 2007 by Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)
+* Copyright (C) 2007, 20014 by
+* Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)
 *
 * This file is part of the OptList library.
 *
@@ -52,23 +42,30 @@
 /***************************************************************************
 *                                CONSTANTS
 ***************************************************************************/
-#define    OL_NOINDEX    -1        /* this option has no arguement */
+#define    OL_NOINDEX    -1     /* this option has no arguement */
 
 /***************************************************************************
 *                            TYPE DEFINITIONS
 ***************************************************************************/
 typedef struct option_t
 {
-    char option;
-    char *argument;
-    int argIndex;
-    struct option_t *next;
+    char option;                /* the current character option character */
+    char *argument;             /* pointer to arguments for this option */
+    int argIndex;               /* index into argv[] containing the argument */
+    struct option_t *next;      /* the next option in the linked list */
 } option_t;
 
 /***************************************************************************
 *                               PROTOTYPES
 ***************************************************************************/
+
+/* returns a linked list of options and arguments similar to getopt() */
 option_t *GetOptList(int argc, char *const argv[], char *const options);
+
+/* frees the linked list of option_t returned by GetOptList */
 void FreeOptList(option_t *list);
+
+/* return a pointer to file name in a full path.  useful for argv[0] */
+char *FindFileName(char *fullPath);
 
 #endif  /* ndef OPTLIST_H */

@@ -7,23 +7,10 @@
 *   Date    : August 1, 2007
 *
 ****************************************************************************
-*   HISTORY
-*
-*   $Id: optlist.c,v 1.2 2008/12/25 05:33:28 michael Exp $
-*   $Log: optlist.c,v $
-*   Revision 1.2  2008/12/25 05:33:28  michael
-*   Add support for multiple options following a single dash ('-').
-*
-*   Revision 1.1.1.2  2007/09/04 04:45:42  michael
-*   Added FreeOptList.
-*
-*   Revision 1.1.1.1  2007/08/07 05:01:48  michael
-*   Initial Release
-*
-****************************************************************************
 *
 * OptList: A command line option parsing library
-* Copyright (C) 2007 by Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)
+* Copyright (C) 2007, 2014 by
+* Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)
 *
 * This file is part of the OptList library.
 *
@@ -261,3 +248,37 @@ size_t MatchOpt(const char argument, char *const options)
 
     return optIndex;
 }
+
+/****************************************************************************
+*   Function   : FindFileName
+*   Description: This is function accepts a pointer to the name of a file
+*                along with path information and returns a pointer to the
+*                first character that is not part of the path.
+*   Parameters : fullPath - pointer to an array of characters containing
+*                           a file name and possible path modifiers.
+*   Effects    : None
+*   Returned   : Returns a pointer to the first character after any path
+*                information.
+****************************************************************************/
+char *FindFileName(char *fullPath)
+{
+    int i;
+    char *start, *tmp;                          /* start of file name */
+    const char delim[3] = {'\\', '/', ':'};     /* path deliminators */
+
+    start = fullPath;
+
+    /* find the first character after all file path delimiters */
+    for (i = 0; i < 3; i++)
+    {
+        tmp = strrchr(start, delim[i]);
+
+        if (tmp != NULL)
+        {
+            start = tmp + 1;
+        }
+    }
+
+    return start;
+}
+

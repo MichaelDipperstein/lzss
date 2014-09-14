@@ -43,12 +43,12 @@ option_t *GetOptList(int argc, char *const argv[], char *const options);
 
 
 DESCRIPTION
-The OptList() function is similar to getopt().  Its most notiable differences
+The GetOptList() function is similar to getopt().  Its most notable differences
 are that it returns a linked list to the command line arguments and their
-parameters.  One call to OptList() will return all of the command line
-options and their arguments.  OptList() will not modify argc or argv.
+parameters.  One call to GetOptList() will return all of the command line
+options and their arguments.  GetOptList() will not modify argc or argv.
 
-OptList()'s parameters "argc" and "argv" are the argument count and array as
+GetOptList()'s parameters "argc" and "argv" are the argument count and array as
 passed to the main() function on program invocation.  An element of argv that
 starts with "-" is an option element.  The character following the "-" is option
 an character.
@@ -58,7 +58,7 @@ If such a character is followed by a colon, the option requires an argument.
 (e.g. "a:bc?" a, b ,c, and, ? are all options.  a should be followed by an
 argument.)
 
-OptList() returns a linked list of type option_t.  The "*next" field of the
+GetOptList() returns a linked list of type option_t.  The "*next" field of the
 element at the end of the list will be set to NULL.  The "option" field will
 contain the option character.  A pointer to the following text in the same
 argv-element, or the text of the following argv-element will be stored in the
@@ -69,6 +69,7 @@ If there is no argument, the field will contain OL_NOINDEX.
 HISTORY
 -------
 08/01/07  - Initial release
+09/13/14  - Added FindFileName function, because I always use it with GetOptList
 
 TODO
 ----
