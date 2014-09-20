@@ -112,7 +112,7 @@ int BitFileGetBitsBE(bit_file_t *stream, void *bits, const unsigned int count,
 ***************************************************************************/
 bit_file_t *BitFileOpen(const char *fileName, const BF_MODES mode)
 {
-    char modes[3][3] = {"rb", "wb", "ab"};  /* binary modes for fopen */
+    const char modes[3][3] = {"rb", "wb", "ab"};    /* binary modes for fopen */
     bit_file_t *bf;
 
     bf = (bit_file_t *)malloc(sizeof(bit_file_t));
