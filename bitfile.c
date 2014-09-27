@@ -79,17 +79,17 @@ typedef union
 /***************************************************************************
 *                               PROTOTYPES
 ***************************************************************************/
-endian_t DetermineEndianess(void);
+static endian_t DetermineEndianess(void);
 
-int BitFilePutBitsLE(bit_file_t *stream, void *bits, const unsigned int count,
-    const size_t size);
-int BitFilePutBitsBE(bit_file_t *stream, void *bits, const unsigned int count,
-    const size_t size);
+static int BitFilePutBitsLE(bit_file_t *stream, void *bits,
+    const unsigned int count, const size_t size);
+static int BitFilePutBitsBE(bit_file_t *stream, void *bits,
+    const unsigned int count, const size_t size);
 
-int BitFileGetBitsLE(bit_file_t *stream, void *bits, const unsigned int count,
-    const size_t size);
-int BitFileGetBitsBE(bit_file_t *stream, void *bits, const unsigned int count,
-    const size_t size);
+static int BitFileGetBitsLE(bit_file_t *stream, void *bits,
+    const unsigned int count, const size_t size);
+static int BitFileGetBitsBE(bit_file_t *stream, void *bits,
+    const unsigned int count, const size_t size);
 
 /***************************************************************************
 *                                FUNCTIONS
@@ -246,7 +246,7 @@ bit_file_t *MakeBitFile(FILE *stream, const BF_MODES mode)
 *   Effects    : None
 *   Returned   : endian_t for current machine architecture
 ***************************************************************************/
-endian_t DetermineEndianess(void)
+static endian_t DetermineEndianess(void)
 {
     endian_t endian;
     endian_test_t endianTest;
@@ -788,8 +788,8 @@ int BitFileGetBitsNum(bit_file_t *stream, void *bits, const unsigned int count,
 *                an EOF is reached before all the bits are read, bits
 *                will contain every bit through the last successful read.
 ***************************************************************************/
-int BitFileGetBitsLE(bit_file_t *stream, void *bits, const unsigned int count,
-    const size_t size)
+static int BitFileGetBitsLE(bit_file_t *stream, void *bits,
+    const unsigned int count, const size_t size)
 {
     unsigned char *bytes;
     int offset, remaining, returnValue;
@@ -852,8 +852,8 @@ int BitFileGetBitsLE(bit_file_t *stream, void *bits, const unsigned int count,
 *                an EOF is reached before all the bits are read, bits
 *                will contain every bit through the last successful read.
 ***************************************************************************/
-int BitFileGetBitsBE(bit_file_t *stream, void *bits, const unsigned int count,
-    const size_t size)
+static int BitFileGetBitsBE(bit_file_t *stream, void *bits,
+    const unsigned int count, const size_t size)
 {
     unsigned char *bytes;
     int offset, remaining, returnValue;
@@ -957,8 +957,8 @@ int BitFilePutBitsNum(bit_file_t *stream, void *bits, const unsigned int count,
 *                an error occurs after a partial write, the partially
 *                written bits will not be unwritten.
 ***************************************************************************/
-int BitFilePutBitsLE(bit_file_t *stream, void *bits, const unsigned int count,
-    const size_t size)
+static int BitFilePutBitsLE(bit_file_t *stream, void *bits,
+    const unsigned int count, const size_t size)
 {
     unsigned char *bytes, tmp;
     int offset, remaining, returnValue;
@@ -1020,8 +1020,8 @@ int BitFilePutBitsLE(bit_file_t *stream, void *bits, const unsigned int count,
 *                an error occurs after a partial write, the partially
 *                written bits will not be unwritten.
 ***************************************************************************/
-int BitFilePutBitsBE(bit_file_t *stream, void *bits, const unsigned int count,
-    const size_t size)
+static int BitFilePutBitsBE(bit_file_t *stream, void *bits,
+    const unsigned int count, const size_t size)
 {
     unsigned char *bytes, tmp;
     int offset, remaining, returnValue;
