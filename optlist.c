@@ -52,8 +52,11 @@
 /***************************************************************************
 *                               PROTOTYPES
 ***************************************************************************/
-option_t *MakeOpt(const char option, char *const argument, const int index);
-size_t MatchOpt(const char argument, char *const options);
+static option_t *MakeOpt(
+    const char option, char *const argument, const int index);
+
+static size_t MatchOpt(
+    const char argument, char *const options);
 
 /***************************************************************************
 *                                FUNCTIONS
@@ -167,7 +170,8 @@ option_t *GetOptList(const int argc, char *const argv[], char *const options)
 *   Returned   : Pointer to newly created and initialized option_t type
 *                structure.  NULL if space for structure can't be allocated.
 ****************************************************************************/
-option_t *MakeOpt(const char option, char *const argument, const int index)
+static option_t *MakeOpt(
+    const char option, char *const argument, const int index)
 {
     option_t *opt;
 
@@ -230,7 +234,8 @@ void FreeOptList(option_t *list)
 *   Returned   : Index of argument in option list.  Index of end of string
 *                if arguement does not appear in the option list.
 ****************************************************************************/
-size_t MatchOpt(const char argument, char *const options)
+static size_t MatchOpt(
+    const char argument, char *const options)
 {
     size_t optIndex = 0;
 
@@ -260,10 +265,11 @@ size_t MatchOpt(const char argument, char *const options)
 *   Returned   : Returns a pointer to the first character after any path
 *                information.
 ****************************************************************************/
-char *FindFileName(char *fullPath)
+char *FindFileName(const char *const fullPath)
 {
     int i;
-    char *start, *tmp;                          /* start of file name */
+    const char *start;                          /* start of file name */
+    const char *tmp;
     const char delim[3] = {'\\', '/', ':'};     /* path deliminators */
 
     start = fullPath;
@@ -279,6 +285,6 @@ char *FindFileName(char *fullPath)
         }
     }
 
-    return start;
+    return (char *)start;
 }
 

@@ -66,6 +66,6 @@ option_t *GetOptList(int argc, char *const argv[], char *const options);
 void FreeOptList(option_t *list);
 
 /* return a pointer to file name in a full path.  useful for argv[0] */
-char *FindFileName(char *fullPath);
+char *FindFileName(const char *const fullPath);
 
 #endif  /* ndef OPTLIST_H */
