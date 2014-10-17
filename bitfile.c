@@ -90,6 +90,8 @@ static int BitFileGetBitsLE(bit_file_t *stream, void *bits,
     const unsigned int count, const size_t size);
 static int BitFileGetBitsBE(bit_file_t *stream, void *bits,
     const unsigned int count, const size_t size);
+static int BitFileNotSupported(bit_file_t *stream, void *bits,
+    const unsigned int count, const size_t size);
 
 /***************************************************************************
 *                                FUNCTIONS
@@ -153,8 +155,8 @@ bit_file_t *BitFileOpen(const char *fileName, const BF_MODES mode)
 
                 case BF_UNKNOWN_ENDIAN:
                 default:
-                    bf->PutBitsNumFunc = NULL;
-                    bf->GetBitsNumFunc = NULL;
+                    bf->PutBitsNumFunc = BitFileNotSupported;
+                    bf->GetBitsNumFunc = BitFileNotSupported;
                     break;
             }
 
@@ -225,8 +227,8 @@ bit_file_t *MakeBitFile(FILE *stream, const BF_MODES mode)
 
                 case BF_UNKNOWN_ENDIAN:
                 default:
-                    bf->PutBitsNumFunc = NULL;
-                    bf->GetBitsNumFunc = NULL;
+                    bf->PutBitsNumFunc = BitFileNotSupported;
+                    bf->GetBitsNumFunc = BitFileNotSupported;
                     break;
             }
         }
@@ -752,7 +754,7 @@ int BitFilePutBits(bit_file_t *stream, void *bits, const unsigned int count)
 *                file stream.  The bit buffer will be modified as necessary.
 *                the bits will be written to "bits" from least significant
 *                byte to most significant byte.
-*   Returned   : EOF for failure including unsupported architecture,
+*   Returned   : EOF for failure, -ENOTSUP unsupported architecture,
 *                otherwise the number of bits read by the called function.
 ***************************************************************************/
 int BitFileGetBitsNum(bit_file_t *stream, void *bits, const unsigned int count,
@@ -760,12 +762,12 @@ int BitFileGetBitsNum(bit_file_t *stream, void *bits, const unsigned int count,
 {
     if ((stream == NULL) || (bits == NULL))
     {
-        return(EOF);
+        return EOF;
     }
 
     if (NULL == stream->GetBitsNumFunc)
     {
-        return(EOF);
+        return -ENOTSUP;
     }
 
     /* call function that correctly handles endianess */
@@ -919,7 +921,7 @@ static int BitFileGetBitsBE(bit_file_t *stream, void *bits,
 *                file stream.  The bit buffer will be modified as necessary.
 *                the bits will be written to the file stream from least
 *                significant byte to most significant byte.
-*   Returned   : EOF for failure including unsupported architecture,
+*   Returned   : EOF for failure, ENOTSUP unsupported architecture,
 *                otherwise the number of bits written.  If an error occurs
 *                after a partial write, the partially written bits will not
 *                be unwritten.
@@ -929,12 +931,12 @@ int BitFilePutBitsNum(bit_file_t *stream, void *bits, const unsigned int count,
 {
     if ((stream == NULL) || (bits == NULL))
     {
-        return(EOF);
+        return EOF;
     }
 
     if (NULL == stream->PutBitsNumFunc)
     {
-        return(EOF);
+        return ENOTSUP;
     }
 
     /* call function that correctly handles endianess */
@@ -1071,4 +1073,26 @@ static int BitFilePutBitsBE(bit_file_t *stream, void *bits,
     }
 
     return count;
+}
+
+/***************************************************************************
+*   Function   : BitFileNotSupported
+*   Description: This function returns -ENOTSUP.  It is called when a
+*                Get/PutBits function is called on an unsupported
+*                architecture.
+*   Parameters : stream - not used
+*                bits - not used
+*                count - not used
+*   Effects    : None
+*   Returned   : -ENOTSUP
+***************************************************************************/
+static int BitFileNotSupported(bit_file_t *stream, void *bits,
+    const unsigned int count, const size_t size)
+{
+    (void)stream;
+    (void)bits;
+    (void)count;
+    (void)size;
+
+    return -ENOTSUP;
 }

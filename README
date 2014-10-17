@@ -41,6 +41,9 @@ HISTORY
            anonymous user.  Segment faults may have occurred if fopen returns
            a NULL.
 01/23/08 - Added BitFileFlushOutput.
+10/16/14 - Replaced BitFileGetBitsInt and BitFilePutBitsInt with
+           BitFileGetBitsNum and BitFilePutBitsNum.
+         - Coded to Michael Barr's "Top 10 Bug-Killing Coding Standard Rules"
 
 TODO
 ----
