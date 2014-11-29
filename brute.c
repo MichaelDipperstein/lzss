@@ -43,6 +43,10 @@
 extern unsigned char slidingWindow[];
 extern unsigned char uncodedLookahead[];
 
+/***************************************************************************
+*                                FUNCTIONS
+***************************************************************************/
+
 /****************************************************************************
 *   Function   : InitializeSearchStructures
 *   Description: This function initializes structures used to speed up the
@@ -54,7 +58,7 @@ extern unsigned char uncodedLookahead[];
 *   Returned   : 0 for success, -1 for failure.  errno will be set in the
 *                event of a failure.
 ****************************************************************************/
-int InitializeSearchStructures()
+int InitializeSearchStructures(void)
 {
     return 0;
 }
@@ -71,10 +75,12 @@ int InitializeSearchStructures()
 *                length of the match.  If there is no match a length of
 *                zero will be returned.
 ****************************************************************************/
-encoded_string_t FindMatch(unsigned int windowHead, unsigned int uncodedHead)
+encoded_string_t FindMatch(const unsigned int windowHead,
+    unsigned int uncodedHead)
 {
     encoded_string_t matchData;
-    unsigned int i, j;
+    unsigned int i;
+    unsigned int j;
 
     matchData.length = 0;
     matchData.offset = 0;
@@ -85,7 +91,7 @@ encoded_string_t FindMatch(unsigned int windowHead, unsigned int uncodedHead)
     {
         if (slidingWindow[i] == uncodedLookahead[uncodedHead])
         {
-            /* we matched one how many more match? */
+            /* we matched one. how many more match? */
             j = 1;
 
             while(slidingWindow[Wrap((i + j), WINDOW_SIZE)] ==
@@ -133,7 +139,7 @@ encoded_string_t FindMatch(unsigned int windowHead, unsigned int uncodedHead)
 *   Returned   : 0 for success, -1 for failure.  errno will be set in the
 *                event of a failure.
 ****************************************************************************/
-int ReplaceChar(unsigned int charIndex, unsigned char replacement)
+int ReplaceChar(const unsigned int charIndex, const unsigned char replacement)
 {
     slidingWindow[charIndex] = replacement;
     return 0;
