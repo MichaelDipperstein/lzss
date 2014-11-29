@@ -97,7 +97,9 @@ typedef struct encoded_string_t
 * match is found.
 ***************************************************************************/
 int InitializeSearchStructures(void);
-int ReplaceChar(unsigned int charIndex, unsigned char replacement);
-encoded_string_t FindMatch(unsigned int windowHead, unsigned int uncodedHead);
+int ReplaceChar(const unsigned int charIndex, const unsigned char replacement);
+
+encoded_string_t FindMatch(const unsigned int windowHead,
+    const unsigned int uncodedHead);
 
 #endif      /* ndef _LZSS_LOCAL_H */

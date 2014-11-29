@@ -64,19 +64,13 @@ typedef struct tree_node_t
 /***************************************************************************
 *                                 MACROS
 ***************************************************************************/
-/* reattach children after a node insertion */
-#define FixChildren(idx)    if (tree[(idx)].leftChild != NULL_INDEX)\
-                                tree[tree[(idx)].leftChild].parent = (idx);\
-                            if (tree[(idx)].rightChild != NULL_INDEX)\
-                                tree[tree[(idx)].rightChild].parent = (idx);
-
 
 /***************************************************************************
 *                            GLOBAL VARIABLES
 ***************************************************************************/
 /* cyclic buffer sliding window of already read characters */
-extern unsigned char slidingWindow[WINDOW_SIZE];
-extern unsigned char uncodedLookahead[MAX_CODED];
+extern unsigned char slidingWindow[];
+extern unsigned char uncodedLookahead[];
 
 tree_node_t tree[WINDOW_SIZE];      /* tree[n] is node for slidingWindow[n] */
 unsigned int treeRoot;              /* index of the root of the tree */
@@ -84,13 +78,15 @@ unsigned int treeRoot;              /* index of the root of the tree */
 /***************************************************************************
 *                               PROTOTYPES
 ***************************************************************************/
+static void ClearNode(const unsigned int index);
+
 /* add/remove strings starting at slidingWindow[charIndex] too/from tree */
-void AddString(unsigned int charIndex);
-void RemoveString(unsigned int charIndex);
+static void AddString(const unsigned int charIndex);
+static void RemoveString(const unsigned int charIndex);
 
 /* debugging functions not used by algorithm */
-void PrintLen(unsigned int charIndex, unsigned int len);
-void DumpTree(unsigned int root);
+static void PrintLen(const unsigned int charIndex, const unsigned int len);
+static void DumpTree(const unsigned int root);
 
 /***************************************************************************
 *                                FUNCTIONS
@@ -113,16 +109,14 @@ void DumpTree(unsigned int root);
 *   NOTE: This function assumes that the sliding window is initially filled
 *         with all identical characters.
 ****************************************************************************/
-int InitializeSearchStructures()
+int InitializeSearchStructures(void)
 {
     unsigned int i;
 
     /* clear out all tree node pointers */
     for (i = 0; i < WINDOW_SIZE; i++)
     {
-        tree[i].leftChild = NULL_INDEX;
-        tree[i].rightChild = NULL_INDEX;
-        tree[i].parent = NULL_INDEX;
+        ClearNode(i);
     }
 
     /************************************************************************
@@ -132,6 +126,12 @@ int InitializeSearchStructures()
     ************************************************************************/
     treeRoot = (WINDOW_SIZE - MAX_CODED) - 1;
     tree[treeRoot].parent = ROOT_INDEX;
+
+    if (0)
+    {
+        /* get rid of unused warning for DumpTree */
+        DumpTree(NULL_INDEX);
+    }
 
     return 0;
 }
@@ -148,10 +148,12 @@ int InitializeSearchStructures()
 *                length of the match.  If there is no match a length of
 *                zero will be returned.
 ****************************************************************************/
-encoded_string_t FindMatch(unsigned int windowHead, unsigned int uncodedHead)
+encoded_string_t FindMatch(const unsigned int windowHead,
+    const unsigned int uncodedHead)
 {
     encoded_string_t matchData;
-    unsigned int i, j;
+    unsigned int i;
+    unsigned int j;
     int compare;
 
     (void)windowHead;       /* prevents unused variable warning */
@@ -220,7 +222,7 @@ encoded_string_t FindMatch(unsigned int windowHead, unsigned int uncodedHead)
 *                < 0 if first string is less than second string.
 *                > 0 if first string is greater than second string.
 ****************************************************************************/
-int CompareString(unsigned int index1, unsigned int index2)
+static int CompareString(const unsigned int index1, const unsigned int index2)
 {
     unsigned int offset;
     int result = 0;
@@ -240,6 +242,28 @@ int CompareString(unsigned int index1, unsigned int index2)
 }
 
 /****************************************************************************
+*   Function   : FixChildren
+*   Description: This function reattaches the children to a parent node
+*                after it has been inserted.
+*   Parameters : index - sliding window index of the parent node.
+*   Effects    : The .parent fields for the children of a newly attached
+*                node are made to point to the newly attached node.
+*   Returned   : NONE
+****************************************************************************/
+static void FixChildren(const unsigned int index)
+{
+    if (tree[index].leftChild != NULL_INDEX)
+    {
+        tree[tree[index].leftChild].parent = index;
+    }
+    
+    if (tree[index].rightChild != NULL_INDEX)
+    {
+        tree[tree[index].rightChild].parent = index;
+    }
+}
+
+/****************************************************************************
 *   Function   : AddString
 *   Description: This function adds the MAX_UNCODED long string starting at
 *                slidingWindow[charIndex] to the binary tree.
@@ -249,7 +273,7 @@ int CompareString(unsigned int index1, unsigned int index2)
 *                into the sorted binary tree.
 *   Returned   : NONE
 ****************************************************************************/
-void AddString(unsigned int charIndex)
+static void AddString(const unsigned int charIndex)
 {
     int compare;
     unsigned int here;
@@ -265,9 +289,7 @@ void AddString(unsigned int charIndex)
         FixChildren(charIndex);
 
         /* remove old root from the tree */
-        tree[treeRoot].leftChild = NULL_INDEX;
-        tree[treeRoot].rightChild = NULL_INDEX;
-        tree[treeRoot].parent = NULL_INDEX;
+        ClearNode(treeRoot);
 
         treeRoot = charIndex;
         return;
@@ -331,9 +353,7 @@ void AddString(unsigned int charIndex)
             }
 
             /* remove old node from the tree */
-            tree[here].leftChild = NULL_INDEX;
-            tree[here].rightChild = NULL_INDEX;
-            tree[here].parent = NULL_INDEX;
+            ClearNode(here);
             return;
         }
 
@@ -351,7 +371,7 @@ void AddString(unsigned int charIndex)
 *                from the sorted binary tree.
 *   Returned   : NONE
 ****************************************************************************/
-void RemoveString(unsigned int charIndex)
+static void RemoveString(const unsigned int charIndex)
 {
     unsigned int here;
 
@@ -410,9 +430,7 @@ void RemoveString(unsigned int charIndex)
     }
 
     /* clear all pointers in deleted node. */
-    tree[charIndex].leftChild = NULL_INDEX;
-    tree[charIndex].rightChild = NULL_INDEX;
-    tree[charIndex].parent = NULL_INDEX;
+    ClearNode(charIndex);
 }
 
 /****************************************************************************
@@ -430,7 +448,7 @@ void RemoveString(unsigned int charIndex)
 *   Returned   : 0 for success, -1 for failure.  errno will be set in the
 *                event of a failure.
 ****************************************************************************/
-int ReplaceChar(unsigned int charIndex, unsigned char replacement)
+int ReplaceChar(const unsigned int charIndex, const unsigned char replacement)
 {
     unsigned int firstIndex, i;
 
@@ -443,7 +461,7 @@ int ReplaceChar(unsigned int charIndex, unsigned char replacement)
         firstIndex = charIndex - MAX_UNCODED;
     }
 
-    /* remove all hash entries containing character at char index */
+    /* remove all tree entries containing character at char index */
     for (i = 0; i < (MAX_UNCODED + 1); i++)
     {
         RemoveString(Wrap((firstIndex + i), WINDOW_SIZE));
@@ -461,6 +479,21 @@ int ReplaceChar(unsigned int charIndex, unsigned char replacement)
 }
 
 /****************************************************************************
+*   Function   : ClearNode
+*   Description: This function sets the children and parent of a node in
+*                the binary tree to NULL_INDEX.
+*   Parameters : index - index of the tree node to be cleared.
+*   Effects    : tree[index] is set to {NULL_INDEX, NULL_INDEX, NULL_INDEX}.
+*   Returned   : None
+****************************************************************************/
+static void ClearNode(const unsigned int index)
+{
+    const tree_node_t nullNode = {NULL_INDEX, NULL_INDEX, NULL_INDEX};
+
+    tree[index] = nullNode;
+}
+
+/****************************************************************************
 *   Function   : PrintLen
 *   Description: This function prints the string of length len that starts at
 *                slidingWindow[charIndex].
@@ -471,7 +504,7 @@ int ReplaceChar(unsigned int charIndex, unsigned char replacement)
 *                slidingWindow[charIndex] is printed to stdout.
 *   Returned   : NONE
 ****************************************************************************/
-void PrintLen(unsigned int charIndex, unsigned int len)
+static void PrintLen(const unsigned int charIndex, const unsigned int len)
 {
     unsigned int i;
 
@@ -497,7 +530,7 @@ void PrintLen(unsigned int charIndex, unsigned int len)
 *                are printed to stdout.
 *   Returned   : NONE
 ****************************************************************************/
-void DumpTree(unsigned int root)
+static void DumpTree(const unsigned int root)
 {
     if (NULL_INDEX == root)
     {
