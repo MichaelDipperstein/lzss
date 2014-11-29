@@ -49,8 +49,12 @@
 extern unsigned char slidingWindow[];
 extern unsigned char uncodedLookahead[];
 
-unsigned int lists[UCHAR_MAX];                    /* heads of linked lists */
+unsigned int lists[UCHAR_MAX];              /* heads of linked lists */
 unsigned int next[WINDOW_SIZE];             /* indices of next in list */
+
+/***************************************************************************
+*                                FUNCTIONS
+***************************************************************************/
 
 /****************************************************************************
 *   Function   : InitializeSearchStructures
@@ -67,7 +71,7 @@ unsigned int next[WINDOW_SIZE];             /* indices of next in list */
 *   NOTE: This function assumes that the sliding window is initially filled
 *         with all identical characters.
 ****************************************************************************/
-int InitializeSearchStructures()
+int InitializeSearchStructures(void)
 {
     unsigned int i;
 
@@ -79,13 +83,13 @@ int InitializeSearchStructures()
     /* there's no next for the last character */
     next[WINDOW_SIZE - 1] = NULL_INDEX;
 
-    /* the only list right now is the ' ' list */
+    /* the only list right now is the slidingWindow[0] list */
     for (i = 0; i < 256; i++)
     {
         lists[i] = NULL_INDEX;
     }
 
-    lists[' '] = 0;
+    lists[slidingWindow[0]] = 0;
     return 0;
 }
 
@@ -101,10 +105,12 @@ int InitializeSearchStructures()
 *                length of the match.  If there is no match a length of
 *                zero will be returned.
 ****************************************************************************/
-encoded_string_t FindMatch(unsigned int windowHead, unsigned int uncodedHead)
+encoded_string_t FindMatch(const unsigned int windowHead,
+    const unsigned int uncodedHead)
 {
     encoded_string_t matchData;
-    unsigned int i, j;
+    unsigned int i;
+    unsigned int j;
 
     (void)windowHead;       /* prevents unused variable warning */
     matchData.length = 0;
@@ -154,7 +160,7 @@ encoded_string_t FindMatch(unsigned int windowHead, unsigned int uncodedHead)
 *                appropriate linked list.
 *   Returned   : NONE
 ****************************************************************************/
-void AddChar(unsigned int charIndex)
+static void AddChar(const unsigned int charIndex)
 {
     unsigned int i;
 
@@ -189,7 +195,7 @@ void AddChar(unsigned int charIndex)
 *                and the list is appropriately reconnected.
 *   Returned   : NONE
 ****************************************************************************/
-void RemoveChar(unsigned int charIndex)
+static void RemoveChar(const unsigned int charIndex)
 {
     unsigned int i;
     unsigned int nextIndex;
@@ -230,7 +236,7 @@ void RemoveChar(unsigned int charIndex)
 *   Returned   : 0 for success, -1 for failure.  errno will be set in the
 *                event of a failure.
 ****************************************************************************/
-int ReplaceChar(unsigned int charIndex, unsigned char replacement)
+int ReplaceChar(const unsigned int charIndex, const unsigned char replacement)
 {
     RemoveChar(charIndex);
     slidingWindow[charIndex] = replacement;
