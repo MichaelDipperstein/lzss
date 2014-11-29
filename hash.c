@@ -11,7 +11,7 @@
 *
 * Hash: Hash table optimized matching routines used by LZSS
 *       Encoding/Decoding Routine
-* Copyright (C) 2004-2007, 2014 by
+* Copyright (C) 2004 - 2007, 2014 by
 * Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)
 *
 * This file is part of the lzss library.
@@ -39,6 +39,11 @@
 /***************************************************************************
 *                            TYPE DEFINITIONS
 ***************************************************************************/
+typedef enum
+{
+    SRC_SLIDING_WINDOW, /* use slidingWindow */
+    SRC_LOOKAHEAD       /* use uncodedLookahead */
+} hash_src_t;
 
 /***************************************************************************
 *                                CONSTANTS
@@ -76,27 +81,29 @@ unsigned int next[WINDOW_SIZE];             /* indices of next in hash list */
 *                Trans. Fundamentals, Vol. E83-A, No. 12 (December 2000)
 *   Parameters : offset - offset into either the uncoded lookahead or the
 *                         sliding window.
-*                lookahead - non-zero iff offset is an offset into the
-*                            uncoded lookahead buffer.
+*                hashSource - indicate whether offset is an offset into the
+*                             sliding window uncoded lookahead buffer.
 *   Effects    : NONE
 *   Returned   : The sliding window index where the match starts and the
 *                length of the match.  If there is no match a length of
 *                zero will be returned.
 ****************************************************************************/
-unsigned int HashKey(unsigned int offset, unsigned char lookahead)
+static unsigned int HashKey(const unsigned int offset,
+    const hash_src_t hashSource)
 {
-    int i, hashKey;
+    unsigned int i;
+    unsigned int hashKey;
 
     hashKey = 0;
 
-    if (lookahead)
+    if (SRC_LOOKAHEAD == hashSource)
     {
         /* string is in the lookahead buffer */
         for (i = 0; i < (MAX_UNCODED + 1); i++)
         {
-            hashKey = (hashKey << 5) ^ (uncodedLookahead[offset]);
+            hashKey = (hashKey << 5) ^
+                uncodedLookahead[Wrap((offset + i), MAX_CODED)];
             hashKey %= HASH_SIZE;
-            offset = Wrap((offset + 1), MAX_CODED);
         }
     }
     else
@@ -104,9 +111,9 @@ unsigned int HashKey(unsigned int offset, unsigned char lookahead)
         /* string is in the sliding window */
         for (i = 0; i < (MAX_UNCODED + 1); i++)
         {
-            hashKey = (hashKey << 5) ^ (slidingWindow[offset]);
+            hashKey = (hashKey << 5) ^
+                slidingWindow[Wrap((offset + i), WINDOW_SIZE)];
             hashKey %= HASH_SIZE;
-            offset = Wrap((offset + 1), WINDOW_SIZE);
         }
     }
 
@@ -150,7 +157,7 @@ int InitializeSearchStructures()
         hashTable[i] = NULL_INDEX;
     }
 
-    hashTable[HashKey(0, 0)] = 0;
+    hashTable[HashKey(0, SRC_SLIDING_WINDOW)] = 0;
 
     return 0;
 }
@@ -166,16 +173,19 @@ int InitializeSearchStructures()
 *                length of the match.  If there is no match a length of
 *                zero will be returned.
 ****************************************************************************/
-encoded_string_t FindMatch(unsigned int windowHead, unsigned int uncodedHead)
+encoded_string_t FindMatch(const unsigned int windowHead,
+    const unsigned int uncodedHead)
 {
     encoded_string_t matchData;
-    unsigned int i, j;
+    unsigned int i;
+    unsigned int j;
 
     (void)windowHead;       /* prevents unused variable warning */
     matchData.length = 0;
     matchData.offset = 0;
 
-    i = hashTable[HashKey(uncodedHead, 1)];     /* start of proper list */
+    /* use hash to find the start of the list that we need to check */
+    i = hashTable[HashKey(uncodedHead, SRC_LOOKAHEAD)];
     j = 0;
 
     while (i != NULL_INDEX)
@@ -225,14 +235,15 @@ encoded_string_t FindMatch(unsigned int windowHead, unsigned int uncodedHead)
 *                to the end of the appropriate linked list.
 *   Returned   : NONE
 ****************************************************************************/
-void AddString(unsigned int charIndex)
+static void AddString(const unsigned int charIndex)
 {
-    unsigned int i, hashKey;
+    unsigned int i;
+    unsigned int hashKey;
 
     /* inserted character will be at the end of the list */
     next[charIndex] = NULL_INDEX;
 
-    hashKey = HashKey(charIndex, 0);
+    hashKey = HashKey(charIndex, SRC_SLIDING_WINDOW);
 
     if (hashTable[hashKey] == NULL_INDEX)
     {
@@ -264,15 +275,16 @@ void AddString(unsigned int charIndex)
 *                from its linked list.
 *   Returned   : NONE
 ****************************************************************************/
-void RemoveString(unsigned int charIndex)
+static void RemoveString(const unsigned int charIndex)
 {
-    unsigned int i, hashKey;
+    unsigned int i;
+    unsigned int hashKey;
     unsigned int nextIndex;
 
     nextIndex = next[charIndex];        /* remember where this points to */
     next[charIndex] = NULL_INDEX;
 
-    hashKey = HashKey(charIndex, 0);
+    hashKey = HashKey(charIndex, SRC_SLIDING_WINDOW);
 
     if (hashTable[hashKey] == charIndex)
     {
@@ -307,9 +319,10 @@ void RemoveString(unsigned int charIndex)
 *   Returned   : 0 for success, -1 for failure.  errno will be set in the
 *                event of a failure.
 ****************************************************************************/
-int ReplaceChar(unsigned int charIndex, unsigned char replacement)
+int ReplaceChar(const unsigned int charIndex, const unsigned char replacement)
 {
-    unsigned int firstIndex, i;
+    unsigned int firstIndex;
+    unsigned int i;
 
     if (charIndex < MAX_UNCODED)
     {
