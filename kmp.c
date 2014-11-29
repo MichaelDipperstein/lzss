@@ -77,7 +77,7 @@ int InitializeSearchStructures()
 *                kmpTable[i].
 *   Returned   : None
 ****************************************************************************/
-void FillTable(unsigned char *uncoded, int* kmpTable)
+static void FillTable(unsigned char *uncoded, int* kmpTable)
 {
     int i;  /* current position in the kmpTable */
     int j;  /* next position for the current candidate substring in uncoded */
@@ -123,7 +123,8 @@ void FillTable(unsigned char *uncoded, int* kmpTable)
 *                length of the match.  If there is no match a length of
 *                zero will be returned.
 ****************************************************************************/
-encoded_string_t FindMatch(unsigned int windowHead, unsigned int uncodedHead)
+encoded_string_t FindMatch(const unsigned int windowHead,
+    const unsigned int uncodedHead)
 {
     encoded_string_t matchData;
     unsigned int m;             /* starting position in string being searched */
@@ -184,7 +185,7 @@ encoded_string_t FindMatch(unsigned int windowHead, unsigned int uncodedHead)
         }
     }
 
-    /* we only got a partial match.  return whatever we got. */
+    /* we either got a complete match or searched the whole dictionary */
     return matchData;
 }
 
@@ -199,7 +200,7 @@ encoded_string_t FindMatch(unsigned int windowHead, unsigned int uncodedHead)
 *   Returned   : 0 for success, -1 for failure.  errno will be set in the
 *                event of a failure.
 ****************************************************************************/
-int ReplaceChar(unsigned int charIndex, unsigned char replacement)
+int ReplaceChar(const unsigned int charIndex, const unsigned char replacement)
 {
     slidingWindow[charIndex] = replacement;
     return 0;
