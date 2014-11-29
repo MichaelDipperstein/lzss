@@ -7,39 +7,9 @@
 *   Date    : February 21, 2004
 *
 ****************************************************************************
-*   UPDATES
-*
-*   Revision 1.1  2004/02/22 17:36:30  michael
-*   Initial revision.  Mostly code form old lzss.c.
-*
-*   11/07/04    Name changed to sample.c
-*
-*   $Id: sample.c,v 1.5 2007/09/20 04:34:45 michael Exp $
-*   $Log: sample.c,v $
-*   Revision 1.5  2007/09/20 04:34:45  michael
-*   Replace getopt with optlist.
-*   Changes required for LGPL v3.
-*
-*   Revision 1.4  2006/12/26 04:09:09  michael
-*   Updated e-mail address and minor text clean-up.
-*
-*   Revision 1.3  2004/11/13 22:51:01  michael
-*   Provide distinct names for by file and by name functions and add some
-*   comments to make their usage clearer.
-*
-*   Revision 1.2  2004/11/11 14:37:26  michael
-*   Open input and output files as binary.
-*
-*   Revision 1.1  2004/11/08 05:54:18  michael
-*   1. Split encode and decode routines for smarter linking
-*   2. Renamed lzsample.c sample.c to match my other samples
-*   3. Makefile now builds code as libraries for better LGPL compliance.
-*
-*
-****************************************************************************
 *
 * SAMPLE: Sample usage of LZSS Library
-* Copyright (C) 2004, 2006, 2007 by
+* Copyright (C) 2004, 2006, 2007, 2014 by
 * Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)
 *
 * This file is part of the lzss library.
@@ -75,12 +45,11 @@ typedef enum
 {
     ENCODE,
     DECODE
-} MODES;
+} modes_t;
 
 /***************************************************************************
 *                                CONSTANTS
 ***************************************************************************/
-char *RemovePath(char *fullPath);
 
 /***************************************************************************
 *                            GLOBAL VARIABLES
@@ -103,13 +72,16 @@ char *RemovePath(char *fullPath);
 *   Parameters : argc - number of parameters
 *                argv - parameter list
 *   Effects    : Encodes/Decodes input file
-*   Returned   : EXIT_SUCCESS for success, otherwise EXIT_FAILURE.
+*   Returned   : 0 for success, -1 for failure.  errno will be set in the
+*                event of a failure.
 ****************************************************************************/
 int main(int argc, char *argv[])
 {
-    option_t *optList, *thisOpt;
-    FILE *fpIn, *fpOut;      /* pointer to open input & output files */
-    MODES mode;
+    option_t *optList;
+    option_t *thisOpt;
+    FILE *fpIn;             /* pointer to open input file */
+    FILE *fpOut;            /* pointer to open output file */
+    modes_t mode;
 
     /* initialize data */
     fpIn = NULL;
@@ -144,7 +116,7 @@ int main(int argc, char *argv[])
                     }
 
                     FreeOptList(optList);
-                    exit(EXIT_FAILURE);
+                    return -1;
                 }
 
                 /* open input file as binary */
@@ -159,7 +131,7 @@ int main(int argc, char *argv[])
                     }
 
                     FreeOptList(optList);
-                    exit(EXIT_FAILURE);
+                    return -1;
                 }
                 break;
 
@@ -175,7 +147,7 @@ int main(int argc, char *argv[])
                     }
 
                     FreeOptList(optList);
-                    exit(EXIT_FAILURE);
+                    return -1;
                 }
 
                 /* open output file as binary */
@@ -190,13 +162,13 @@ int main(int argc, char *argv[])
                     }
 
                     FreeOptList(optList);
-                    exit(EXIT_FAILURE);
+                    return -1;
                 }
                 break;
 
             case 'h':
             case '?':
-                printf("Usage: %s <options>\n\n", RemovePath(argv[0]));
+                printf("Usage: %s <options>\n\n", FindFileName(argv[0]));
                 printf("options:\n");
                 printf("  -c : Encode input file to output file.\n");
                 printf("  -d : Decode input file to output file.\n");
@@ -204,10 +176,10 @@ int main(int argc, char *argv[])
                 printf("  -o <filename> : Name of output file.\n");
                 printf("  -h | ?  : Print out command line options.\n\n");
                 printf("Default: %s -c -i stdin -o stdout\n",
-                    RemovePath(argv[0]));
+                    FindFileName(argv[0]));
 
                 FreeOptList(optList);
-                return(EXIT_SUCCESS);
+                return 0;
         }
 
         optList = thisOpt->next;
@@ -215,13 +187,11 @@ int main(int argc, char *argv[])
         thisOpt = optList;
     }
 
-
     /* use stdin/out if no files are provided */
     if (fpIn == NULL)
     {
         fpIn = stdin;
     }
-
 
     if (fpOut == NULL)
     {
@@ -231,48 +201,15 @@ int main(int argc, char *argv[])
     /* we have valid parameters encode or decode */
     if (mode == ENCODE)
     {
-        EncodeLZSSByFile(fpIn, fpOut);
+        EncodeLZSS(fpIn, fpOut);
     }
     else
     {
-        DecodeLZSSByFile(fpIn, fpOut);
+        DecodeLZSS(fpIn, fpOut);
     }
 
     /* remember to close files */
     fclose(fpIn);
     fclose(fpOut);
-    return EXIT_SUCCESS;
-}
-
-/***************************************************************************
-*   Function   : RemovePath
-*   Description: This is function accepts a pointer to the name of a file
-*                along with path information and returns a pointer to the
-*                character that is not part of the path.
-*   Parameters : fullPath - pointer to an array of characters containing
-*                           a file name and possible path modifiers.
-*   Effects    : None
-*   Returned   : Returns a pointer to the first character after any path
-*                information.
-***************************************************************************/
-char *RemovePath(char *fullPath)
-{
-    int i;
-    char *start, *tmp;                          /* start of file name */
-    const char delim[3] = {'\\', '/', ':'};     /* path deliminators */
-
-    start = fullPath;
-
-    /* find the first character after all file path delimiters */
-    for (i = 0; i < 3; i++)
-    {
-        tmp = strrchr(start, delim[i]);
-
-        if (tmp != NULL)
-        {
-            start = tmp + 1;
-        }
-    }
-
-    return start;
+    return 0;
 }

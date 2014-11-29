@@ -11,7 +11,7 @@
 *
 * Tree: Tree table optimized matching routines used by LZSS
 *       Encoding/Decoding Routine
-* Copyright (C) 2010 by
+* Copyright (C) 2010, 2014 by
 * Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)
 *
 * This file is part of the lzss library.
@@ -92,6 +92,10 @@ void RemoveString(unsigned int charIndex);
 void PrintLen(unsigned int charIndex, unsigned int len);
 void DumpTree(unsigned int root);
 
+/***************************************************************************
+*                                FUNCTIONS
+***************************************************************************/
+
 /****************************************************************************
 *   Function   : InitializeSearchStructures
 *   Description: This function initializes structures used to speed up the
@@ -103,12 +107,13 @@ void DumpTree(unsigned int root);
 *                symbols.
 *   Parameters : None
 *   Effects    : A tree consisting of just a root node is created.
-*   Returned   : None
+*   Returned   : 0 for success, -1 for failure.  errno will be set in the
+*                event of a failure.
 *
 *   NOTE: This function assumes that the sliding window is initially filled
 *         with all identical characters.
 ****************************************************************************/
-void InitializeSearchStructures()
+int InitializeSearchStructures()
 {
     unsigned int i;
 
@@ -122,11 +127,13 @@ void InitializeSearchStructures()
 
     /************************************************************************
     * Since the encode routine only fills the sliding window with one
-    * character, there is only possible MAX_CODED length string in the tree.
-    * Use the newest of those strings at the tree root.
+    * character, there are only possible MAX_CODED length strings in the
+    * tree.  Use the newest of those strings at the tree root.
     ************************************************************************/
     treeRoot = (WINDOW_SIZE - MAX_CODED) - 1;
     tree[treeRoot].parent = ROOT_INDEX;
+
+    return 0;
 }
 
 /****************************************************************************
@@ -268,7 +275,7 @@ void AddString(unsigned int charIndex)
 
     here = treeRoot;
 
-    while(TRUE)
+    while(1)
     {
         if (compare < 0)
         {
@@ -420,9 +427,10 @@ void RemoveString(unsigned int charIndex)
 *                binary tree nodes for strings containing
 *                slidingWindow[charIndex] are removed and new ones are
 *                added.
-*   Returned   : NONE
+*   Returned   : 0 for success, -1 for failure.  errno will be set in the
+*                event of a failure.
 ****************************************************************************/
-void ReplaceChar(unsigned int charIndex, unsigned char replacement)
+int ReplaceChar(unsigned int charIndex, unsigned char replacement)
 {
     unsigned int firstIndex, i;
 
@@ -448,6 +456,8 @@ void ReplaceChar(unsigned int charIndex, unsigned char replacement)
     {
         AddString(Wrap((firstIndex + i), WINDOW_SIZE));
     }
+
+    return 0;
 }
 
 /****************************************************************************

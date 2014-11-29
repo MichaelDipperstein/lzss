@@ -1,66 +1,16 @@
 /***************************************************************************
 *                 Lempel, Ziv, Storer, and Szymanski Encoding
 *
-*   File    : lzdecode.c
+*   File    : lzss.c
 *   Purpose : Use lzss coding (Storer and Szymanski's modified LZ77) to
 *             compress lzss data files.
 *   Author  : Michael Dipperstein
-*   Date    : November 07, 2004
-*
-****************************************************************************
-*   UPDATES
-*
-*   Date        Change
-*   12/10/03    Changed handling of sliding window to better match standard
-*               algorithm description.
-*   12/11/03    Remebered to copy encoded characters to the sliding window
-*               even when there are no more characters in the input stream.
-*
-*
-*   Revision 1.2  2004/02/22 17:14:26  michael
-*   - Separated encode/decode, match finding, and main.
-*   - Use bitfiles for reading/writing files
-*   - Use traditional LZSS encoding where the coded/uncoded bits
-*     precede the symbol they are associated with, rather than
-*     aggregating the bits.
-*
-*   Revision 1.1.1.1  2004/01/21 06:25:49  michael
-*   Initial version
-*
-*   11/07/04    Separated encode and decode functions for improved
-*               modularity.
-*
-*   $Id: lzencode.c,v 1.6 2007/09/20 04:34:25 michael Exp $
-*   $Log: lzencode.c,v $
-*   Revision 1.6  2007/09/20 04:34:25  michael
-*   Changes required for LGPL v3.
-*
-*   Revision 1.5  2007/03/25 05:11:32  michael
-*   Corrected file closure error reported by "Carl@Yahoo" .  Now  both input
-*   and output files are closed.
-*
-*   Revision 1.4  2006/12/26 04:09:09  michael
-*   Updated e-mail address and minor text clean-up.
-*
-*   Revision 1.3  2005/12/28 06:03:30  michael
-*   Use slower but clearer Get/PutBitsInt for reading/writing bits.
-*   Replace mod with conditional Wrap macro.
-*
-*   Revision 1.2  2004/11/13 22:51:00  michael
-*   Provide distinct names for by file and by name functions and add some
-*   comments to make their usage clearer.
-*
-*   Revision 1.1  2004/11/08 05:54:18  michael
-*   1. Split encode and decode routines for smarter linking
-*   2. Renamed lzsample.c sample.c to match my other samples
-*   3. Makefile now builds code as libraries for better LGPL compliance.
-*
-*
+*   Date    : November 28, 2014
 *
 ****************************************************************************
 *
-* LZEncode: An ANSI C LZSS Encoding Routines
-* Copyright (C) 2003-2007 by
+* LZss: An ANSI C LZSS Encoding/Decoding Routines
+* Copyright (C) 2003 - 2007, 2014 by
 * Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)
 *
 * This file is part of the lzss library.
@@ -84,8 +34,8 @@
 *                             INCLUDED FILES
 ***************************************************************************/
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 #include "lzlocal.h"
 #include "bitfile.h"
 
@@ -101,8 +51,8 @@
 *                            GLOBAL VARIABLES
 ***************************************************************************/
 /* cyclic buffer sliding window of already read characters */
-extern unsigned char slidingWindow[];
-extern unsigned char uncodedLookahead[];
+unsigned char slidingWindow[WINDOW_SIZE];
+unsigned char uncodedLookahead[MAX_CODED];
 
 /***************************************************************************
 *                               PROTOTYPES
@@ -113,7 +63,7 @@ extern unsigned char uncodedLookahead[];
 ***************************************************************************/
 
 /****************************************************************************
-*   Function   : EncodeLZSSByFile
+*   Function   : EncodeLZSS
 *   Description: This function will read an input file and write an output
 *                file encoded according to the traditional LZSS algorithm.
 *                This algorithm encodes strings as 16 bits (a 12 bit offset
@@ -123,14 +73,14 @@ extern unsigned char uncodedLookahead[];
 *                       output
 *   Effects    : fpIn is encoded and written to fpOut.  Neither file is
 *                closed after exit.
-*   Returned   : EXIT_SUCCESS or EXIT_FAILURE
+*   Returned   : 0 for success, -1 for failure.  errno will be set in the
+*                event of a failure.
 ****************************************************************************/
-int EncodeLZSSByFile(FILE *fpIn, FILE *fpOut)
+int EncodeLZSS(FILE *fpIn, FILE *fpOut)
 {
     bit_file_t *bfpOut;
-
     encoded_string_t matchData;
-	int c;
+    int c;
     unsigned int i;
     unsigned int len;                       /* length of string */
 
@@ -138,20 +88,19 @@ int EncodeLZSSByFile(FILE *fpIn, FILE *fpOut)
     unsigned int windowHead, uncodedHead;
 
     /* use stdin if no input file */
-    if (fpIn == NULL)
+    if ((NULL == fpIn) || (NULL == fpOut))
     {
-        fpIn = stdin;
+        errno = ENOENT;
+        return -1;
     }
 
-    if (fpOut == NULL)
+    /* convert output file to bitfile */
+    bfpOut = MakeBitFile(fpOut, BF_WRITE);
+
+    if (NULL == bfpOut)
     {
-        /* use stdout if no output file */
-        bfpOut = MakeBitFile(stdout, BF_WRITE);
-    }
-    else
-    {
-        /* convert output file to bitfile */
-        bfpOut = MakeBitFile(fpOut, BF_WRITE);
+        perror("Making Output File a BitFile");
+        return -1;
     }
 
     windowHead = 0;
@@ -173,13 +122,19 @@ int EncodeLZSSByFile(FILE *fpIn, FILE *fpOut)
         uncodedLookahead[len] = c;
     }
 
-    if (len == 0)
+    if (0 == len)
     {
-        return (EXIT_SUCCESS);   /* inFile was empty */
+        return 0;   /* inFile was empty */
     }
 
     /* Look for matching string in sliding window */
-    InitializeSearchStructures();
+    i = InitializeSearchStructures();
+
+    if (0 != i)
+    {
+        return i;       /* InitializeSearchStructures returned an error */
+    }
+
     matchData = FindMatch(windowHead, uncodedHead);
 
     /* now encoded the rest of the file until an EOF is read */
@@ -247,54 +202,121 @@ int EncodeLZSSByFile(FILE *fpIn, FILE *fpOut)
     /* we've decoded everything, free bitfile structure */
     BitFileToFILE(bfpOut);
 
-   return (EXIT_SUCCESS);
+   return 0;
 }
 
 /****************************************************************************
-*   Function   : EncodeLZSSByName
-*   Description: This function is provided to maintain compatibility with
-*                older versions of my LZSS implementation which used file
-*                names instead of file pointers.
-*   Parameters : inFile - name of file to encode
-*                outFile - name of file to write encoded output
-*   Effects    : inFile is encoded and written to outFile
-*   Returned   : EXIT_SUCCESS or EXIT_FAILURE
+*   Function   : DecodeLZSSByFile
+*   Description: This function will read an LZSS encoded input file and
+*                write an output file.  This algorithm encodes strings as 16
+*                bits (a 12 bit offset + a 4 bit length).
+*   Parameters : fpIn - pointer to the open binary file to decode
+*                fpOut - pointer to the open binary file to write decoded
+*                       output
+*   Effects    : fpIn is decoded and written to fpOut.  Neither file is
+*                closed after exit.
+*   Returned   : 0 for success, -1 for failure.  errno will be set in the
+*                event of a failure.
 ****************************************************************************/
-int EncodeLZSSByName(char *inFile, char *outFile)
+int DecodeLZSS(FILE *fpIn, FILE *fpOut)
 {
-    FILE *fpIn, *fpOut;
-    int returnValue;
+    bit_file_t *bfpIn;
+    int c;
+    unsigned int i, nextChar;
+    encoded_string_t code;              /* offset/length code for string */
 
-    /* open binary input and output files */
-    if (inFile == NULL)
+    /* use stdin if no input file */
+    if ((NULL == fpIn) || (NULL == fpOut))
     {
-        fpIn = stdin;
-    }
-    if ((fpIn = fopen(inFile, "rb")) == NULL)
-    {
-        perror(inFile);
-        return (EXIT_FAILURE);
+        errno = ENOENT;
+        return -1;
     }
 
-    if (outFile == NULL)
+    /* convert input file to bitfile */
+    bfpIn = MakeBitFile(fpIn, BF_READ);
+
+    if (NULL == bfpIn)
     {
-        fpOut = stdout;
+        perror("Making Input File a BitFile");
+        return -1;
     }
-    else
+
+    /************************************************************************
+    * Fill the sliding window buffer with some known vales.  EncodeLZSS must
+    * use the same values.  If common characters are used, there's an
+    * increased chance of matching to the earlier strings.
+    ************************************************************************/
+    memset(slidingWindow, ' ', WINDOW_SIZE * sizeof(unsigned char));
+
+    nextChar = 0;
+
+    while (1)
     {
-        if ((fpOut = fopen(outFile, "wb")) == NULL)
+        if ((c = BitFileGetBit(bfpIn)) == EOF)
         {
-            fclose(fpIn);
-            perror(outFile);
-            return (EXIT_FAILURE);
+            /* we hit the EOF */
+            break;
+        }
+
+        if (c == UNCODED)
+        {
+            /* uncoded character */
+            if ((c = BitFileGetChar(bfpIn)) == EOF)
+            {
+                break;
+            }
+
+            /* write out byte and put it in sliding window */
+            putc(c, fpOut);
+            slidingWindow[nextChar] = c;
+            nextChar = Wrap((nextChar + 1), WINDOW_SIZE);
+        }
+        else
+        {
+            /* offset and length */
+            code.offset = 0;
+            code.length = 0;
+
+            if ((BitFileGetBitsNum(bfpIn, &code.offset, OFFSET_BITS,
+                sizeof(unsigned int))) == EOF)
+            {
+                break;
+            }
+
+            if ((BitFileGetBitsNum(bfpIn, &code.length, LENGTH_BITS,
+                sizeof(unsigned int))) == EOF)
+            {
+                break;
+            }
+
+            code.length += MAX_UNCODED + 1;
+
+            /****************************************************************
+            * Write out decoded string to file and lookahead.  It would be
+            * nice to write to the sliding window instead of the lookahead,
+            * but we could end up overwriting the matching string with the
+            * new string if abs(offset - next char) < match length.
+            ****************************************************************/
+            for (i = 0; i < code.length; i++)
+            {
+                c = slidingWindow[Wrap((code.offset + i), WINDOW_SIZE)];
+                putc(c, fpOut);
+                uncodedLookahead[i] = c;
+            }
+
+            /* write out decoded string to sliding window */
+            for (i = 0; i < code.length; i++)
+            {
+                slidingWindow[Wrap((nextChar + i), WINDOW_SIZE)] =
+                    uncodedLookahead[i];
+            }
+
+            nextChar = Wrap((nextChar + code.length), WINDOW_SIZE);
         }
     }
 
-    returnValue = EncodeLZSSByFile(fpIn, fpOut);
+    /* we've decoded everything, free bitfile structure */
+    BitFileToFILE(bfpIn);
 
-    /* close files */
-    fclose(fpIn);
-    fclose(fpOut);
-
-    return (returnValue);
+    return 0;
 }

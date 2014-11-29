@@ -9,32 +9,9 @@
 *   Date    : February 18, 2004
 *
 ****************************************************************************
-*   UPDATES
-*
-*   $Id: lzlocal.h,v 1.5 2007/09/20 04:34:25 michael Exp $
-*   $Log: lzlocal.h,v $
-*   Revision 1.5  2007/09/20 04:34:25  michael
-*   Changes required for LGPL v3.
-*
-*   Revision 1.4  2006/12/26 04:09:09  michael
-*   Updated e-mail address and minor text clean-up.
-*
-*   Revision 1.3  2005/12/28 05:58:52  michael
-*   Add Wrap macro to replace mod when value is less than twice the limit.
-*
-*   Revision 1.2  2004/11/08 05:54:18  michael
-*   1. Split encode and decode routines for smarter linking
-*   2. Renamed lzsample.c sample.c to match my other samples
-*   3. Makefile now builds code as libraries for better LGPL compliance.
-*
-*   Revision 1.1  2004/02/22 17:32:40  michael
-*   Initial revision of header files for sliding window search implementations.
-*
-*
-****************************************************************************
 *
 * LZSS: An ANSI C LZSS Encoding/Decoding Routine
-* Copyright (C) 2004-2007 by
+* Copyright (C) 2004 - 2007, 2014 by
 * Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)
 *
 * This file is part of the lzss library.
@@ -64,8 +41,6 @@
 /***************************************************************************
 *                                CONSTANTS
 ***************************************************************************/
-#define FALSE   0
-#define TRUE    1
 
 #define OFFSET_BITS     12
 #define LENGTH_BITS     4
@@ -103,15 +78,26 @@ typedef struct encoded_string_t
 *                                 MACROS
 ***************************************************************************/
 /* wraps array index within array bounds (assumes value < 2 * limit) */
-#define Wrap(value, limit)      (((value) < (limit)) ? (value) : ((value) - (limit)))
+#define Wrap(value, limit) \
+    (((value) < (limit)) ? (value) : ((value) - (limit)))
 
 /***************************************************************************
 *                               PROTOTYPES
 ***************************************************************************/
-void InitializeSearchStructures(void);
 
+/***************************************************************************
+* These are the prototypes for functions that must be provided by any
+* methods for maintaining and searching the sliding window dictionary.
+*
+* InitializeSearchStructures and ReplaceChar return 0 for success and -1
+* for a failure.  errno will be set in the event of a failure.
+*
+* FindMatch will return the encoded_string_t value referencing the match
+* in the sliding window dictionary.  the length field will be 0 if no
+* match is found.
+***************************************************************************/
+int InitializeSearchStructures(void);
+int ReplaceChar(unsigned int charIndex, unsigned char replacement);
 encoded_string_t FindMatch(unsigned int windowHead, unsigned int uncodedHead);
-
-void ReplaceChar(unsigned int charIndex, unsigned char replacement);
 
 #endif      /* ndef _LZSS_LOCAL_H */

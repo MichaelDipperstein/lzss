@@ -8,37 +8,10 @@
 *   Date    : February 21, 2004
 *
 ****************************************************************************
-*   UPDATES
-*   $Id: hash.c,v 1.7 2007/09/20 04:34:25 michael Exp $
-*   $Log: hash.c,v $
-*   Revision 1.7  2007/09/20 04:34:25  michael
-*   Changes required for LGPL v3.
-*
-*   Revision 1.6  2006/12/26 04:09:09  michael
-*   Updated e-mail address and minor text clean-up.
-*
-*   Revision 1.5  2005/12/29 14:37:56  michael
-*   Remove debug statements.
-*
-*   Revision 1.4  2005/12/29 14:32:56  michael
-*   Correct algorithm for replacing characters in dictionary.
-*
-*   Revision 1.3  2005/12/29 07:06:24  michael
-*   Let the hash table size vary with the size of the sliding window.
-*
-*   Revision 1.2  2005/12/28 06:03:30  michael
-*   Use slower but clearer Get/PutBitsInt for reading/writing bits.
-*   Replace mod with conditional Wrap macro.
-*
-*   Revision 1.1  2004/02/22 17:23:02  michael
-*   Initial revision of hash table search.  Mostly code from lzhash.c.
-*
-*
-****************************************************************************
 *
 * Hash: Hash table optimized matching routines used by LZSS
 *       Encoding/Decoding Routine
-* Copyright (C) 2004-2007 by
+* Copyright (C) 2004-2007, 2014 by
 * Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)
 *
 * This file is part of the lzss library.
@@ -103,8 +76,8 @@ unsigned int next[WINDOW_SIZE];             /* indices of next in hash list */
 *                Trans. Fundamentals, Vol. E83-A, No. 12 (December 2000)
 *   Parameters : offset - offset into either the uncoded lookahead or the
 *                         sliding window.
-*                lookahead - TRUE iff offset is an offset into the uncoded
-*                            lookahead buffer.
+*                lookahead - non-zero iff offset is an offset into the
+*                            uncoded lookahead buffer.
 *   Effects    : NONE
 *   Returned   : The sliding window index where the match starts and the
 *                length of the match.  If there is no match a length of
@@ -148,12 +121,13 @@ unsigned int HashKey(unsigned int offset, unsigned char lookahead)
 *                hash table pointing to linked lists is initialized.
 *   Parameters : None
 *   Effects    : The hash table and next array are initialized.
-*   Returned   : None
+*   Returned   : 0 for success, -1 for failure.  errno will be set in the
+*                event of a failure.
 *
 *   NOTE: This function assumes that the sliding window is initially filled
 *         with all identical characters.
 ****************************************************************************/
-void InitializeSearchStructures()
+int InitializeSearchStructures()
 {
     unsigned int i;
 
@@ -176,7 +150,9 @@ void InitializeSearchStructures()
         hashTable[i] = NULL_INDEX;
     }
 
-    hashTable[HashKey(0, FALSE)] = 0;
+    hashTable[HashKey(0, 0)] = 0;
+
+    return 0;
 }
 
 /****************************************************************************
@@ -199,7 +175,7 @@ encoded_string_t FindMatch(unsigned int windowHead, unsigned int uncodedHead)
     matchData.length = 0;
     matchData.offset = 0;
 
-    i = hashTable[HashKey(uncodedHead, TRUE)];  /* start of proper list */
+    i = hashTable[HashKey(uncodedHead, 1)];     /* start of proper list */
     j = 0;
 
     while (i != NULL_INDEX)
@@ -256,7 +232,7 @@ void AddString(unsigned int charIndex)
     /* inserted character will be at the end of the list */
     next[charIndex] = NULL_INDEX;
 
-    hashKey = HashKey(charIndex, FALSE);
+    hashKey = HashKey(charIndex, 0);
 
     if (hashTable[hashKey] == NULL_INDEX)
     {
@@ -296,7 +272,7 @@ void RemoveString(unsigned int charIndex)
     nextIndex = next[charIndex];        /* remember where this points to */
     next[charIndex] = NULL_INDEX;
 
-    hashKey = HashKey(charIndex, FALSE);
+    hashKey = HashKey(charIndex, 0);
 
     if (hashTable[hashKey] == charIndex)
     {
@@ -328,9 +304,10 @@ void RemoveString(unsigned int charIndex)
 *   Effects    : slidingWindow[charIndex] is replaced by replacement.  Old
 *                hash entries for strings containing slidingWindow[charIndex]
 *                are removed and new ones are added.
-*   Returned   : NONE
+*   Returned   : 0 for success, -1 for failure.  errno will be set in the
+*                event of a failure.
 ****************************************************************************/
-void ReplaceChar(unsigned int charIndex, unsigned char replacement)
+int ReplaceChar(unsigned int charIndex, unsigned char replacement)
 {
     unsigned int firstIndex, i;
 
@@ -356,4 +333,6 @@ void ReplaceChar(unsigned int charIndex, unsigned char replacement)
     {
         AddString(Wrap((firstIndex + i), WINDOW_SIZE));
     }
+
+    return 0;
 }

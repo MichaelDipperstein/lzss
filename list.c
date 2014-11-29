@@ -8,29 +8,10 @@
 *   Date    : February 18, 2004
 *
 ****************************************************************************
-*   UPDATES
-*
-*   $Id: list.c,v 1.4 2007/09/20 04:34:25 michael Exp $
-*   $Log: list.c,v $
-*   Revision 1.4  2007/09/20 04:34:25  michael
-*   Changes required for LGPL v3.
-*
-*   Revision 1.3  2006/12/26 04:09:09  michael
-*   Updated e-mail address and minor text clean-up.
-*
-*   Revision 1.2  2005/12/28 06:03:30  michael
-*   Use slower but clearer Get/PutBitsInt for reading/writing bits.
-*   Replace mod with conditional Wrap macro.
-*
-*   Revision 1.1  2004/02/22 17:24:02  michael
-*   Initial revision of linked list search.  Mostly code from lzlist.c.
-*
-*
-****************************************************************************
 *
 * List: Linked list optimized matching routines used by LZSS
 *       Encoding/Decoding Routine
-* Copyright (C) 2004-2007 by
+* Copyright (C) 2004 - 2007, 2014 by
 * Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)
 *
 * This file is part of the lzss library.
@@ -80,12 +61,13 @@ unsigned int next[WINDOW_SIZE];             /* indices of next in list */
 *                the same character are initialized.
 *   Parameters : None
 *   Effects    : Initializes lists and next array
-*   Returned   : None
+*   Returned   : 0 for success, -1 for failure.  errno will be set in the
+*                event of a failure.
 *
 *   NOTE: This function assumes that the sliding window is initially filled
 *         with all identical characters.
 ****************************************************************************/
-void InitializeSearchStructures()
+int InitializeSearchStructures()
 {
     unsigned int i;
 
@@ -104,6 +86,7 @@ void InitializeSearchStructures()
     }
 
     lists[' '] = 0;
+    return 0;
 }
 
 /****************************************************************************
@@ -244,11 +227,14 @@ void RemoveChar(unsigned int charIndex)
 *   Effects    : slidingWindow[charIndex] is replaced by replacement.  Old
 *                list entries for strings containing slidingWindow[charIndex]
 *                are removed and new ones are added.
-*   Returned   : None
+*   Returned   : 0 for success, -1 for failure.  errno will be set in the
+*                event of a failure.
 ****************************************************************************/
-void ReplaceChar(unsigned int charIndex, unsigned char replacement)
+int ReplaceChar(unsigned int charIndex, unsigned char replacement)
 {
     RemoveChar(charIndex);
     slidingWindow[charIndex] = replacement;
     AddChar(charIndex);
+
+    return 0;
 }

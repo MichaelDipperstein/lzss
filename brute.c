@@ -8,29 +8,10 @@
 *   Date    : February 18, 2004
 *
 ****************************************************************************
-*   UPDATES
-*
-*   $Id: brute.c,v 1.4 2007/09/20 04:34:25 michael Exp $
-*   $Log: brute.c,v $
-*   Revision 1.4  2007/09/20 04:34:25  michael
-*   Changes required for LGPL v3.
-*
-*   Revision 1.3  2006/12/26 04:09:09  michael
-*   Updated e-mail address and minor text clean-up.
-*
-*   Revision 1.2  2005/12/28 06:03:30  michael
-*   Use slower but clearer Get/PutBitsInt for reading/writing bits.
-*   Replace mod with conditional Wrap macro.
-*
-*   Revision 1.1  2004/02/22 17:21:37  michael
-*   Initial revision of brute force search.  Mostly code removed from lzss.c.
-*
-*
-****************************************************************************
 *
 * Brute: Brute force matching routines used by LZSS Encoding/Decoding
 *        Routine
-* Copyright (C) 2004-2007 by
+* Copyright (C) 2004 - 2007, 2014 by
 * Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)
 *
 * This file is part of the lzss library.
@@ -70,11 +51,12 @@ extern unsigned char uncodedLookahead[];
 *                special structures, so this function doesn't do anything.
 *   Parameters : None
 *   Effects    : None
-*   Returned   : None
+*   Returned   : 0 for success, -1 for failure.  errno will be set in the
+*                event of a failure.
 ****************************************************************************/
-void InitializeSearchStructures()
+int InitializeSearchStructures()
 {
-    return;
+    return 0;
 }
 
 /****************************************************************************
@@ -99,7 +81,7 @@ encoded_string_t FindMatch(unsigned int windowHead, unsigned int uncodedHead)
     i = windowHead;  /* start at the beginning of the sliding window */
     j = 0;
 
-    while (TRUE)
+    while (1)
     {
         if (slidingWindow[i] == uncodedLookahead[uncodedHead])
         {
@@ -148,9 +130,11 @@ encoded_string_t FindMatch(unsigned int windowHead, unsigned int uncodedHead)
 *   Parameters : charIndex - sliding window index of the character to be
 *                            removed from the linked list.
 *   Effects    : slidingWindow[charIndex] is replaced by replacement.
-*   Returned   : None
+*   Returned   : 0 for success, -1 for failure.  errno will be set in the
+*                event of a failure.
 ****************************************************************************/
-void ReplaceChar(unsigned int charIndex, unsigned char replacement)
+int ReplaceChar(unsigned int charIndex, unsigned char replacement)
 {
     slidingWindow[charIndex] = replacement;
+    return 0;
 }

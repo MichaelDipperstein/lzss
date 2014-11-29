@@ -11,18 +11,10 @@
 *   Date    : February 10, 2010
 *
 ****************************************************************************
-*   UPDATES
-*
-*   $Id: kmp.c,v 1.1 2010/02/12 05:18:41 michael Exp $
-*   $Log: kmp.c,v $
-*   Revision 1.1  2010/02/12 05:18:41  michael
-*   Include implementation of the Knuth-Morris-Pratt search optimization.
-*
-****************************************************************************
 *
 * KMP: Knuth–Morris–Prat matching routines used by LZSS Encoding/Decoding
 *        Routine
-* Copyright (C) 2010 by
+* Copyright (C) 2010, 2014 by
 * Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)
 *
 * This file is part of the lzss library.
@@ -63,11 +55,12 @@ extern unsigned char uncodedLookahead[];
 *                doesn't do anything.
 *   Parameters : None
 *   Effects    : None
-*   Returned   : None
+*   Returned   : 0 for success, -1 for failure.  errno will be set in the
+*                event of a failure.
 ****************************************************************************/
-void InitializeSearchStructures()
+int InitializeSearchStructures()
 {
-    return;
+    return 0;
 }
 
 /****************************************************************************
@@ -203,9 +196,11 @@ encoded_string_t FindMatch(unsigned int windowHead, unsigned int uncodedHead)
 *   Parameters : charIndex - sliding window index of the character to be
 *                            removed from the linked list.
 *   Effects    : slidingWindow[charIndex] is replaced by replacement.
-*   Returned   : None
+*   Returned   : 0 for success, -1 for failure.  errno will be set in the
+*                event of a failure.
 ****************************************************************************/
-void ReplaceChar(unsigned int charIndex, unsigned char replacement)
+int ReplaceChar(unsigned int charIndex, unsigned char replacement)
 {
     slidingWindow[charIndex] = replacement;
+    return 0;
 }
