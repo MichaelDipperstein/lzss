@@ -20,10 +20,8 @@ bitfile.c       - Library to allow bitwise reading and writing of files.
 bitfile.h       - Header for bitfile library.
 brute.c         - File implementing brute force search for strings matching the
                   strings to be encoded.
-comp.c          - Simple example of a compression only program.
 COPYING         - Rules for copying and distributing GPL software
 COPYING.LESSER  - Rules for copying and distributing LGPL software
-decomp.c        - Simple example of a decompression only program.
 hash.c          - File implementing hash table search for strings matching the
                   strings to be encoded.
 kmp.c           - File implementing the Knuth-Morris-Pratt string matching
