@@ -282,7 +282,7 @@ static void AddString(const unsigned int charIndex)
 
     if (0 == compare)
     {
-        /* make start the new root, because it's newer */
+        /* make start the new root, because it's newer identical */
         tree[charIndex].leftChild = tree[treeRoot].leftChild;
         tree[charIndex].rightChild = tree[treeRoot].rightChild;
         tree[charIndex].parent = ROOT_INDEX;
@@ -337,7 +337,7 @@ static void AddString(const unsigned int charIndex)
         }
         else
         {
-            /* replace old with new */
+            /* identical strings.  replace old with new */
             tree[charIndex].leftChild = tree[here].leftChild;
             tree[charIndex].rightChild = tree[here].rightChild;
             tree[charIndex].parent = tree[here].parent;
@@ -362,7 +362,7 @@ static void AddString(const unsigned int charIndex)
 }
 
 /****************************************************************************
-*   Function   : AddString
+*   Function   : RemoveString
 *   Description: This function removes the MAX_UNCODED long string starting
 *                at slidingWindow[charIndex] from the binary tree.
 *   Parameters : charIndex - sliding window index of the string to be
@@ -452,17 +452,17 @@ int ReplaceChar(const unsigned int charIndex, const unsigned char replacement)
 {
     unsigned int firstIndex, i;
 
-    if (charIndex < MAX_UNCODED)
+    if (charIndex < MAX_CODED)
     {
-        firstIndex = (WINDOW_SIZE + charIndex) - MAX_UNCODED;
+        firstIndex = (WINDOW_SIZE + charIndex) - MAX_CODED;
     }
     else
     {
-        firstIndex = charIndex - MAX_UNCODED;
+        firstIndex = charIndex - MAX_CODED;
     }
 
     /* remove all tree entries containing character at char index */
-    for (i = 0; i < (MAX_UNCODED + 1); i++)
+    for (i = 0; i <= MAX_CODED; i++)
     {
         RemoveString(Wrap((firstIndex + i), WINDOW_SIZE));
     }
@@ -470,7 +470,7 @@ int ReplaceChar(const unsigned int charIndex, const unsigned char replacement)
     slidingWindow[charIndex] = replacement;
 
     /* add all hash entries containing character at char index */
-    for (i = 0; i < (MAX_UNCODED + 1); i++)
+    for (i = 0; i <= MAX_CODED; i++)
     {
         AddString(Wrap((firstIndex + i), WINDOW_SIZE));
     }

@@ -58,7 +58,7 @@ extern unsigned char uncodedLookahead[];
 *   Returned   : 0 for success, -1 for failure.  errno will be set in the
 *                event of a failure.
 ****************************************************************************/
-int InitializeSearchStructures()
+int InitializeSearchStructures(void)
 {
     return 0;
 }
