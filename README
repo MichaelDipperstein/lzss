@@ -85,6 +85,32 @@ options:
 -o <filename>   The name of the output file.  There is no valid usage of this
                 program without a specified input file.
 
+LIBRARY API
+-----------
+Encoding Data:
+int EncodeLZSS(FILE *fpIn, FILE *fpOut);
+fpIn
+    The file stream to be encoded.  It must opened.  NULL pointers will return
+    an error.
+fpOut
+    The file stream receiving the encoded results.  It must be opened.  NULL
+    pointers will return an error.
+Return Value
+    Zero for success, -1 for failure.  Error type is contained in errno.  Files
+    will remain open.
+
+Decoding Data:
+int EncodeLZSS(FILE *fpIn, FILE *fpOut);
+fpIn
+    The file stream to be decoded.  It must be opened.  NULL pointers will
+    return an error.
+fpOut
+    The file stream receiving the decoded results.  It must be opened.  NULL
+    pointers will return an error.
+Return Value
+    Zero for success, -1 for failure.  Error type is contained in errno.  Files
+    will remain open.
+
 HISTORY
 -------
 11/24/03  - Initial release
@@ -122,6 +148,13 @@ HISTORY
 08/16/10  - Added code that uses a binary tree to sort strings as they are
             added to the sliding window and to search for string matches during
             the encoding process.
+11/30/14  - Corrected binary tree code for adding a new character into the
+            sliding window dictionary.
+          - Changed return value to 0 for success and -1 for failure with
+            reason in errno.
+          - Upgraded to latest oplist and bitfile libraries.
+          - Tighter adherence to Michael Barr's "Top 10 Bug-Killing Coding
+            Standard Rules" (http://www.barrgroup.com/webinars/10rules).
 
 TODO
 ----
