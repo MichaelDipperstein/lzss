@@ -87,7 +87,7 @@ int EncodeLZSS(FILE *fpIn, FILE *fpOut)
     /* head of sliding window and lookahead */
     unsigned int windowHead, uncodedHead;
 
-    /* use stdin if no input file */
+    /* validate arguments */
     if ((NULL == fpIn) || (NULL == fpOut))
     {
         errno = ENOENT;
@@ -199,7 +199,7 @@ int EncodeLZSS(FILE *fpIn, FILE *fpOut)
         matchData = FindMatch(windowHead, uncodedHead);
     }
 
-    /* we've decoded everything, free bitfile structure */
+    /* we've encoded everything, free bitfile structure */
     BitFileToFILE(bfpOut);
 
    return 0;

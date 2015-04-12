@@ -98,7 +98,7 @@ Return Value
     will remain open.
 
 Decoding Data:
-int EncodeLZSS(FILE *fpIn, FILE *fpOut);
+int DecodeLZSS(FILE *fpIn, FILE *fpOut);
 fpIn
     The file stream to be decoded.  It must be opened.  NULL pointers will
     return an error.
