@@ -70,6 +70,8 @@ HISTORY
 -------
 08/01/07  - Initial release
 09/13/14  - Added FindFileName function, because I always use it with GetOptList
+            Tighter adherence to Michael Barr's "Top 10 Bug-Killing Coding
+            Standard Rules" (http://www.barrgroup.com/webinars/10rules).
 
 TODO
 ----
