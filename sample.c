@@ -9,7 +9,7 @@
 ****************************************************************************
 *
 * Sample: A bit file library sample usage program
-* Copyright (C) 2004-2014 by Michael Dipperstein (mdipper@alumni.cs.ucsb.edu)
+* Copyright (C) 2004-2016 by Michael Dipperstein (mdipper@alumni.cs.ucsb.edu)
 *
 * This file is part of the bit file library.
 *
