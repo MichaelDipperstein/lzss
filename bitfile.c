@@ -1,38 +1,45 @@
-/***************************************************************************
-*                        Bit Stream File Implementation
-*
-*   File    : bitfile.c
-*   Purpose : This file implements a simple library of I/O functions for
-*             files that contain data in sizes that aren't integral bytes.
-*             An attempt was made to make the functions in this library
-*             analogous to functions provided to manipulate byte streams.
-*             The functions contained in this library were created with
-*             compression algorithms in mind, but may be suited to other
-*             applications.
-*   Author  : Michael Dipperstein
-*   Date    : January 9, 2004
-*
-****************************************************************************
-*
-* Bitfile: Bit stream File I/O Routines
-* Copyright (C) 2004-2016 by Michael Dipperstein (mdipper@alumni.cs.ucsb.edu)
-*
-* This file is part of the bit file library.
-*
-* The bit file library is free software; you can redistribute it and/or
-* modify it under the terms of the GNU Lesser General Public License as
-* published by the Free Software Foundation; either version 3 of the
-* License, or (at your option) any later version.
-*
-* The bit file library is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser
-* General Public License for more details.
-*
-* You should have received a copy of the GNU Lesser General Public License
-* along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*
-***************************************************************************/
+/**
+ * \brief Bit file stream library implementation
+ * \file bitfile.h
+ * \author Michael Dipperstein (mdipper@alumni.cs.ucsb.edu)
+ * \date January 9, 2004
+ *
+ * This file implements a simple library of I/O functions for files that
+ * contain data in sizes that aren't integral bytes.  An attempt was made to
+ * make the functions in this library analogous to functions provided to
+ * manipulate byte streams.  The functions contained in this library were
+ * created with compression algorithms in mind, but may be suited to other
+ * applications.
+ *
+ * \copyright Copyright (C) 2004 - 2016 by Michael Dipperstein
+ * (mdipper@alumni.cs.ucsb.edu)
+ *
+ * \par
+ * This file is part of the bit file library.
+ *
+ * \license The bitfile library is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * \par
+ * The bitfile library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser
+ * General Public License for more details.
+ *
+ * \par
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+ /**
+ * \defgroup library Library Code
+ * \brief This module contains the code for the ezini INI file handling
+ * library
+ * @{
+ */
 
 /***************************************************************************
 *                             INCLUDED FILES
@@ -45,35 +52,52 @@
 *                            TYPE DEFINITIONS
 ***************************************************************************/
 
-/***************************************************************************
-* type to point to the kind of functions that put/get bits from/to numerical
-* data types (short, int, long, ...)
-* parameters: file pointer, data structure, number of bits, sizeof data.
-***************************************************************************/
+/**
+ * \typedef num_func_t
+ * \brief This type to points to the kind of functions that put/get bits
+ * from/to numerical data types (short, int, long, ...)
+ *
+ * The parameters are a bit file pointer, a pointer to a data structure,
+ * the number of bits, and the sizeof the data structure.
+ */
 typedef int (*num_func_t)(bit_file_t*, void*, const unsigned int, const size_t);
 
+/**
+ * \struct bit_file_t
+ * \brief This is an complete definition for the type containing data needed
+ * to correctly manipulate a bit file.
+ */
 struct bit_file_t
 {
-    FILE *fp;                   /* file pointer used by stdio functions */
-    unsigned char bitBuffer;    /* bits waiting to be read/written */
-    unsigned char bitCount;     /* number of bits in bitBuffer */
-    num_func_t PutBitsNumFunc;  /* endian specific BitFilePutBitsNum */
-    num_func_t GetBitsNumFunc;  /* endian specific BitFileGetBitsNum */
-    BF_MODES mode;              /* open for read, write, or append */
+    FILE *fp;                   /*!< file pointer used by stdio functions */
+    unsigned char bitBuffer;    /*!< bits waiting to be read/written */
+    unsigned char bitCount;     /*!< number of bits in bitBuffer */
+    num_func_t PutBitsNumFunc;  /*!< endian specific BitFilePutBitsNum */
+    num_func_t GetBitsNumFunc;  /*!< endian specific BitFileGetBitsNum */
+    BF_MODES mode;              /*!< open for read, write, or append */
 };
 
+/**
+ * \enum endian_t
+ * \brief This is an enumeration of the types of endianess handled by this
+ * library (big endian and little endian).
+ */
 typedef enum
 {
-    BF_UNKNOWN_ENDIAN,
-    BF_LITTLE_ENDIAN,
-    BF_BIG_ENDIAN
+    BF_UNKNOWN_ENDIAN,      /*!< unrecognized or untested endianess */
+    BF_LITTLE_ENDIAN,       /*!< little endian */
+    BF_BIG_ENDIAN           /*!< big endian */
 } endian_t;
 
-/* union used to test for endianess */
+/**
+ * \struct endian_test_t
+ * \brief This is a union used when testing for endianess.
+ */
 typedef union
 {
-    unsigned long word;
-    unsigned char bytes[sizeof(unsigned long)];
+    unsigned long word;                             /*!< an unsigned long */
+    unsigned char bytes[sizeof(unsigned long)];     /*!< bytes making up the
+                                                        unsigned long */
 } endian_test_t;
 
 /***************************************************************************
@@ -97,22 +121,28 @@ static int BitFileNotSupported(bit_file_t *stream, void *bits,
 *                                FUNCTIONS
 ***************************************************************************/
 
-/***************************************************************************
-*   Function   : BitFileOpen
-*   Description: This function opens a bit file for reading, writing,
-*                or appending.  If successful, a bit_file_t data
-*                structure will be allocated and a pointer to the
-*                structure will be returned.
-*   Parameters : fileName - NULL terminated string containing the name of
-*                           the file to be opened.
-*                mode - The mode of the file to be opened
-*   Effects    : The specified file will be opened and file structure will
-*                be allocated.
-*   Returned   : Pointer to the bit_file_t structure for the bit file
-*                opened, or NULL on failure.  errno will be set for all
-*                failure cases.
-***************************************************************************/
-bit_file_t *BitFileOpen(const char *fileName, const BF_MODES mode)
+/**
+ * \fn ibit_file_t *BitFileOpen(const char *fileName, const BF_MODES mode)
+ *
+ * \brief This function opens a bit file for reading, writing, or appending.
+ *
+ * \param fileName A pointer to a NULL terminated string containing the name
+ * of the file to be opened.
+ *
+ * \param mode The mode of the file to be opened (BF_READ, BF_WRITE, or
+ * BF_APPEND).
+ *
+ * \effects The specified file will be opened and file structure will be
+ * allocated.
+ *
+ * \returns  A pointer to the bit_file_t structure for the bit file opened,
+ * or NULL on failure.  errno will be set for all failure cases.
+ *
+ * This function opens a bit file for reading, writing, or appending.  If
+ * successful, a bit_file_t data structure will be allocated and a pointer
+ * to the structure will be returned.
+ */
+ bit_file_t *BitFileOpen(const char *fileName, const BF_MODES mode)
 {
     const char modes[3][3] = {"rb", "wb", "ab"};    /* binary modes for fopen */
     bit_file_t *bf;
@@ -1096,3 +1126,5 @@ static int BitFileNotSupported(bit_file_t *stream, void *bits,
 
     return -ENOTSUP;
 }
+
+/**@}*/

@@ -1,5 +1,5 @@
 /**
- * \brief Bit stream library header
+ * \brief Bit file stream library header
  * \file bitfile.h
  * \author Michael Dipperstein (mdipper@alumni.cs.ucsb.edu)
  * \date January 9, 2004
@@ -72,7 +72,8 @@
 
 /**
  * \enum BF_MODES
- * \brief This is an enumeration of the bitfile modes (read, write, and append)
+ * \brief This is an enumeration of the bit file modes (read, write, and
+ * append)
  */
 typedef enum
 {
@@ -82,11 +83,6 @@ typedef enum
     BF_NO_MODE      /*!< end of enum */
 } BF_MODES;
 
-/**
- * \struct bit_file_t
- * \brief This is an incomplete type to hide the implementation of the
- * structure that is used to access all bitfiles.
- */
 struct bit_file_t;
 
 /**
