@@ -1,6 +1,6 @@
 /**
  * \brief Bit file stream library implementation
- * \file bitfile.h
+ * \file bitfile.c
  * \author Michael Dipperstein (mdipper@alumni.cs.ucsb.edu)
  * \date January 9, 2004
  *
@@ -122,12 +122,12 @@ static int BitFileNotSupported(bit_file_t *stream, void *bits,
 ***************************************************************************/
 
 /**
- * \fn ibit_file_t *BitFileOpen(const char *fileName, const BF_MODES mode)
+ * \fn bit_file_t *BitFileOpen(const char *fileName, const BF_MODES mode)
  *
  * \brief This function opens a bit file for reading, writing, or appending.
  *
- * \param fileName A pointer to a NULL terminated string containing the name
- * of the file to be opened.
+ * \param fileName A pointer to a \c NULL terminated string containing the
+ * name of the file to be opened.
  *
  * \param mode The mode of the file to be opened (BF_READ, BF_WRITE, or
  * BF_APPEND).
@@ -135,8 +135,8 @@ static int BitFileNotSupported(bit_file_t *stream, void *bits,
  * \effects The specified file will be opened and file structure will be
  * allocated.
  *
- * \returns  A pointer to the bit_file_t structure for the bit file opened,
- * or NULL on failure.  errno will be set for all failure cases.
+ * \returns A pointer to the bit_file_t structure for the bit file opened,
+ * or \c NULL on failure.  \c errno will be set for all failure cases.
  *
  * This function opens a bit file for reading, writing, or appending.  If
  * successful, a bit_file_t data structure will be allocated and a pointer
@@ -202,20 +202,27 @@ static int BitFileNotSupported(bit_file_t *stream, void *bits,
     return (bf);
 }
 
-/***************************************************************************
-*   Function   : MakeBitFile
-*   Description: This function naively wraps a standard file in a
-*                bit_file_t structure.  ANSI-C doesn't support file status
-*                functions commonly found in other C variants, so the
-*                caller must be passed as a parameter.
-*   Parameters : stream - pointer to the standard file being wrapped.
-*                mode - The mode of the file being wrapped.
-*   Effects    : A bit_file_t structure will be created for the stream
-*                passed as a parameter.
-*   Returned   : Pointer to the bit_file_t structure for the bit file
-*                or NULL on failure.  errno will be set for all failure
-*                cases.
-***************************************************************************/
+/**
+ * \fn bit_file_t *MakeBitFile(FILE *stream, const BF_MODES mode)
+ *
+ * \brief This function naively wraps a standard file in a bit_file_t
+ * structure.
+ * 
+ * \param stream A pointer to the standard file being wrapped.
+ *
+ * \param mode The mode of the file being wrapped (BF_READ, BF_WRITE, or
+ * BF_APPEND).
+ *
+ * \effects A bit_file_t structure will be created for the stream passed as
+ * a parameter.
+ *
+ * \returns Pointer to the bit_file_t structure for the bit file or \c NULL
+ * on failure.  \c errno will be set for all failure cases.
+ *
+ * This function naively wraps a standard file in a bit_file_t structure.
+ * ANSI-C doesn't support file status functions commonly found in other C
+ * variants, so the caller must be passed as a parameter.
+ */
 bit_file_t *MakeBitFile(FILE *stream, const BF_MODES mode)
 {
     bit_file_t *bf;
@@ -267,18 +274,24 @@ bit_file_t *MakeBitFile(FILE *stream, const BF_MODES mode)
     return (bf);
 }
 
-/***************************************************************************
-*   Function   : DetermineEndianess
-*   Description: This function determines the endianess of the current
-*                hardware architecture.  An unsigned long is set to 1.  If
-*                the 1st byte of the unsigned long gets the 1, this is a
-*                little endian machine.  If the last byte gets the 1, this
-*                is a big endian machine.
-*   Parameters : None
-*   Effects    : None
-*   Returned   : endian_t for current machine architecture
-***************************************************************************/
-static endian_t DetermineEndianess(void)
+/**
+ * \fn endian_t DetermineEndianess(void)
+ *
+ * \brief This function determines the endianess of the current hardware
+ * architecture.
+ * 
+ * \param void
+ *
+ * \effects None
+ *
+ * \returns endian_t for the current machine architecture.
+ *
+ * This function determines the endianess of the current hardware
+ * architecture.  An unsigned long is set to 1.  If the first byte of the
+ * unsigned long gets the 1, this is a little endian machine.  If the last
+ * byte gets the 1, this is a big endian machine.
+ */
+ static endian_t DetermineEndianess(void)
 {
     endian_t endian;
     endian_test_t endianTest;
@@ -303,15 +316,21 @@ static endian_t DetermineEndianess(void)
     return endian;
 }
 
-/***************************************************************************
-*   Function   : BitFileClose
-*   Description: This function closes a bit file and frees all associated
-*                data.
-*   Parameters : stream - pointer to bit file stream being closed
-*   Effects    : The specified file will be closed and the file structure
-*                will be freed.
-*   Returned   : 0 for success or EOF for failure.
-***************************************************************************/
+/**
+ * \fn int BitFileClose(bit_file_t *stream)
+ *
+ * \brief This function closes a bit file and frees all associated data.
+ * 
+ * \param stream A pointer to bit file stream being closed.
+ *
+ * \param mode The mode of the file being wrapped (BF_READ, BF_WRITE, or
+ * BF_APPEND).
+ *
+ * \effects The specified file will be closed and the file structure will
+ * be freed.
+ *
+ * \returns 0 for success or \c EOF for failure.
+ */
 int BitFileClose(bit_file_t *stream)
 {
     int returnValue = 0;
@@ -345,15 +364,18 @@ int BitFileClose(bit_file_t *stream)
     return(returnValue);
 }
 
-/***************************************************************************
-*   Function   : BitFileToFILE
-*   Description: This function flushes and frees the bitfile structure,
-*                returning a pointer to a stdio file.
-*   Parameters : stream - pointer to bit file stream being closed
-*   Effects    : The specified bitfile will be made usable as a stdio
-*                FILE.
-*   Returned   : Pointer to FILE.  NULL for failure.
-***************************************************************************/
+/**
+ * \fn FILE *BitFileToFILE(bit_file_t *stream)
+ *
+ * \brief This function flushes and frees the bitfile structure, returning
+ * a pointer to a stdio file corresponding to the bitfile.
+ * 
+ * \param stream A pointer to bit file stream being converted
+ *
+ * \effects None
+ *
+ * \returns A FILE pointer to stream.  \c NULL for failure.
+ */
 FILE *BitFileToFILE(bit_file_t *stream)
 {
     FILE *fp = NULL;
