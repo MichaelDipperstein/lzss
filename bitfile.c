@@ -409,18 +409,23 @@ FILE *BitFileToFILE(bit_file_t *stream)
     return(fp);
 }
 
-/***************************************************************************
-*   Function   : BitFileByteAlign
-*   Description: This function aligns the bitfile to the nearest byte.  For
-*                output files, this means writing out the bit buffer with
-*                extra bits set to 0.  For input files, this means flushing
-*                the bit buffer.
-*   Parameters : stream - pointer to bit file stream to align
-*   Effects    : Flushes out the bit buffer.
-*   Returned   : EOF if stream is NULL or write fails.  Writes return the
-*                byte aligned contents of the bit buffer.  Reads returns
-*                the unaligned contents of the bit buffer.
-***************************************************************************/
+/**
+ * \fn int BitFileByteAlign(bit_file_t *stream)
+ *
+ * \brief This function aligns the bitfile to the nearest byte.
+ * 
+ * \param stream A pointer to bit file stream to align
+ *
+ * \effects The bit buffer is flushed out.
+ *
+ * \returns \c EOF if stream is \c NULL or a write fails.  Writes return
+ * the byte aligned contents of the bit buffer.  Reads returns the unaligned
+ * contents of the bit buffer.
+ *
+ * This function aligns the bitfile to the nearest byte.  For output files,
+ * this means writing out the bit buffer with extra bits set to 0.  For
+ * input files, this means flushing the bit buffer.
+ */
 int BitFileByteAlign(bit_file_t *stream)
 {
     int returnValue;
@@ -448,18 +453,25 @@ int BitFileByteAlign(bit_file_t *stream)
     return (returnValue);
 }
 
-/***************************************************************************
-*   Function   : BitFileFlushOutput
-*   Description: This function flushes the output bit buffer.  This means
-*                left justifying any pending bits, and filling spare bits
-*                with the fill value.
-*   Parameters : stream - pointer to bit file stream to align
-*                onesFill - non-zero if spare bits are filled with ones
-*   Effects    : Flushes out the bit buffer, filling spare bits with ones
-*                or zeros.
-*   Returned   : EOF if stream is NULL or not writeable.  Otherwise, the
-*                bit buffer value written. -1 if no data was written.
-***************************************************************************/
+/**
+ * \fn int BitFileFlushOutput(bit_file_t *stream,
+ *  const unsigned char onesFill)
+ *
+ * \brief This function flushes an output bit buffer.
+ * 
+ * \param stream A pointer to bit file stream to flush
+ *
+ * \param onesFill set to non-zero if spare bits are to be filled with ones
+ *
+ * \effects The bit buffer is flushed out.  Spare bits are filled with
+ * either zeros or ones based on onesFill.
+ *
+ * \returns \c EOF if stream is \c NULL or not writable.  Otherwise, the
+ * bit buffer value written.  -1 is returned if no data is written.
+ *
+ * This function flushes an output bit buffer.  This means left justifying
+ * any pending bits, and filling spare bits with the fill value.
+ */
 int BitFileFlushOutput(bit_file_t *stream, const unsigned char onesFill)
 {
     int returnValue;
@@ -490,15 +502,20 @@ int BitFileFlushOutput(bit_file_t *stream, const unsigned char onesFill)
     return (returnValue);
 }
 
-/***************************************************************************
-*   Function   : BitFileGetChar
-*   Description: This function returns the next byte from the file passed as
-*                a parameter.
-*   Parameters : stream - pointer to bit file stream to read from
-*   Effects    : Reads next byte from file and updates buffer accordingly.
-*   Returned   : EOF if a whole byte cannot be obtained.  Otherwise,
-*                the character read.
-***************************************************************************/
+/**
+ * \fn int BitFileGetChar(bit_file_t *stream)
+ *
+ * \brief This function returns the next byte from the file passed as a
+ * parameter.
+ * 
+ * \param stream A pointer to bit file stream to read from
+ *
+ * \effects Reads next byte from file and updates the pointer file and bit
+ * buffer accordingly.
+ *
+ * \returns \c EOF if a whole byte cannot be obtained.  Otherwise, the
+ * character read.
+ */
 int BitFileGetChar(bit_file_t *stream)
 {
     int returnValue;
@@ -533,15 +550,22 @@ int BitFileGetChar(bit_file_t *stream)
     return returnValue;
 }
 
-/***************************************************************************
-*   Function   : BitFilePutChar
-*   Description: This function writes the byte passed as a parameter to the
-*                file passed a parameter.
-*   Parameters : c - the character to be written
-*                stream - pointer to bit file stream to write to
-*   Effects    : Writes a byte to the file and updates buffer accordingly.
-*   Returned   : On success, the character written, otherwise EOF.
-***************************************************************************/
+/**
+ * \fn int BitFilePutChar(const int c, bit_file_t *stream)
+ *
+ * \brief This function writes the byte passed as a parameter to the file
+ * passed a parameter.
+ * 
+ * \param c The character to write
+ *
+ * \param stream A pointer to bitfile stream to write to
+ *
+ * \effects Writes c to the file and updates the pointer file and bit
+ * buffer accordingly.
+ *
+ * \returns The character written is returned on success.  \c EOF is returned
+ * on failure.
+ */
 int BitFilePutChar(const int c, bit_file_t *stream)
 {
     unsigned char tmp;
@@ -574,16 +598,22 @@ int BitFilePutChar(const int c, bit_file_t *stream)
     return tmp;
 }
 
-/***************************************************************************
-*   Function   : BitFileGetBit
-*   Description: This function returns the next bit from the file passed as
-*                a parameter.  The bit value returned is the msb in the
-*                bit buffer.
-*   Parameters : stream - pointer to bit file stream to read from
-*   Effects    : Reads next bit from bit buffer.  If the buffer is empty,
-*                a new byte will be read from the file.
-*   Returned   : 0 if bit == 0, 1 if bit == 1, and EOF if operation fails.
-***************************************************************************/
+/**
+ * \fn int BitFileGetBit(bit_file_t *stream)
+ *
+ * \brief This function returns the next bit from the file passed as a
+ * parameter.
+ * 
+ * \param stream A pointer to bit file stream to read from
+ *
+ * \effects Reads next bit from bit buffer.  If the buffer is empty,
+ * a new byte will be read from the file.
+ *
+ * \returns 0 if bit == 0, 1 if bit == 1, and \c EOF if operation fails.
+ *
+ * This function returns the next bit from the file passed as a parameter.
+ * The bit value returned is the msb in the bit buffer.
+ */
 int BitFileGetBit(bit_file_t *stream)
 {
     int returnValue;
@@ -614,16 +644,22 @@ int BitFileGetBit(bit_file_t *stream)
     return (returnValue & 0x01);
 }
 
-/***************************************************************************
-*   Function   : BitFilePutBit
-*   Description: This function writes the bit passed as a parameter to the
-*                file passed a parameter.
-*   Parameters : c - the bit value to be written
-*                stream - pointer to bit file stream to write to
-*   Effects    : Writes a bit to the bit buffer.  If the buffer has a byte,
-*                the buffer is written to the file and cleared.
-*   Returned   : On success, the bit value written, otherwise EOF.
-***************************************************************************/
+/**
+ * \fn int BitFilePutBit(const int c, bit_file_t *stream)
+ *
+ * \brief This function writes the bit passed as a parameter to the file
+ * passed a parameter.
+ * 
+ * \param c The bit value to write
+ *
+ * \param stream A pointer to bitfile stream to write to
+ *
+ * \effects Writes a bit to the bit buffer.  If the buffer has a byte, the
+ * buffer is written to the file and cleared.
+ *
+ * \returns The bit value written is returned on success.  \c EOF is
+ * returned on failure.
+ */
 int BitFilePutBit(const int c, bit_file_t *stream)
 {
     int returnValue = c;
