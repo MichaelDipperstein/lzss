@@ -321,10 +321,7 @@ bit_file_t *MakeBitFile(FILE *stream, const BF_MODES mode)
  *
  * \brief This function closes a bit file and frees all associated data.
  * 
- * \param stream A pointer to bit file stream being closed.
- *
- * \param mode The mode of the file being wrapped (BF_READ, BF_WRITE, or
- * BF_APPEND).
+ * \param stream A pointer to the bit file stream being closed.
  *
  * \effects The specified file will be closed and the file structure will
  * be freed.
@@ -370,7 +367,7 @@ int BitFileClose(bit_file_t *stream)
  * \brief This function flushes and frees the bitfile structure, returning
  * a pointer to a stdio file corresponding to the bitfile.
  * 
- * \param stream A pointer to bit file stream being converted
+ * \param stream A pointer to the bit file stream being converted
  *
  * \effects None
  *
@@ -414,7 +411,7 @@ FILE *BitFileToFILE(bit_file_t *stream)
  *
  * \brief This function aligns the bitfile to the nearest byte.
  * 
- * \param stream A pointer to bit file stream to align
+ * \param stream A pointer to the bit file stream to align
  *
  * \effects The bit buffer is flushed out.
  *
@@ -459,7 +456,7 @@ int BitFileByteAlign(bit_file_t *stream)
  *
  * \brief This function flushes an output bit buffer.
  * 
- * \param stream A pointer to bit file stream to flush
+ * \param stream A pointer to the bit file stream to flush
  *
  * \param onesFill set to non-zero if spare bits are to be filled with ones
  *
@@ -508,7 +505,7 @@ int BitFileFlushOutput(bit_file_t *stream, const unsigned char onesFill)
  * \brief This function returns the next byte from the file passed as a
  * parameter.
  * 
- * \param stream A pointer to bit file stream to read from
+ * \param stream A pointer to the bit file stream to read from
  *
  * \effects Reads next byte from file and updates the pointer file and bit
  * buffer accordingly.
@@ -558,7 +555,7 @@ int BitFileGetChar(bit_file_t *stream)
  * 
  * \param c The character to write
  *
- * \param stream A pointer to bitfile stream to write to
+ * \param stream A pointer to the bit file stream to write to
  *
  * \effects Writes c to the file and updates the pointer file and bit
  * buffer accordingly.
@@ -604,7 +601,7 @@ int BitFilePutChar(const int c, bit_file_t *stream)
  * \brief This function returns the next bit from the file passed as a
  * parameter.
  * 
- * \param stream A pointer to bit file stream to read from
+ * \param stream A pointer to the bit file stream to read from
  *
  * \effects Reads next bit from bit buffer.  If the buffer is empty,
  * a new byte will be read from the file.
@@ -652,7 +649,7 @@ int BitFileGetBit(bit_file_t *stream)
  * 
  * \param c The bit value to write
  *
- * \param stream A pointer to bitfile stream to write to
+ * \param stream A pointer to the bit file stream to write to
  *
  * \effects Writes a bit to the bit buffer.  If the buffer has a byte, the
  * buffer is written to the file and cleared.
@@ -693,20 +690,30 @@ int BitFilePutBit(const int c, bit_file_t *stream)
     return returnValue;
 }
 
-/***************************************************************************
-*   Function   : BitFileGetBits
-*   Description: This function reads the specified number of bits from the
-*                file passed as a parameter and writes them to the
-*                requested memory location (msb to lsb).
-*   Parameters : stream - pointer to bit file stream to read from
-*                bits - address to store bits read
-*                count - number of bits to read
-*   Effects    : Reads bits from the bit buffer and file stream.  The bit
-*                buffer will be modified as necessary.
-*   Returned   : EOF for failure, otherwise the number of bits read.  If
-*                an EOF is reached before all the bits are read, bits
-*                will contain every bit through the last complete byte.
-***************************************************************************/
+/**
+ * \fn int BitFileGetBits(bit_file_t *stream, void *bits,
+ * const unsigned int count)
+ *
+ * \brief This function reads the specified number of bits from the file
+ * passed as a parameter.
+ * 
+ * \param stream A pointer to the bit file stream to read from
+ *
+ * \param bits The address to store bits read
+ *
+ * \param count The number of bits to read
+ *
+ * \effects Reads bits from the bit buffer and file stream.  The bit buffer
+ * will be modified as necessary.
+ *
+ * \returns \c EOF for failure, otherwise the number of bits read.  If
+ * an \c EOF is reached before all the bits are read, bits will contain every
+ * bit through the last complete byte.
+ *
+ * This function reads the specified number of bits from the file passed as
+ * a parameter and writes them to the specified memory location (ms bit to
+ * ls bit).
+ */
 int BitFileGetBits(bit_file_t *stream, void *bits, const unsigned int count)
 {
     unsigned char *bytes, shifts;
@@ -764,20 +771,30 @@ int BitFileGetBits(bit_file_t *stream, void *bits, const unsigned int count)
     return count;
 }
 
-/***************************************************************************
-*   Function   : BitFilePutBits
-*   Description: This function writes the specified number of bits from the
-*                memory location passed as a parameter to the file passed
-*                as a parameter.   Bits are written msb to lsb.
-*   Parameters : stream - pointer to bit file stream to write to
-*                bits - pointer to bits to write
-*                count - number of bits to write
-*   Effects    : Writes bits to the bit buffer and file stream.  The bit
-*                buffer will be modified as necessary.
-*   Returned   : EOF for failure, otherwise the number of bits written.  If
-*                an error occurs after a partial write, the partially
-*                written bits will not be unwritten.
-***************************************************************************/
+/**
+ * \fn BitFilePutBits(bit_file_t *stream, void *bits,
+ * const unsigned int count)
+ *
+ * \brief This function writes the specified number of bits from the memory
+ * location passed as a parameter to the file passed as a parameter.
+ * 
+ * \param stream A pointer to the bit file stream to write to
+ *
+ * \param bits The address to store bits write
+ *
+ * \param count The number of bits to write
+ *
+ * \effects Writes bits to the bit buffer and file stream.  The bit buffer
+ * will be modified as necessary.
+ *
+ * \returns \c EOF for failure, otherwise the number of bits read.  If
+ * an \c EOF is reached before all the bits are read, bits will contain every
+ * bit through the last complete byte.
+ *
+ * This function writes the specified number of bits from the memory location
+ * passed as a parameter to the file passed as a parameter.   Bits are written
+ * ms bit to ls bit.
+ */
 int BitFilePutBits(bit_file_t *stream, void *bits, const unsigned int count)
 {
     unsigned char *bytes, tmp;
@@ -829,23 +846,30 @@ int BitFilePutBits(bit_file_t *stream, void *bits, const unsigned int count)
     return count;
 }
 
-/***************************************************************************
-*   Function   : BitFileGetBitsNum
-*   Description: This function provides a machine independent layer that
-*                allows a single function call to stuff an arbitrary number
-*                of bits into an integer type variable.
-*   Parameters : stream - pointer to bit file stream to read from
-*                bits - address to store bits read
-*                count - number of bits to read
-*                size - sizeof type containing "bits"
-*   Effects    : Calls a function that reads bits from the bit buffer and
-*                file stream.  The bit buffer will be modified as necessary.
-*                the bits will be written to "bits" from least significant
-*                byte to most significant byte.
-*   Returned   : EOF for failure, -ENOTSUP unsupported architecture,
-*                otherwise the number of bits read by the called function.
-***************************************************************************/
-int BitFileGetBitsNum(bit_file_t *stream, void *bits, const unsigned int count,
+/**
+ * \fn int BitFileGetBitsNum(bit_file_t *stream, void *bits,
+ * const unsigned int count, const size_t size)
+ *
+ * \brief This function provides a machine independent layer that allows a
+ * single function call to stuff an arbitrary number of bits into an integer
+ * type variable.
+ * 
+ * \param stream A pointer to the bit file stream to read from
+ *
+ * \param bits The address to store bits read
+ *
+ * \param count The number of bits to read
+ *
+ * \param size sizeof type containing \c bits
+ *
+ * \effects Calls a function that reads bits from the bit buffer and file
+ * stream.  The bit buffer will be modified as necessary.  The bits will be
+ * written to \c bits from least significant byte to most significant byte.
+ *
+ * \returns \c EOF for failure, \c -ENOTSUP for unsupported architecture,
+ * otherwise the number of bits read by the called function.
+ */
+ int BitFileGetBitsNum(bit_file_t *stream, void *bits, const unsigned int count,
     const size_t size)
 {
     if ((stream == NULL) || (bits == NULL))
@@ -996,24 +1020,31 @@ static int BitFileGetBitsBE(bit_file_t *stream, void *bits,
     return count;
 }
 
-/***************************************************************************
-*   Function   : BitFilePutBitsNum
-*   Description: This function provides a machine independent layer that
-*                allows a single function call to write an arbitrary number
-*                of bits from an integer type variable into a file.
-*   Parameters : stream - pointer to bit file stream to write to
-*                bits - pointer to bits to write
-*                count - number of bits to write
-*                size - sizeof type containing "bits"
-*   Effects    : Calls a function that writes bits to the bit buffer and
-*                file stream.  The bit buffer will be modified as necessary.
-*                the bits will be written to the file stream from least
-*                significant byte to most significant byte.
-*   Returned   : EOF for failure, ENOTSUP unsupported architecture,
-*                otherwise the number of bits written.  If an error occurs
-*                after a partial write, the partially written bits will not
-*                be unwritten.
-***************************************************************************/
+/**
+ * \fn int BitFilePutBitsNum(bit_file_t *stream, void *bits,
+ * const unsigned int count, const size_t size)
+ *
+ * \brief This function provides a machine independent layer that allows a
+ * single function call to write an arbitrary number of bits from an integer
+ * type variable into a file.
+ * 
+ * \param stream A pointer to the bit file stream to write to
+ *
+ * \param bits The address to store bits to write
+ *
+ * \param count The number of bits to write
+ *
+ * \param size sizeof type containing \c bits
+ *
+ * \effects Calls a function that writes bits to the bit buffer and file
+ * stream.  The bit buffer will be modified as necessary.  The bits will be
+ * written to the file stream from least significant byte to most significant
+ * byte.
+ *
+ * \returns \c EOF for failure, \c -ENOTSUP for unsupported architecture,
+ * otherwise the number of bits written.  If an error occurs after a partial
+ * write, the partially written bits will not be unwritten.
+ */
 int BitFilePutBitsNum(bit_file_t *stream, void *bits, const unsigned int count,
     const size_t size)
 {
