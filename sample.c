@@ -1,31 +1,45 @@
+
+/**
+ * \brief Sample program demonstrating the usage of the bit file library.
+ * \file sample.c
+ * \author Michael Dipperstein (mdipper@alumni.cs.ucsb.edu)
+ * \date February 8, 2004
+ *
+ * This file demonstrates a simple library of I/O functions for files that
+ * contain data in sizes that aren't integral bytes.
+ *
+ * \copyright Copyright (C) 2004-2016 by Michael Dipperstein
+ * (mdipper@alumni.cs.ucsb.edu)
+ *
+ * \par
+ * This file is part of the bit file library.
+ *
+ * \license The bit file library is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * \par
+ * The bit file library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser
+ * General Public License for more details.
+ *
+ * \par
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+/**
+ * \defgroup examples Usage Examples
+ * \brief This module contains code demonstrating the usage of the bit file
+ * library
+ * @{
+ */
+
 /***************************************************************************
-*                       Bit File Library Usage Sample
-*
-*   File    : sample.c
-*   Purpose : Demonstrates usage of bit file library.
-*   Author  : Michael Dipperstein
-*   Date    : February 8, 2004
-*
-****************************************************************************
-*
-* Sample: A bit file library sample usage program
-* Copyright (C) 2004-2016 by Michael Dipperstein (mdipper@alumni.cs.ucsb.edu)
-*
-* This file is part of the bit file library.
-*
-* The bit file library is free software; you can redistribute it and/or
-* modify it under the terms of the GNU Lesser General Public License as
-* published by the Free Software Foundation; either version 3 of the
-* License, or (at your option) any later version.
-*
-* The bit file library is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser
-* General Public License for more details.
-*
-* You should have received a copy of the GNU Lesser General Public License
-* along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*
+*                             INCLUDED FILES
 ***************************************************************************/
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,22 +48,27 @@
 /***************************************************************************
 *                                 MACROS
 ***************************************************************************/
+/** The number of times to loop through function calls */
 #define NUM_CALLS       5
 
 /***************************************************************************
 *                                FUNCTIONS
 ***************************************************************************/
 
-/***************************************************************************
-*   Function   : main
-*   Description: This function demonstrates the usage of each of the bit
-*                bit file functions.
-*   Parameters : argc - the number command line arguments (not used)
-*                argv - array of command line arguments (not used)
-*   Effects    : Writes bit file, reads back results, printing them to
-*                stdout.
-*   Returned   : EXIT_SUCCESS
-***************************************************************************/
+/**
+ * \fn int main(int argc, char *argv[])
+ * 
+ * \brief This function demonstrates the usage of each of the bit file
+ * functions.
+ *
+ * \param argc The number command line arguments (not used)
+ *
+ * \param argv An array of command line arguments (not used)
+ *
+ * \effects Writes bit file, reads back results, printing them to stdout.
+ *
+ * \returns \c EXIT_SUCCESS on success, otherwise \c EXIT_FAILURE.
+ */
 int main(int argc, char *argv[])
 {
     bit_file_t *bfp;
@@ -382,5 +401,7 @@ int main(int argc, char *argv[])
          return (EXIT_FAILURE);
     }
 
-    return(EXIT_SUCCESS);
+    return (EXIT_SUCCESS);
 }
+
+/**@}*/

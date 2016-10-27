@@ -886,22 +886,31 @@ int BitFilePutBits(bit_file_t *stream, void *bits, const unsigned int count)
     return (stream->GetBitsNumFunc)(stream, bits, count, size);
 }
 
-/***************************************************************************
-*   Function   : BitFileGetBitsLE   (Little Endian)
-*   Description: This function reads the specified number of bits from the
-*                file passed as a parameter and writes them to the
-*                requested memory location (LSB to MSB).
-*   Parameters : stream - pointer to bit file stream to read from
-*                bits - address to store bits read
-*                count - number of bits to read
-*                size - sizeof type containing "bits"
-*   Effects    : Reads bits from the bit buffer and file stream.  The bit
-*                buffer will be modified as necessary.  bits is treated as
-*                a little endian integer of length >= (count/8) + 1.
-*   Returned   : EOF for failure, otherwise the number of bits read.  If
-*                an EOF is reached before all the bits are read, bits
-*                will contain every bit through the last successful read.
-***************************************************************************/
+/**
+ * \fn static int BitFileGetBitsLE(bit_file_t *stream, void *bits,
+ *  const unsigned int count, const size_t size)
+ *
+ * \brief This function reads the specified number of bits from the bit
+ * file passed as a parameter and writes them to the requested memory
+ * location (LSB to MSB).  The memory location is treated as a Little
+ * Endian numeric data type.
+ * 
+ * \param stream A pointer to the bit file stream to read from
+ *
+ * \param bits The address to store bits read
+ *
+ * \param count The number of bits to read
+ *
+ * \param size sizeof type containing \c bits
+ *
+ * \effects Reads bits from the bit buffer and file stream.  The bit buffer
+ * will be modified as necessary.  bits is treated as a little endian
+ * integer of length >= (count/8) + 1.
+ *
+ * \returns \c EOF for failure, otherwise the number of bits read.  If an
+ * \c EOF is reached before all the bits are read, bits will contain every
+ * bit through the last successful read.
+ */
 static int BitFileGetBitsLE(bit_file_t *stream, void *bits,
     const unsigned int count, const size_t size)
 {
@@ -950,22 +959,31 @@ static int BitFileGetBitsLE(bit_file_t *stream, void *bits,
     return count;
 }
 
-/***************************************************************************
-*   Function   : BitFileGetBitsBE   (Big Endian)
-*   Description: This function reads the specified number of bits from the
-*                file passed as a parameter and writes them to the
-*                requested memory location (LSB to MSB).
-*   Parameters : stream - pointer to bit file stream to read from
-*                bits - address to store bits read
-*                count - number of bits to read
-*                size - sizeof type containing "bits"
-*   Effects    : Reads bits from the bit buffer and file stream.  The bit
-*                buffer will be modified as necessary.  bits is treated as
-*                a big endian integer of length size.
-*   Returned   : EOF for failure, otherwise the number of bits read.  If
-*                an EOF is reached before all the bits are read, bits
-*                will contain every bit through the last successful read.
-***************************************************************************/
+/**
+ * \fn static int BitFileGetBitsBE(bit_file_t *stream, void *bits,
+ *  const unsigned int count, const size_t size)
+ *
+ * \brief This function reads the specified number of bits from the bit
+ * file passed as a parameter and writes them to the requested memory
+ * location (LSB to MSB).  The memory location is treated as a Big
+ * Endian numeric data type.
+ * 
+ * \param stream A pointer to the bit file stream to read from
+ *
+ * \param bits The address to store bits read
+ *
+ * \param count The number of bits to read
+ *
+ * \param size sizeof type containing \c bits
+ *
+ * \effects Reads bits from the bit buffer and file stream.  The bit buffer
+ * will be modified as necessary.  bits is treated as a big endian
+ * integer of length >= (count/8) + 1.
+ *
+ * \returns \c EOF for failure, otherwise the number of bits read.  If an
+ * \c EOF is reached before all the bits are read, bits will contain every
+ * bit through the last successful read.
+ */
 static int BitFileGetBitsBE(bit_file_t *stream, void *bits,
     const unsigned int count, const size_t size)
 {
@@ -1062,22 +1080,31 @@ int BitFilePutBitsNum(bit_file_t *stream, void *bits, const unsigned int count,
     return (stream->PutBitsNumFunc)(stream, bits, count, size);
 }
 
-/***************************************************************************
-*   Function   : BitFilePutBitsLE   (Little Endian)
-*   Description: This function writes the specified number of bits from the
-*                memory location passed as a parameter to the file passed
-*                as a parameter.   Bits are written LSB to MSB.
-*   Parameters : stream - pointer to bit file stream to write to
-*                bits - pointer to bits to write
-*                count - number of bits to write
-*                size - sizeof type containing "bits"
-*   Effects    : Writes bits to the bit buffer and file stream.  The bit
-*                buffer will be modified as necessary.  bits is treated as
-*                a little endian integer of length >= (count/8) + 1.
-*   Returned   : EOF for failure, otherwise the number of bits written.  If
-*                an error occurs after a partial write, the partially
-*                written bits will not be unwritten.
-***************************************************************************/
+/**
+ * \fn static int BitFilePutBitsLE(bit_file_t *stream, void *bits,
+ * const unsigned int count, const size_t size)
+ *
+ * \brief This function writes the specified number of bits from the memory
+ * location passed as a parameter to the file passed as a parameter.  Bits
+ * are written LSB to MSB.  The memory location is treated as a Little
+ * Endian numeric data type.
+ * 
+ * \param stream A pointer to the bit file stream to write to
+ *
+ * \param bits The address to store bits to write
+ *
+ * \param count The number of bits to write
+ *
+ * \param size sizeof type containing \c bits
+ *
+ * \effects Writes bits to the bit buffer and file stream.  The bit buffer
+ * will be modified as necessary.  bits is treated as a little endian integer
+ * of length >= (count/8) + 1.
+ *
+ * \returns \c EOF for failure, otherwise the number of bits written.  If an
+ * error occurs after a partial write, the partially written bits will not be
+ * unwritten.
+ */
 static int BitFilePutBitsLE(bit_file_t *stream, void *bits,
     const unsigned int count, const size_t size)
 {
@@ -1126,21 +1153,31 @@ static int BitFilePutBitsLE(bit_file_t *stream, void *bits,
     return count;
 }
 
-/***************************************************************************
-*   Function   : BitFilePutBitsBE   (Big Endian)
-*   Description: This function writes the specified number of bits from the
-*                memory location passed as a parameter to the file passed
-*                as a parameter.   Bits are written LSB to MSB.
-*   Parameters : stream - pointer to bit file stream to write to
-*                bits - pointer to bits to write
-*                count - number of bits to write
-*   Effects    : Writes bits to the bit buffer and file stream.  The bit
-*                buffer will be modified as necessary.  bits is treated as
-*                a big endian integer of length size.
-*   Returned   : EOF for failure, otherwise the number of bits written.  If
-*                an error occurs after a partial write, the partially
-*                written bits will not be unwritten.
-***************************************************************************/
+/**
+ * \fn static int BitFilePutBitsBE(bit_file_t *stream, void *bits,
+ * const unsigned int count, const size_t size)
+ *
+ * \brief This function writes the specified number of bits from the memory
+ * location passed as a parameter to the file passed as a parameter.  Bits
+ * are written LSB to MSB.  The memory location is treated as a Big
+ * Endian numeric data type.
+ * 
+ * \param stream A pointer to the bit file stream to write to
+ *
+ * \param bits The address to store bits to write
+ *
+ * \param count The number of bits to write
+ *
+ * \param size sizeof type containing \c bits
+ *
+ * \effects Writes bits to the bit buffer and file stream.  The bit buffer
+ * will be modified as necessary.  bits is treated as a big endian integer
+ * of length \c size.
+ *
+ * \returns \c EOF for failure, otherwise the number of bits written.  If an
+ * error occurs after a partial write, the partially written bits will not be
+ * unwritten.
+ */
 static int BitFilePutBitsBE(bit_file_t *stream, void *bits,
     const unsigned int count, const size_t size)
 {
@@ -1194,17 +1231,25 @@ static int BitFilePutBitsBE(bit_file_t *stream, void *bits,
     return count;
 }
 
-/***************************************************************************
-*   Function   : BitFileNotSupported
-*   Description: This function returns -ENOTSUP.  It is called when a
-*                Get/PutBits function is called on an unsupported
-*                architecture.
-*   Parameters : stream - not used
-*                bits - not used
-*                count - not used
-*   Effects    : None
-*   Returned   : -ENOTSUP
-***************************************************************************/
+/**
+ * \fn static int BitFileNotSupported(bit_file_t *stream, void *bits,
+ * const unsigned int count, const size_t size)
+ *
+ * \brief This function returns /c -ENOTSUP.  It is called when a Get/PutBits
+ * function is called on an unsupported architecture.
+ * 
+ * \param stream Not Used
+ *
+ * \param bits Not Used
+ *
+ * \param count Not Used
+ *
+ * \param size Not Used
+ *
+ * \effects None
+ *
+ * \returns \c -ENOTSUP 
+ */
 static int BitFileNotSupported(bit_file_t *stream, void *bits,
     const unsigned int count, const size_t size)
 {
