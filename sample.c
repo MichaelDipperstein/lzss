@@ -1,4 +1,3 @@
-
 /**
  * \brief Sample program demonstrating the usage of the bit file library.
  * \file sample.c
