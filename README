@@ -25,6 +25,10 @@ USAGE
 -----
 sample.c demonstrates usage of each of the bitfile functions.
 
+DOCUMENTATION
+-------------
+See https://michaeldipperstein.github.io/bitfile/
+
 HISTORY
 -------
 01/30/04 - Initial release
@@ -44,6 +48,8 @@ HISTORY
 10/16/14 - Replaced BitFileGetBitsInt and BitFilePutBitsInt with
            BitFileGetBitsNum and BitFilePutBitsNum.
          - Coded to Michael Barr's "Top 10 Bug-Killing Coding Standard Rules"
+07/12/17 - Updates for github
+
 
 TODO
 ----
