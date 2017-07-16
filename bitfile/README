@@ -1,0 +1,63 @@
+DESCRIPTION
+-----------
+This archive contains an ANSI C library implementing bitwise reading and
+writing for sequential files.  This library is intended to be easy to follow
+and expand upon, though it may be used without an understanding of its
+implementation.
+
+FILES
+-----
+bitfile.c       - Library implementing bitwise reading and writing for
+                  sequential files.
+bitfile.h       - Header for bitfile library.
+COPYING         - GNU General Public License v3
+COPYING.LESSER  - GNU Lesser General Public License v3
+Makefile        - makefile for this project (assumes gcc compiler and GNU make)
+README          - this file
+sample.c        - Program demonstrating how to use the bitfile library.
+
+BUILDING
+--------
+To build these files with GNU make and gcc, simply enter "make" from the
+command line.
+
+USAGE
+-----
+sample.c demonstrates usage of each of the bitfile functions.
+
+DOCUMENTATION
+-------------
+See https://michaeldipperstein.github.io/bitfile/
+
+HISTORY
+-------
+01/30/04 - Initial release
+06/14/04 - Use incomplete type to hide definition of bitfile structure
+11/09/04 - Added a routine to convert an open bitfile_t to a FILE.
+           Added a routine to align a bitfile to the next byte.
+06/21/05 - Corrected BitFileGetBits/PutBits error that accessed an extra
+           byte when given an integral number of bytes.
+12/05/05 - Added BitFileGetBitsInt and BitFilePutBitsInt
+06/06/06 - Corrected error in allocation of constants used to open underlying
+           read/write/append files.
+08/26/07 - Updated license to LGPL v3.
+12/30/07 - Corrected errors in BitFileOpen and MakeBitFile reported by an
+           anonymous user.  Segment faults may have occurred if fopen returns
+           a NULL.
+01/23/08 - Added BitFileFlushOutput.
+10/16/14 - Replaced BitFileGetBitsInt and BitFilePutBitsInt with
+           BitFileGetBitsNum and BitFilePutBitsNum.
+         - Coded to Michael Barr's "Top 10 Bug-Killing Coding Standard Rules"
+07/12/17 - Updates for github
+
+
+TODO
+----
+- Consider adding extra count so that files ending in incomplete bytes
+  may be appended to starting with the incomplete byte instead of the
+  next whole byte.
+- Test on platforms with character lengths other than 8 bits.
+
+AUTHOR
+------
+Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)
