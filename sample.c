@@ -36,7 +36,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "lzss.h"
-#include "optlist.h"
+#include "optlist/optlist.h"
 
 /***************************************************************************
 *                            TYPE DEFINITIONS

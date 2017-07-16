@@ -16,8 +16,6 @@ http://www.datacompression.info/LZSS.shtml
 FILES
 -----
 COPYING         - Rules for copying and distributing LGPL software
-bitfile.c       - Library to allow bitwise reading and writing of files.
-bitfile.h       - Header for bitfile library.
 brute.c         - File implementing brute force search for strings matching the
                   strings to be encoded.
 COPYING         - Rules for copying and distributing GPL software
@@ -37,13 +35,13 @@ lzencode.c      - LZSS encoding source
 lzss.h          - LZSS encoding/decoding header files
 lzvars.c        - Variables used by both lzencode and lzdecode
 Makefile        - makefile for this project (assumes gcc compiler and GNU make)
-optlist.c       - Source code for GetOptlist function and supporting functions
-optlist.h       - Header file to be included by code using the optlist library
 README          - this file
 sample.c        - Sample program demonstrating usage of encode and decode
                   routines.
 tree.c          - File implementing a sorted binary tree to index and search
                   for strings matching the strings to be encoded.
+optlist/        - Subtree containing optlist command line option parser library
+bitfile/        - Subtree containing bitfile bitwise file library
 
 BUILDING
 --------
@@ -153,6 +151,7 @@ HISTORY
           - Upgraded to latest oplist and bitfile libraries.
           - Tighter adherence to Michael Barr's "Top 10 Bug-Killing Coding
             Standard Rules" (http://www.barrgroup.com/webinars/10rules).
+07/16/17  - Changes for easier use with GitHub
 
 TODO
 ----

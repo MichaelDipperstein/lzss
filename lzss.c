@@ -37,7 +37,7 @@
 #include <string.h>
 #include <errno.h>
 #include "lzlocal.h"
-#include "bitfile.h"
+#include "bitfile/bitfile.h"
 
 /***************************************************************************
 *                            TYPE DEFINITIONS

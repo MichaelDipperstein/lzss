@@ -7,7 +7,7 @@ CFLAGS = -I. -O3 -Wall -Wextra -pedantic -ansi -c
 LDFLAGS = -O3 -o
 
 # libraries
-LIBS = -L. -llzss -loptlist
+LIBS = -L. -Lbitfile -Loptlist -llzss -lbitfile -loptlist
 
 # Treat NT and non-NT windows the same
 ifeq ($(OS),Windows_NT)
@@ -45,19 +45,19 @@ FMOBJ = tree.o
 
 LZOBJS = $(FMOBJ) lzss.o
 
-all:		sample$(EXE) liblzss.a liboptlist.a
+all:		sample$(EXE)
 
-sample$(EXE):	sample.o liblzss.a liboptlist.a
+sample$(EXE):	sample.o liblzss.a optlist/liboptlist.a bitfile/libbitfile.a
 		$(LD) $< $(LIBS) $(LDFLAGS) $@
 
-sample.o:	sample.c lzss.h optlist.h
+sample.o:	sample.c lzss.h optlist/optlist.h
 		$(CC) $(CFLAGS) $<
 
-liblzss.a:	$(LZOBJS) bitfile.o
-		ar crv liblzss.a $(LZOBJS) bitfile.o
+liblzss.a:	$(LZOBJS)
+		ar crv liblzss.a $(LZOBJS)
 		ranlib liblzss.a
 
-lzss.o:	lzss.c lzlocal.h bitfile.h
+lzss.o:	lzss.c lzlocal.h bitfile/bitfile.h
 		$(CC) $(CFLAGS) $<
 
 brute.o:	brute.c lzlocal.h
@@ -75,17 +75,15 @@ kmp.o:		kmp.c lzlocal.h
 tree.o:		tree.c lzlocal.h
 		$(CC) $(CFLAGS) $<
 
-bitfile.o:	bitfile.c bitfile.h
-		$(CC) $(CFLAGS) $<
+bitfile/libbitfile.a:
+		cd bitfile && $(MAKE) libbitfile.a
 
-liboptlist.a:	optlist.o
-		ar crv liboptlist.a optlist.o
-		ranlib liboptlist.a
-
-optlist.o:	optlist.c optlist.h
-		$(CC) $(CFLAGS) $<
+optlist/liboptlist.a:
+		cd optlist && $(MAKE) liboptlist.a
 
 clean:
 		$(DEL) *.o
 		$(DEL) *.a
 		$(DEL) sample$(EXE)
+		cd optlist && $(MAKE) clean
+		cd bitfile && $(MAKE) clean
