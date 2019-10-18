@@ -1,4 +1,4 @@
 <map id="BitFileGetBits" name="BitFileGetBits">
-<area shape="rect" id="node2" href="$group__library.html#ga9842d2b062a215d82904c095ea16c1a9" title="This function returns the next byte from the file passed as a parameter. " alt="" coords="156,5,264,32"/>
-<area shape="rect" id="node3" href="$group__library.html#ga740f94d263304d012925f272e817f1dd" title="This function returns the next bit from the file passed as a parameter. " alt="" coords="162,56,258,83"/>
+<area shape="rect" id="node2" href="$group__library.html#ga9842d2b062a215d82904c095ea16c1a9" title="This function returns the next byte from the file passed as a parameter. " alt="" coords="164,5,279,32"/>
+<area shape="rect" id="node3" href="$group__library.html#ga740f94d263304d012925f272e817f1dd" title="This function returns the next bit from the file passed as a parameter. " alt="" coords="170,56,273,83"/>
 </map>

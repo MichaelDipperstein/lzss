@@ -1,4 +1,4 @@
 <map id="BitFileGetChar" name="BitFileGetChar">
-<area shape="rect" id="node2" href="$group__library.html#gafd782318558bc2dc5d9e5be60ed81841" title="This function reads the specified number of bits from the file passed as a parameter. " alt="" coords="161,5,264,32"/>
-<area shape="rect" id="node3" href="$group__examples.html#ga0ddf1224851353fc92bfbff6f499fa97" title="This function demonstrates the usage of each of the bit file functions. " alt="" coords="312,31,363,57"/>
+<area shape="rect" id="node2" href="$group__library.html#gafd782318558bc2dc5d9e5be60ed81841" title="This function reads the specified number of bits from the file passed as a parameter. " alt="" coords="168,5,279,32"/>
+<area shape="rect" id="node3" href="$group__examples.html#ga0ddf1224851353fc92bfbff6f499fa97" title="This function demonstrates the usage of each of the bit file functions. " alt="" coords="327,31,381,57"/>
 </map>

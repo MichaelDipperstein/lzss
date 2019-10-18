@@ -49,6 +49,8 @@ HISTORY
            BitFileGetBitsNum and BitFilePutBitsNum.
          - Coded to Michael Barr's "Top 10 Bug-Killing Coding Standard Rules"
 07/12/17 - Updates for github
+09/16/19 - Update e-mail address
+         - Correct/update doxygen configuration
 
 
 TODO
@@ -60,4 +62,4 @@ TODO
 
 AUTHOR
 ------
-Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)
+Michael Dipperstein (mdipperstein@gmail.com)

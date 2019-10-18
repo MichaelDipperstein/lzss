@@ -39,6 +39,10 @@ libbitfile.a:	bitfile.o
 bitfile.o:	bitfile.c bitfile.h
 	$(CC) $(CFLAGS) $<
 
+docs:		doxygen.conf bitfile.c bitfile.h sample.c
+		rm -rf docs
+		doxygen $<
+
 clean:
 	$(DEL) *.o
 	$(DEL) *.a

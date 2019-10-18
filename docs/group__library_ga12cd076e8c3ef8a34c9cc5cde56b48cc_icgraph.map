@@ -1,4 +1,4 @@
 <map id="BitFilePutBit" name="BitFilePutBit">
-<area shape="rect" id="node2" href="$group__library.html#ga5793a6909fac8efafbde384f418522eb" title="This function writes the specified number of bits from the memory location passed as a parameter to t..." alt="" coords="148,5,251,32"/>
-<area shape="rect" id="node3" href="$group__examples.html#ga0ddf1224851353fc92bfbff6f499fa97" title="This function demonstrates the usage of each of the bit file functions. " alt="" coords="299,31,349,57"/>
+<area shape="rect" id="node2" href="$group__library.html#ga5793a6909fac8efafbde384f418522eb" title="This function writes the specified number of bits from the memory location passed as a parameter to t..." alt="" coords="155,5,263,32"/>
+<area shape="rect" id="node3" href="$group__examples.html#ga0ddf1224851353fc92bfbff6f499fa97" title="This function demonstrates the usage of each of the bit file functions. " alt="" coords="311,31,365,57"/>
 </map>

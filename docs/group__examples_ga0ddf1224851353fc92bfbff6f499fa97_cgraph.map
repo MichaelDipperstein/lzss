@@ -1,14 +1,14 @@
 <map id="main" name="main">
-<area shape="rect" id="node2" href="$group__library.html#ga96204412063a32bd1aaf28219b4ab52f" title="This function opens a bit file for reading, writing, or appending. " alt="" coords="124,5,215,32"/>
-<area shape="rect" id="node3" href="$group__library.html#ga470416ef00ff777cbaa14b2f433962f8" title="This function writes the byte passed as a parameter to the file passed a parameter. " alt="" coords="283,81,390,108"/>
-<area shape="rect" id="node4" href="$group__library.html#ga2d9f3f488a69bee8b59713c9539fbe8e" title="This function closes a bit file and frees all associated data. " alt="" coords="123,107,216,133"/>
-<area shape="rect" id="node5" href="$group__library.html#ga12cd076e8c3ef8a34c9cc5cde56b48cc" title="This function writes the bit passed as a parameter to the file passed a parameter. " alt="" coords="289,183,384,209"/>
-<area shape="rect" id="node6" href="$group__library.html#ga5793a6909fac8efafbde384f418522eb" title="This function writes the specified number of bits from the memory location passed as a parameter to t..." alt="" coords="118,157,221,184"/>
-<area shape="rect" id="node7" href="$group__library.html#ga3a1b7ff39c623548d8be081c1c1c9155" title="This function provides a machine independent layer that allows a single function call to write an arb..." alt="" coords="104,259,235,285"/>
-<area shape="rect" id="node8" href="$group__library.html#ga6bdd128a82f702dfa0ea7c3b6ce2ece2" title="This function flushes and frees the bitfile structure, returning a pointer to a stdio file correspond..." alt="" coords="118,309,221,336"/>
-<area shape="rect" id="node9" href="$group__library.html#ga9842d2b062a215d82904c095ea16c1a9" title="This function returns the next byte from the file passed as a parameter. " alt="" coords="283,373,391,400"/>
-<area shape="rect" id="node10" href="$group__library.html#ga740f94d263304d012925f272e817f1dd" title="This function returns the next bit from the file passed as a parameter. " alt="" coords="289,436,385,463"/>
-<area shape="rect" id="node11" href="$group__library.html#gafd782318558bc2dc5d9e5be60ed81841" title="This function reads the specified number of bits from the file passed as a parameter. " alt="" coords="118,411,221,437"/>
-<area shape="rect" id="node12" href="$group__library.html#ga57656c135b2acd2d5ac0d857a59b686a" title="This function aligns the bitfile to the nearest byte. " alt="" coords="112,512,227,539"/>
-<area shape="rect" id="node13" href="$group__library.html#ga635cd52b94bd31c0c6de59345e8e03f0" title="This function provides a machine independent layer that allows a single function call to stuff an arb..." alt="" coords="104,563,235,589"/>
+<area shape="rect" id="node2" href="$group__library.html#ga96204412063a32bd1aaf28219b4ab52f" title="This function opens a bit file for reading, writing, or appending. " alt="" coords="131,5,227,32"/>
+<area shape="rect" id="node3" href="$group__library.html#ga470416ef00ff777cbaa14b2f433962f8" title="This function writes the byte passed as a parameter to the file passed a parameter. " alt="" coords="298,95,411,121"/>
+<area shape="rect" id="node4" href="$group__library.html#ga2d9f3f488a69bee8b59713c9539fbe8e" title="This function closes a bit file and frees all associated data. " alt="" coords="129,107,228,133"/>
+<area shape="rect" id="node5" href="$group__library.html#ga12cd076e8c3ef8a34c9cc5cde56b48cc" title="This function writes the bit passed as a parameter to the file passed a parameter. " alt="" coords="304,183,405,209"/>
+<area shape="rect" id="node6" href="$group__library.html#ga5793a6909fac8efafbde384f418522eb" title="This function writes the specified number of bits from the memory location passed as a parameter to t..." alt="" coords="125,157,233,184"/>
+<area shape="rect" id="node7" href="$group__library.html#ga3a1b7ff39c623548d8be081c1c1c9155" title="This function provides a machine independent layer that allows a single function call to write an arb..." alt="" coords="109,259,248,285"/>
+<area shape="rect" id="node8" href="$group__library.html#ga6bdd128a82f702dfa0ea7c3b6ce2ece2" title="This function flushes and frees the bitfile structure, returning a pointer to a stdio file correspond..." alt="" coords="127,309,230,336"/>
+<area shape="rect" id="node9" href="$group__library.html#ga9842d2b062a215d82904c095ea16c1a9" title="This function returns the next byte from the file passed as a parameter. " alt="" coords="297,360,412,387"/>
+<area shape="rect" id="node10" href="$group__library.html#ga740f94d263304d012925f272e817f1dd" title="This function returns the next bit from the file passed as a parameter. " alt="" coords="303,436,406,463"/>
+<area shape="rect" id="node11" href="$group__library.html#gafd782318558bc2dc5d9e5be60ed81841" title="This function reads the specified number of bits from the file passed as a parameter. " alt="" coords="123,411,234,437"/>
+<area shape="rect" id="node12" href="$group__library.html#ga57656c135b2acd2d5ac0d857a59b686a" title="This function aligns the bitfile to the nearest byte. " alt="" coords="116,512,241,539"/>
+<area shape="rect" id="node13" href="$group__library.html#ga635cd52b94bd31c0c6de59345e8e03f0" title="This function provides a machine independent layer that allows a single function call to stuff an arb..." alt="" coords="108,563,249,589"/>
 </map>
