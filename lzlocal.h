@@ -12,7 +12,7 @@
 *
 * LZSS: An ANSI C LZSS Encoding/Decoding Routine
 * Copyright (C) 2004 - 2007, 2014 by
-* Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)
+* Michael Dipperstein (mdipperstein@gmail.com)
 *
 * This file is part of the lzss library.
 *
