@@ -1,19 +1,20 @@
 /**
  * \brief Sample program demonstrating the usage of the bit file library.
  * \file sample.c
- * \author Michael Dipperstein (mdipper@alumni.cs.ucsb.edu)
+ * \author Michael Dipperstein (mdipperstein@gmail.com)
  * \date February 8, 2004
  *
  * This file demonstrates a simple library of I/O functions for files that
  * contain data in sizes that aren't integral bytes.
  *
- * \copyright Copyright (C) 2004-2016 by Michael Dipperstein
- * (mdipper@alumni.cs.ucsb.edu)
+ * \copyright Copyright (C) 2004-2019 by Michael Dipperstein
+ * (mdipperstein@gmail.com)
  *
  * \par
  * This file is part of the bit file library.
  *
- * \license The bit file library is free software; you can redistribute it
+ * \license
+ * The bit file library is free software; you can redistribute it
  * and/or modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
@@ -56,7 +57,7 @@
 
 /**
  * \fn int main(int argc, char *argv[])
- * 
+ *
  * \brief This function demonstrates the usage of each of the bit file
  * functions.
  *
@@ -64,7 +65,8 @@
  *
  * \param argv An array of command line arguments (not used)
  *
- * \effects Writes bit file, reads back results, printing them to stdout.
+ * \effects
+ * Writes bit file, reads back results, printing them to stdout.
  *
  * \returns \c EXIT_SUCCESS on success, otherwise \c EXIT_FAILURE.
  */

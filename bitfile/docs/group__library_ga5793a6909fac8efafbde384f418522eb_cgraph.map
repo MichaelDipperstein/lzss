@@ -1,4 +1,4 @@
 <map id="BitFilePutBits" name="BitFilePutBits">
-<area shape="rect" id="node2" href="$group__library.html#ga470416ef00ff777cbaa14b2f433962f8" title="This function writes the byte passed as a parameter to the file passed a parameter. " alt="" coords="156,5,263,32"/>
-<area shape="rect" id="node3" href="$group__library.html#ga12cd076e8c3ef8a34c9cc5cde56b48cc" title="This function writes the bit passed as a parameter to the file passed a parameter. " alt="" coords="162,56,257,83"/>
+<area shape="rect" id="node2" href="$group__library.html#ga470416ef00ff777cbaa14b2f433962f8" title="This function writes the byte passed as a parameter to the file passed a parameter. " alt="" coords="161,5,275,32"/>
+<area shape="rect" id="node3" href="$group__library.html#ga12cd076e8c3ef8a34c9cc5cde56b48cc" title="This function writes the bit passed as a parameter to the file passed a parameter. " alt="" coords="167,56,269,83"/>
 </map>

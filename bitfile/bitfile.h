@@ -1,7 +1,7 @@
 /**
  * \brief Bit file stream library header
  * \file bitfile.h
- * \author Michael Dipperstein (mdipper@alumni.cs.ucsb.edu)
+ * \author Michael Dipperstein (mdipperstein@gmail.com)
  * \date January 9, 2004
  *
  * This file provides definitions and prototypes for a simple library of
@@ -11,13 +11,14 @@
  * contained in this library were created with compression algorithms in mind,
  * but may be suited to other applications.
  *
- * \copyright Copyright (C) 2004 - 2016 by Michael Dipperstein
- * (mdipper@alumni.cs.ucsb.edu)
+ * \copyright Copyright (C) 2004 - 2019 by Michael Dipperstein
+ * (mdipperstein@gmail.com)
  *
  * \par
  * This file is part of the bit file library.
  *
- * \license The bitfile library is free software; you can redistribute it
+ * \license
+ * The bitfile library is free software; you can redistribute it
  * and/or modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
@@ -42,10 +43,11 @@
  *
  * These pages provide documentation for Bitfile, a bit stream handling library.
  *
- * \copyright Copyright (C) 2004 - 2016 by Michael Dipperstein
- * (mdipper@alumni.cs.ucsb.edu)
+ * \copyright Copyright (C) 2004 - 2019 by Michael Dipperstein
+ * (mdipperstein@gmail.com)
  *
- * \license The bitfile library is free software; you can redistribute it
+ * \license
+ * The bitfile library is free software; you can redistribute it
  * and/or modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.

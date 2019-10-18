@@ -1,7 +1,7 @@
 /**
  * \brief Bit file stream library implementation
  * \file bitfile.c
- * \author Michael Dipperstein (mdipper@alumni.cs.ucsb.edu)
+ * \author Michael Dipperstein (mdipperstein@gmail.com)
  * \date January 9, 2004
  *
  * This file implements a simple library of I/O functions for files that
@@ -11,13 +11,14 @@
  * created with compression algorithms in mind, but may be suited to other
  * applications.
  *
- * \copyright Copyright (C) 2004 - 2016 by Michael Dipperstein
- * (mdipper@alumni.cs.ucsb.edu)
+ * \copyright Copyright (C) 2004 - 2019 by Michael Dipperstein
+ * (mdipperstein@gmail.com)
  *
  * \par
  * This file is part of the bit file library.
  *
- * \license The bitfile library is free software; you can redistribute it
+ * \license
+ * The bitfile library is free software; you can redistribute it
  * and/or modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
@@ -132,7 +133,8 @@ static int BitFileNotSupported(bit_file_t *stream, void *bits,
  * \param mode The mode of the file to be opened (BF_READ, BF_WRITE, or
  * BF_APPEND).
  *
- * \effects The specified file will be opened and file structure will be
+ * \effects
+ * The specified file will be opened and file structure will be
  * allocated.
  *
  * \returns A pointer to the bit_file_t structure for the bit file opened,
@@ -207,13 +209,14 @@ static int BitFileNotSupported(bit_file_t *stream, void *bits,
  *
  * \brief This function naively wraps a standard file in a bit_file_t
  * structure.
- * 
+ *
  * \param stream A pointer to the standard file being wrapped.
  *
  * \param mode The mode of the file being wrapped (BF_READ, BF_WRITE, or
  * BF_APPEND).
  *
- * \effects A bit_file_t structure will be created for the stream passed as
+ * \effects
+ * A bit_file_t structure will be created for the stream passed as
  * a parameter.
  *
  * \returns Pointer to the bit_file_t structure for the bit file or \c NULL
@@ -279,10 +282,11 @@ bit_file_t *MakeBitFile(FILE *stream, const BF_MODES mode)
  *
  * \brief This function determines the endianess of the current hardware
  * architecture.
- * 
+ *
  * \param void
  *
- * \effects None
+ * \effects
+ * None
  *
  * \returns endian_t for the current machine architecture.
  *
@@ -320,10 +324,11 @@ bit_file_t *MakeBitFile(FILE *stream, const BF_MODES mode)
  * \fn int BitFileClose(bit_file_t *stream)
  *
  * \brief This function closes a bit file and frees all associated data.
- * 
+ *
  * \param stream A pointer to the bit file stream being closed.
  *
- * \effects The specified file will be closed and the file structure will
+ * \effects
+ * The specified file will be closed and the file structure will
  * be freed.
  *
  * \returns 0 for success or \c EOF for failure.
@@ -366,10 +371,11 @@ int BitFileClose(bit_file_t *stream)
  *
  * \brief This function flushes and frees the bitfile structure, returning
  * a pointer to a stdio file corresponding to the bitfile.
- * 
+ *
  * \param stream A pointer to the bit file stream being converted
  *
- * \effects None
+ * \effects
+ * None
  *
  * \returns A FILE pointer to stream.  \c NULL for failure.
  */
@@ -410,10 +416,11 @@ FILE *BitFileToFILE(bit_file_t *stream)
  * \fn int BitFileByteAlign(bit_file_t *stream)
  *
  * \brief This function aligns the bitfile to the nearest byte.
- * 
+ *
  * \param stream A pointer to the bit file stream to align
  *
- * \effects The bit buffer is flushed out.
+ * \effects
+ * The bit buffer is flushed out.
  *
  * \returns \c EOF if stream is \c NULL or a write fails.  Writes return
  * the byte aligned contents of the bit buffer.  Reads returns the unaligned
@@ -455,12 +462,13 @@ int BitFileByteAlign(bit_file_t *stream)
  *  const unsigned char onesFill)
  *
  * \brief This function flushes an output bit buffer.
- * 
+ *
  * \param stream A pointer to the bit file stream to flush
  *
  * \param onesFill set to non-zero if spare bits are to be filled with ones
  *
- * \effects The bit buffer is flushed out.  Spare bits are filled with
+ * \effects
+ * The bit buffer is flushed out.  Spare bits are filled with
  * either zeros or ones based on onesFill.
  *
  * \returns \c EOF if stream is \c NULL or not writable.  Otherwise, the
@@ -504,10 +512,11 @@ int BitFileFlushOutput(bit_file_t *stream, const unsigned char onesFill)
  *
  * \brief This function returns the next byte from the file passed as a
  * parameter.
- * 
+ *
  * \param stream A pointer to the bit file stream to read from
  *
- * \effects Reads next byte from file and updates the pointer file and bit
+ * \effects
+ * Reads next byte from file and updates the pointer file and bit
  * buffer accordingly.
  *
  * \returns \c EOF if a whole byte cannot be obtained.  Otherwise, the
@@ -552,12 +561,13 @@ int BitFileGetChar(bit_file_t *stream)
  *
  * \brief This function writes the byte passed as a parameter to the file
  * passed a parameter.
- * 
+ *
  * \param c The character to write
  *
  * \param stream A pointer to the bit file stream to write to
  *
- * \effects Writes c to the file and updates the pointer file and bit
+ * \effects
+ * Writes c to the file and updates the pointer file and bit
  * buffer accordingly.
  *
  * \returns The character written is returned on success.  \c EOF is returned
@@ -600,10 +610,11 @@ int BitFilePutChar(const int c, bit_file_t *stream)
  *
  * \brief This function returns the next bit from the file passed as a
  * parameter.
- * 
+ *
  * \param stream A pointer to the bit file stream to read from
  *
- * \effects Reads next bit from bit buffer.  If the buffer is empty,
+ * \effects
+ * Reads next bit from bit buffer.  If the buffer is empty,
  * a new byte will be read from the file.
  *
  * \returns 0 if bit == 0, 1 if bit == 1, and \c EOF if operation fails.
@@ -646,12 +657,13 @@ int BitFileGetBit(bit_file_t *stream)
  *
  * \brief This function writes the bit passed as a parameter to the file
  * passed a parameter.
- * 
+ *
  * \param c The bit value to write
  *
  * \param stream A pointer to the bit file stream to write to
  *
- * \effects Writes a bit to the bit buffer.  If the buffer has a byte, the
+ * \effects
+ * Writes a bit to the bit buffer.  If the buffer has a byte, the
  * buffer is written to the file and cleared.
  *
  * \returns The bit value written is returned on success.  \c EOF is
@@ -696,14 +708,15 @@ int BitFilePutBit(const int c, bit_file_t *stream)
  *
  * \brief This function reads the specified number of bits from the file
  * passed as a parameter.
- * 
+ *
  * \param stream A pointer to the bit file stream to read from
  *
  * \param bits The address to store bits read
  *
  * \param count The number of bits to read
  *
- * \effects Reads bits from the bit buffer and file stream.  The bit buffer
+ * \effects
+ * Reads bits from the bit buffer and file stream.  The bit buffer
  * will be modified as necessary.
  *
  * \returns \c EOF for failure, otherwise the number of bits read.  If
@@ -777,14 +790,15 @@ int BitFileGetBits(bit_file_t *stream, void *bits, const unsigned int count)
  *
  * \brief This function writes the specified number of bits from the memory
  * location passed as a parameter to the file passed as a parameter.
- * 
+ *
  * \param stream A pointer to the bit file stream to write to
  *
  * \param bits The address to store bits write
  *
  * \param count The number of bits to write
  *
- * \effects Writes bits to the bit buffer and file stream.  The bit buffer
+ * \effects
+ * Writes bits to the bit buffer and file stream.  The bit buffer
  * will be modified as necessary.
  *
  * \returns \c EOF for failure, otherwise the number of bits read.  If
@@ -853,7 +867,7 @@ int BitFilePutBits(bit_file_t *stream, void *bits, const unsigned int count)
  * \brief This function provides a machine independent layer that allows a
  * single function call to stuff an arbitrary number of bits into an integer
  * type variable.
- * 
+ *
  * \param stream A pointer to the bit file stream to read from
  *
  * \param bits The address to store bits read
@@ -862,7 +876,8 @@ int BitFilePutBits(bit_file_t *stream, void *bits, const unsigned int count)
  *
  * \param size sizeof type containing \c bits
  *
- * \effects Calls a function that reads bits from the bit buffer and file
+ * \effects
+ * Calls a function that reads bits from the bit buffer and file
  * stream.  The bit buffer will be modified as necessary.  The bits will be
  * written to \c bits from least significant byte to most significant byte.
  *
@@ -894,7 +909,7 @@ int BitFilePutBits(bit_file_t *stream, void *bits, const unsigned int count)
  * file passed as a parameter and writes them to the requested memory
  * location (LSB to MSB).  The memory location is treated as a Little
  * Endian numeric data type.
- * 
+ *
  * \param stream A pointer to the bit file stream to read from
  *
  * \param bits The address to store bits read
@@ -903,7 +918,8 @@ int BitFilePutBits(bit_file_t *stream, void *bits, const unsigned int count)
  *
  * \param size sizeof type containing \c bits
  *
- * \effects Reads bits from the bit buffer and file stream.  The bit buffer
+ * \effects
+ * Reads bits from the bit buffer and file stream.  The bit buffer
  * will be modified as necessary.  bits is treated as a little endian
  * integer of length >= (count/8) + 1.
  *
@@ -967,7 +983,7 @@ static int BitFileGetBitsLE(bit_file_t *stream, void *bits,
  * file passed as a parameter and writes them to the requested memory
  * location (LSB to MSB).  The memory location is treated as a Big
  * Endian numeric data type.
- * 
+ *
  * \param stream A pointer to the bit file stream to read from
  *
  * \param bits The address to store bits read
@@ -976,7 +992,8 @@ static int BitFileGetBitsLE(bit_file_t *stream, void *bits,
  *
  * \param size sizeof type containing \c bits
  *
- * \effects Reads bits from the bit buffer and file stream.  The bit buffer
+ * \effects
+ * Reads bits from the bit buffer and file stream.  The bit buffer
  * will be modified as necessary.  bits is treated as a big endian
  * integer of length >= (count/8) + 1.
  *
@@ -1045,7 +1062,7 @@ static int BitFileGetBitsBE(bit_file_t *stream, void *bits,
  * \brief This function provides a machine independent layer that allows a
  * single function call to write an arbitrary number of bits from an integer
  * type variable into a file.
- * 
+ *
  * \param stream A pointer to the bit file stream to write to
  *
  * \param bits The address to store bits to write
@@ -1054,7 +1071,8 @@ static int BitFileGetBitsBE(bit_file_t *stream, void *bits,
  *
  * \param size sizeof type containing \c bits
  *
- * \effects Calls a function that writes bits to the bit buffer and file
+ * \effects
+ * Calls a function that writes bits to the bit buffer and file
  * stream.  The bit buffer will be modified as necessary.  The bits will be
  * written to the file stream from least significant byte to most significant
  * byte.
@@ -1088,7 +1106,7 @@ int BitFilePutBitsNum(bit_file_t *stream, void *bits, const unsigned int count,
  * location passed as a parameter to the file passed as a parameter.  Bits
  * are written LSB to MSB.  The memory location is treated as a Little
  * Endian numeric data type.
- * 
+ *
  * \param stream A pointer to the bit file stream to write to
  *
  * \param bits The address to store bits to write
@@ -1097,7 +1115,8 @@ int BitFilePutBitsNum(bit_file_t *stream, void *bits, const unsigned int count,
  *
  * \param size sizeof type containing \c bits
  *
- * \effects Writes bits to the bit buffer and file stream.  The bit buffer
+ * \effects
+ * Writes bits to the bit buffer and file stream.  The bit buffer
  * will be modified as necessary.  bits is treated as a little endian integer
  * of length >= (count/8) + 1.
  *
@@ -1161,7 +1180,7 @@ static int BitFilePutBitsLE(bit_file_t *stream, void *bits,
  * location passed as a parameter to the file passed as a parameter.  Bits
  * are written LSB to MSB.  The memory location is treated as a Big
  * Endian numeric data type.
- * 
+ *
  * \param stream A pointer to the bit file stream to write to
  *
  * \param bits The address to store bits to write
@@ -1170,7 +1189,8 @@ static int BitFilePutBitsLE(bit_file_t *stream, void *bits,
  *
  * \param size sizeof type containing \c bits
  *
- * \effects Writes bits to the bit buffer and file stream.  The bit buffer
+ * \effects
+ * Writes bits to the bit buffer and file stream.  The bit buffer
  * will be modified as necessary.  bits is treated as a big endian integer
  * of length \c size.
  *
@@ -1237,7 +1257,7 @@ static int BitFilePutBitsBE(bit_file_t *stream, void *bits,
  *
  * \brief This function returns /c -ENOTSUP.  It is called when a Get/PutBits
  * function is called on an unsupported architecture.
- * 
+ *
  * \param stream Not Used
  *
  * \param bits Not Used
@@ -1246,9 +1266,10 @@ static int BitFilePutBitsBE(bit_file_t *stream, void *bits,
  *
  * \param size Not Used
  *
- * \effects None
+ * \effects
+ * None
  *
- * \returns \c -ENOTSUP 
+ * \returns \c -ENOTSUP
  */
 static int BitFileNotSupported(bit_file_t *stream, void *bits,
     const unsigned int count, const size_t size)
