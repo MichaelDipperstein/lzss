@@ -6,7 +6,7 @@ an ANSI C command line option parser library.
 OptList is released under the GNU LGPL version 3.0.
 
 The latest revision of this program may be found at:
-http://michael.dipperstein.com/optlist.html
+https://michaeldipperstein.github.io/optlist.html
 
 FILES
 -----
@@ -18,6 +18,7 @@ optlist.h       - Header file to be included by code using OptList
 Makefile        - Makefile for this project (assumes gcc compiler and GNU make)
 README          - This file
 sample.c        - A small program demonstrating how to use OptList
+sample.cpp      - A small c++ program demonstrating how to use OptList
 
 BUILDING
 --------
@@ -72,6 +73,8 @@ HISTORY
 09/13/14  - Added FindFileName function, because I always use it with GetOptList
             Tighter adherence to Michael Barr's "Top 10 Bug-Killing Coding
             Standard Rules" (http://www.barrgroup.com/webinars/10rules).
+10/18/18  - Made header compatible with c++ and added c++ example
+09/19/19  - change e-mail address from ucsb to gmail
 
 TODO
 ----
@@ -79,4 +82,4 @@ TODO
 
 AUTHOR
 ------
-Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)
+Michael Dipperstein (mdipperstein@gmail.com)

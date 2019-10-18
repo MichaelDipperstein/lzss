@@ -1,15 +1,15 @@
 /***************************************************************************
 *                           OptList Usage Sample
 *
-*   File    : sample.c
+*   File    : sample.cpp
 *   Purpose : Demonstrates usage of optlist library.
 *   Author  : Michael Dipperstein
-*   Date    : July 23, 2004
+*   Date    : October 18, 2018
 *
 ****************************************************************************
 *
 * Sample: A optlist library sample usage program
-* Copyright (C) 2007, 2014 by
+* Copyright (C) 2018 by
 * Michael Dipperstein (mdipperstein@gmail.com)
 *
 * This file is part of the optlist library.
@@ -32,8 +32,7 @@
 /***************************************************************************
 *                             INCLUDED FILES
 ***************************************************************************/
-#include <stdio.h>
-#include <stdlib.h>
+#include <iostream>
 #include "optlist.h"
 
 /***************************************************************************
@@ -70,30 +69,32 @@ int main(int argc, char *argv[])
 
         if ('?' == thisOpt->option)
         {
-            printf("Usage: %s <options>\n\n", FindFileName(argv[0]));
-            printf("options:\n");
-            printf("  -a : option excepting argument.\n");
-            printf("  -b : option without arguments.\n");
-            printf("  -c : option without arguments.\n");
-            printf("  -d : option excepting argument.\n");
-            printf("  -e : option without arguments.\n");
-            printf("  -f : option without arguments.\n");
-            printf("  -? : print out command line options.\n\n");
+            std::cout << "Usage: " << FindFileName(argv[0]) << " <options>" <<
+                std::endl << std::endl;
+            std::cout << "options:" << std::endl;
+            std::cout << "  -a : option excepting argument." << std::endl;
+            std::cout << "  -b : option without arguments." << std::endl;
+            std::cout << "  -c : option without arguments." << std::endl;
+            std::cout << "  -d : option excepting argument." << std::endl;
+            std::cout << "  -e : option without arguments." << std::endl;
+            std::cout << "  -f : option without arguments." << std::endl;
+            std::cout << "  -? : print out command line options.\n" <<
+                std::endl;
 
             FreeOptList(thisOpt);   /* free the rest of the list */
             return EXIT_SUCCESS;
         }
 
-        printf("found option %c\n", thisOpt->option);
+        std::cout << "found option " << thisOpt->option << std::endl;
 
         if (thisOpt->argument != NULL)
         {
-            printf("\tfound argument %s", thisOpt->argument);
-            printf(" at index %d\n", thisOpt->argIndex);
+            std::cout << "\tfound argument " << thisOpt->argument <<
+                " at index " << thisOpt->argIndex << std::endl;
         }
         else
         {
-            printf("\tno argument for this option\n");
+            std::cout << "\tno argument for this option" << std::endl;
         }
 
         free(thisOpt);    /* done with this item, free it */
