@@ -1,20 +1,13 @@
 ############################################################################
-# Makefile for oplist command line library sample
-#
-#   $Id: Makefile,v 1.1.1.2 2007/09/04 04:45:42 michael Exp $
-#   $Log: Makefile,v $
-#   Revision 1.1.1.2  2007/09/04 04:45:42  michael
-#   Added FreeOptList.
-#
-#   Revision 1.1.1.1  2007/08/07 05:01:48  michael
-#   Initial Release
-#
-#
+#   Makefile for oplist command line library sample
 ############################################################################
 CC = gcc
 LD = gcc
 CFLAGS = -I. -O3 -Wall -Wextra -pedantic -ansi -c
 LDFLAGS = -O3 -o
+
+CXX = g++
+CXXFLAGS = -I. -O3 -Wall -Wextra -c
 
 # libraries
 LIBS = -L. -loptlist
@@ -32,13 +25,19 @@ else    #assume Linux/Unix
     DEL = rm -f
 endif
 
-all:		sample$(EXE) liboptlist.a
+all:	sample$(EXE) sample_cpp$(EXE) liboptlist.a
 
 sample$(EXE):	sample.o liboptlist.a
 	$(LD) $< $(LIBS) $(LDFLAGS) $@
 
 sample.o:	sample.c optlist.h
 	$(CC) $(CFLAGS) $<
+
+sample_cpp$(EXE):	sample_cpp.o liboptlist.a
+	$(CXX) $< $(LIBS) $(LDFLAGS) $@
+
+sample_cpp.o:	sample.cpp optlist.h
+	$(CXX) $(CXXFLAGS) $< -o $@
 
 liboptlist.a:	optlist.o
 	ar crv liboptlist.a optlist.o
@@ -49,5 +48,4 @@ optlist.o:	optlist.c optlist.h
 
 clean:
 	$(DEL) *.o
-	$(DEL) *.a
-	$(DEL) sample$(EXE)
+	$(DEL) sample$(EXE) sample_cpp$(EXE) liboptlist.a

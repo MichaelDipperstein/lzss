@@ -1,0 +1,6 @@
+liboptlist.a
+optlist.o
+sample
+sample.o
+sample_cpp
+sample_cpp.o

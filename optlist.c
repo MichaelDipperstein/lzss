@@ -10,7 +10,7 @@
 *
 * OptList: A command line option parsing library
 * Copyright (C) 2007, 2014 by
-* Michael Dipperstein (mdipper@alumni.engr.ucsb.edu)
+* Michael Dipperstein (mdipperstein@gmail.com)
 *
 * This file is part of the OptList library.
 *
@@ -55,8 +55,7 @@
 static option_t *MakeOpt(
     const char option, char *const argument, const int index);
 
-static size_t MatchOpt(
-    const char argument, char *const options);
+static size_t MatchOpt(const char argument, const char *const options);
 
 /***************************************************************************
 *                                FUNCTIONS
@@ -88,7 +87,8 @@ static size_t MatchOpt(
 *   NOTE: The caller is responsible for freeing up the option list when it
 *         is no longer needed.
 ****************************************************************************/
-option_t *GetOptList(const int argc, char *const argv[], char *const options)
+option_t *GetOptList(const int argc, char *const argv[],
+    const char *const options)
 {
     int nextArg;
     option_t *head, *tail;
@@ -234,8 +234,7 @@ void FreeOptList(option_t *list)
 *   Returned   : Index of argument in option list.  Index of end of string
 *                if arguement does not appear in the option list.
 ****************************************************************************/
-static size_t MatchOpt(
-    const char argument, char *const options)
+static size_t MatchOpt(const char argument, const char *const options)
 {
     size_t optIndex = 0;
 
