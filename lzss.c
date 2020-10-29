@@ -124,7 +124,7 @@ int EncodeLZSS(FILE *fpIn, FILE *fpOut)
 
     if (0 == len)
     {
-        return 0;   /* inFile was empty */
+        return 0;   /* fpIn was empty */
     }
 
     /* Look for matching string in sliding window */
@@ -135,11 +135,12 @@ int EncodeLZSS(FILE *fpIn, FILE *fpOut)
         return i;       /* InitializeSearchStructures returned an error */
     }
 
-    matchData = FindMatch(windowHead, uncodedHead);
-
-    /* now encoded the rest of the file until an EOF is read */
+    /* now encode the rest of the file until an EOF is read */
     while (len > 0)
     {
+        /* find the longest match for the uncoded lookahead */
+        matchData = FindMatch(windowHead, uncodedHead);
+
         if (matchData.length > len)
         {
             /* garbage beyond last data happened to extend match length */
@@ -158,7 +159,7 @@ int EncodeLZSS(FILE *fpIn, FILE *fpOut)
         {
             unsigned int adjustedLen;
 
-            /* adjust the length of the match so minimun encoded len is 0*/
+            /* adjust the length of the match so minimum encoded len is 0 */
             adjustedLen = matchData.length - (MAX_UNCODED + 1);
 
             /* match length > MAX_UNCODED.  Encode as offset and length. */
@@ -194,9 +195,6 @@ int EncodeLZSS(FILE *fpIn, FILE *fpOut)
             len--;
             i++;
         }
-
-        /* find match for the remaining characters */
-        matchData = FindMatch(windowHead, uncodedHead);
     }
 
     /* we've encoded everything, free bitfile structure */
@@ -222,8 +220,7 @@ int DecodeLZSS(FILE *fpIn, FILE *fpOut)
 {
     bit_file_t *bfpIn;
     int c;
-    unsigned int i, nextChar;
-    encoded_string_t code;              /* offset/length code for string */
+    unsigned int nextChar;
 
     /* use stdin if no input file */
     if ((NULL == fpIn) || (NULL == fpOut))
@@ -252,6 +249,7 @@ int DecodeLZSS(FILE *fpIn, FILE *fpOut)
 
     while (1)
     {
+        /* read uncoded/encoded bit */
         if ((c = BitFileGetBit(bfpIn)) == EOF)
         {
             /* we hit the EOF */
@@ -273,7 +271,10 @@ int DecodeLZSS(FILE *fpIn, FILE *fpOut)
         }
         else
         {
-            /* offset and length */
+            unsigned int i;
+
+            /* encoded offset and length */
+            encoded_string_t code;
             code.offset = 0;
             code.length = 0;
 
