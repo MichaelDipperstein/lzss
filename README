@@ -152,6 +152,9 @@ HISTORY
           - Tighter adherence to Michael Barr's "Top 10 Bug-Killing Coding
             Standard Rules" (http://www.barrgroup.com/webinars/10rules).
 07/16/17  - Changes for easier use with GitHub
+11/02/20  - Pass sliding window and uncoded lookahead as a parameter instead
+            of using global variables.
+          - Short circuit match finding for short lookahead buffers.
 
 TODO
 ----

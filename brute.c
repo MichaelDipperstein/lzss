@@ -11,7 +11,7 @@
 *
 * Brute: Brute force matching routines used by LZSS Encoding/Decoding
 *        Routine
-* Copyright (C) 2004 - 2007, 2014 by
+* Copyright (C) 2004 - 2007, 2014, 2020 by
 * Michael Dipperstein (mdipperstein@gmail.com)
 *
 * This file is part of the lzss library.
@@ -39,9 +39,6 @@
 /***************************************************************************
 *                            GLOBAL VARIABLES
 ***************************************************************************/
-/* cyclic buffer sliding window of already read characters */
-extern unsigned char slidingWindow[];
-extern unsigned char uncodedLookahead[];
 
 /***************************************************************************
 *                                FUNCTIONS
@@ -53,13 +50,15 @@ extern unsigned char uncodedLookahead[];
 *                process of mathcing uncoded strings to strings in the
 *                sliding window.  The brute force search doesn't use any
 *                special structures, so this function doesn't do anything.
-*   Parameters : None
+*   Parameters : buffers - pointer to structure with sliding window and
+*                          uncoded lookahead buffers
 *   Effects    : None
 *   Returned   : 0 for success, -1 for failure.  errno will be set in the
 *                event of a failure.
 ****************************************************************************/
-int InitializeSearchStructures(void)
+int InitializeSearchStructures(buffers_t *buffers)
 {
+    (void)buffers;      /* not used */
     return 0;
 }
 
@@ -68,42 +67,65 @@ int InitializeSearchStructures(void)
 *   Description: This function will search through the slidingWindow
 *                dictionary for the longest sequence matching the MAX_CODED
 *                long string stored in uncodedLookahed.
-*   Parameters : windowHead - head of sliding window
+*   Parameters : buffers - pointer to structure with sliding window and
+*                          uncoded lookahead buffers
+*                windowHead - head of sliding window
 *                uncodedHead - head of uncoded lookahead buffer
+*                uncodedLen - length of uncoded lookahead buffer
 *   Effects    : None
 *   Returned   : The sliding window index where the match starts and the
 *                length of the match.  If there is no match a length of
 *                zero will be returned.
 ****************************************************************************/
-encoded_string_t FindMatch(const unsigned int windowHead,
-    unsigned int uncodedHead)
+encoded_string_t FindMatch(buffers_t *buffers,
+    const unsigned int windowHead,
+    const unsigned int uncodedHead,
+    const unsigned int uncodedLen)
 {
     encoded_string_t matchData;
-    unsigned int i;
-    unsigned int j;
+    unsigned int i;     /* current search start offset */
+    unsigned int j;     /* current match length */
+
+    /* unwrapped copy of uncoded lookahead */
+    unsigned char uncoded[MAX_CODED];
 
     matchData.length = 0;
     matchData.offset = 0;
+
+    if (uncodedLen <= MAX_UNCODED)
+    {
+        /* don't even bother, there aren't enough symbols to encode */
+        return matchData;
+    }
+
+    for (i = 0; i < uncodedLen; i++)
+    {
+        uncoded[i] =
+            buffers->uncodedLookahead[Wrap((uncodedHead + i), MAX_CODED)];
+    }
+
     i = windowHead;  /* start at the beginning of the sliding window */
     j = 0;
 
     while (1)
     {
-        if (slidingWindow[i] == uncodedLookahead[uncodedHead])
+        if (buffers->slidingWindow[i] == uncoded[0])
         {
             /* we matched one. how many more match? */
             j = 1;
 
-            while(slidingWindow[Wrap((i + j), WINDOW_SIZE)] ==
-                uncodedLookahead[Wrap((uncodedHead + j), MAX_CODED)])
+            while(uncoded[j] ==
+                buffers->slidingWindow[Wrap((i + j), WINDOW_SIZE)])
             {
-                if (j >= MAX_CODED)
+                j++;
+
+                if (j == uncodedLen)
                 {
                     break;
                 }
-                j++;
             }
 
+            /* end of current match */
             if (j > matchData.length)
             {
                 matchData.length = j;
@@ -111,16 +133,15 @@ encoded_string_t FindMatch(const unsigned int windowHead,
             }
         }
 
-        if (j >= MAX_CODED)
+        if (j == uncodedLen)
         {
-            matchData.length = MAX_CODED;
             break;
         }
 
-        i = Wrap((i + 1), WINDOW_SIZE);
+        CyclicInc(i, WINDOW_SIZE);
         if (i == windowHead)
         {
-            /* we wrapped around */
+            /* we're where we started */
             break;
         }
     }
@@ -133,13 +154,17 @@ encoded_string_t FindMatch(const unsigned int windowHead,
 *   Description: This function replaces the character stored in
 *                slidingWindow[charIndex] with the one specified by
 *                replacement.
-*   Parameters : charIndex - sliding window index of the character to be
+*   Parameters : slidingWindow - pointer to the head of the sliding window.
+*                charIndex - sliding window index of the character to be
 *                            removed from the linked list.
+*                replacement - new character
 *   Effects    : slidingWindow[charIndex] is replaced by replacement.
 *   Returned   : 0 for success, -1 for failure.  errno will be set in the
 *                event of a failure.
 ****************************************************************************/
-int ReplaceChar(const unsigned int charIndex, const unsigned char replacement)
+int ReplaceChar(unsigned char *slidingWindow,
+    const unsigned int charIndex,
+    const unsigned char replacement)
 {
     slidingWindow[charIndex] = replacement;
     return 0;

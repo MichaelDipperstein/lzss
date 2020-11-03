@@ -11,7 +11,7 @@
 ****************************************************************************
 *
 * LZSS: An ANSI C LZSS Encoding/Decoding Routine
-* Copyright (C) 2004 - 2007, 2014 by
+* Copyright (C) 2004 - 2007, 2014,2020 by
 * Michael Dipperstein (mdipperstein@gmail.com)
 *
 * This file is part of the lzss library.
@@ -74,12 +74,25 @@ typedef struct encoded_string_t
     unsigned int length;    /* length of longest match */
 } encoded_string_t;
 
+/* struct for sliding window buffer and the uncoded lookahead */
+typedef struct buffers_t
+{
+    unsigned char slidingWindow[WINDOW_SIZE];
+    unsigned char uncodedLookahead[MAX_CODED];
+} buffers_t;
+
+
 /***************************************************************************
 *                                 MACROS
 ***************************************************************************/
 /* wraps array index within array bounds (assumes value < 2 * limit) */
 #define Wrap(value, limit) \
     (((value) < (limit)) ? (value) : ((value) - (limit)))
+
+/* increments cyclic array index */
+#define CyclicInc(var, limit) \
+    ((var + 1) < (limit)) ? ((var) = ((var) + 1)) : ((var) = 0)
+
 
 /***************************************************************************
 *                               PROTOTYPES
@@ -96,10 +109,15 @@ typedef struct encoded_string_t
 * in the sliding window dictionary.  the length field will be 0 if no
 * match is found.
 ***************************************************************************/
-int InitializeSearchStructures(void);
-int ReplaceChar(const unsigned int charIndex, const unsigned char replacement);
+int InitializeSearchStructures(buffers_t *buffers);
 
-encoded_string_t FindMatch(const unsigned int windowHead,
-    const unsigned int uncodedHead);
+int ReplaceChar(unsigned char *slidingWindow,
+    const unsigned int charIndex,
+    const unsigned char replacement);
+
+encoded_string_t FindMatch(buffers_t *buffers,
+    const unsigned int windowHead,
+    const unsigned int uncodedHead,
+    const unsigned int uncodedLen);
 
 #endif      /* ndef _LZSS_LOCAL_H */

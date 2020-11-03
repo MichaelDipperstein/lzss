@@ -11,7 +11,7 @@
 *
 * List: Linked list optimized matching routines used by LZSS
 *       Encoding/Decoding Routine
-* Copyright (C) 2004 - 2007, 2014 by
+* Copyright (C) 2004 - 2007, 2014, 2020 by
 * Michael Dipperstein (mdipperstein@gmail.com)
 *
 * This file is part of the lzss library.
@@ -45,10 +45,7 @@
 *                            GLOBAL VARIABLES
 ***************************************************************************/
 /* cyclic buffer sliding window of already read characters */
-extern unsigned char slidingWindow[];
-extern unsigned char uncodedLookahead[];
-
-unsigned int lists[UCHAR_MAX];              /* heads of linked lists */
+unsigned int lists[UCHAR_MAX + 1];          /* heads of linked lists */
 unsigned int next[WINDOW_SIZE];             /* indices of next in list */
 
 /***************************************************************************
@@ -62,7 +59,8 @@ unsigned int next[WINDOW_SIZE];             /* indices of next in list */
 *                sliding window.  For link list optimized searches, this
 *                means that linked lists of strings all starting with
 *                the same character are initialized.
-*   Parameters : None
+*   Parameters : buffers - pointer to structure with sliding window and
+*                          uncoded lookahead buffers
 *   Effects    : Initializes lists and next array
 *   Returned   : 0 for success, -1 for failure.  errno will be set in the
 *                event of a failure.
@@ -70,11 +68,11 @@ unsigned int next[WINDOW_SIZE];             /* indices of next in list */
 *   NOTE: This function assumes that the sliding window is initially filled
 *         with all identical characters.
 ****************************************************************************/
-int InitializeSearchStructures(void)
+int InitializeSearchStructures(buffers_t *buffers)
 {
     unsigned int i;
 
-    for (i = 0; i < WINDOW_SIZE; i++)
+    for (i = 0; i < WINDOW_SIZE - 1; i++)
     {
         next[i] = i + 1;
     }
@@ -83,12 +81,13 @@ int InitializeSearchStructures(void)
     next[WINDOW_SIZE - 1] = NULL_INDEX;
 
     /* the only list right now is the slidingWindow[0] list */
-    for (i = 0; i < 256; i++)
+    for (i = 0; i < UCHAR_MAX + 1; i++)
     {
         lists[i] = NULL_INDEX;
     }
 
-    lists[slidingWindow[0]] = 0;
+    lists[buffers->slidingWindow[0]] = 0;
+
     return 0;
 }
 
@@ -97,38 +96,60 @@ int InitializeSearchStructures(void)
 *   Description: This function will search through the slidingWindow
 *                dictionary for the longest sequence matching the MAX_CODED
 *                long string stored in uncodedLookahed.
-*   Parameters : windowHead - head of sliding window (unused)
+*   Parameters : buffers - pointer to structure with sliding window and
+*                          uncoded lookahead buffers
+*                windowHead - head of sliding window
 *                uncodedHead - head of uncoded lookahead buffer
+*                uncodedLen - length of uncoded lookahead buffer
 *   Effects    : None
 *   Returned   : The sliding window index where the match starts and the
 *                length of the match.  If there is no match a length of
 *                zero will be returned.
 ****************************************************************************/
-encoded_string_t FindMatch(const unsigned int windowHead,
-    const unsigned int uncodedHead)
+encoded_string_t FindMatch(buffers_t *buffers,
+    const unsigned int windowHead,
+    const unsigned int uncodedHead,
+    const unsigned int uncodedLen)
 {
     encoded_string_t matchData;
     unsigned int i;
     unsigned int j;
 
+    /* unwrapped copy of uncoded lookahead */
+    unsigned char uncoded[MAX_CODED];
+
     (void)windowHead;       /* prevents unused variable warning */
     matchData.length = 0;
     matchData.offset = 0;
-    i = lists[uncodedLookahead[uncodedHead]];   /* start of proper list */
+
+    if (uncodedLen <= MAX_UNCODED)
+    {
+        /* don't even bother, there aren't enough symbols to encode */
+        return matchData;
+    }
+
+    for (i = 0; i < uncodedLen; i++)
+    {
+        uncoded[i] =
+            buffers->uncodedLookahead[Wrap((uncodedHead + i), MAX_CODED)];
+    }
+
+    /* get the index for strings starting with the first character */
+    i = lists[buffers->uncodedLookahead[uncodedHead]];
 
     while (i != NULL_INDEX)
     {
         /* the list insures we matched one, how many more match? */
         j = 1;
 
-        while(slidingWindow[Wrap((i + j), WINDOW_SIZE)] ==
-            uncodedLookahead[Wrap((uncodedHead + j), MAX_CODED)])
+        while(buffers->slidingWindow[Wrap((i + j), WINDOW_SIZE)] == uncoded[j])
         {
-            if (j >= MAX_CODED)
+            j++;
+
+            if (j == uncodedLen)
             {
                 break;
             }
-            j++;
         }
 
         if (j > matchData.length)
@@ -137,9 +158,8 @@ encoded_string_t FindMatch(const unsigned int windowHead,
             matchData.offset = i;
         }
 
-        if (j >= MAX_CODED)
+        if (j == uncodedLen)
         {
-            matchData.length = MAX_CODED;
             break;
         }
 
@@ -153,13 +173,15 @@ encoded_string_t FindMatch(const unsigned int windowHead,
 *   Function   : AddChar
 *   Description: This function adds the character stored in
 *                slidingWindow[charIndex] to the linked lists.
-*   Parameters : charIndex - sliding window index of the character to be
-*                            added to the linked list.
+*   Parameters : slidingWindow - pointer to the head of the sliding window.
+*                charIndex - sliding window index of the character to be
+*                            removed from the linked list.
 *   Effects    : slidingWindow[charIndex] appended to the end of the
 *                appropriate linked list.
 *   Returned   : NONE
 ****************************************************************************/
-static void AddChar(const unsigned int charIndex)
+static void AddChar(unsigned char *slidingWindow,
+    const unsigned int charIndex)
 {
     unsigned int i;
 
@@ -188,13 +210,15 @@ static void AddChar(const unsigned int charIndex)
 *   Function   : RemoveChar
 *   Description: This function removes the character stored in
 *                slidingWindow[charIndex] from the linked lists.
-*   Parameters : charIndex - sliding window index of the character to be
+*   Parameters : slidingWindow - pointer to the head of the sliding window.
+*                charIndex - sliding window index of the character to be
 *                            removed from the linked list.
 *   Effects    : slidingWindow[charIndex] is removed from it's linked list
 *                and the list is appropriately reconnected.
 *   Returned   : NONE
 ****************************************************************************/
-static void RemoveChar(const unsigned int charIndex)
+static void RemoveChar(unsigned char *slidingWindow,
+    const unsigned int charIndex)
 {
     unsigned int i;
     unsigned int nextIndex;
@@ -227,19 +251,23 @@ static void RemoveChar(const unsigned int charIndex)
 *                slidingWindow[charIndex] with the one specified by
 *                replacement.  The linked list entries effected by the
 *                replacement are also corrected.
-*   Parameters : charIndex - sliding window index of the character to be
+*   Parameters : slidingWindow - pointer to the head of the sliding window.
+*                charIndex - sliding window index of the character to be
 *                            removed from the linked list.
+*                replacement - new character
 *   Effects    : slidingWindow[charIndex] is replaced by replacement.  Old
 *                list entries for strings containing slidingWindow[charIndex]
 *                are removed and new ones are added.
 *   Returned   : 0 for success, -1 for failure.  errno will be set in the
 *                event of a failure.
 ****************************************************************************/
-int ReplaceChar(const unsigned int charIndex, const unsigned char replacement)
+int ReplaceChar(unsigned char *slidingWindow,
+    const unsigned int charIndex,
+    const unsigned char replacement)
 {
-    RemoveChar(charIndex);
+    RemoveChar(slidingWindow, charIndex);
     slidingWindow[charIndex] = replacement;
-    AddChar(charIndex);
+    AddChar(slidingWindow, charIndex);
 
     return 0;
 }

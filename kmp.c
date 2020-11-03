@@ -14,7 +14,7 @@
 *
 * KMP: Knuth–Morris–Prat matching routines used by LZSS Encoding/Decoding
 *        Routine
-* Copyright (C) 2010, 2014 by
+* Copyright (C) 2010, 2014, 2020 by
 * Michael Dipperstein (mdipperstein@gmail.com)
 *
 * This file is part of the lzss library.
@@ -42,24 +42,26 @@
 /***************************************************************************
 *                            GLOBAL VARIABLES
 ***************************************************************************/
-/* cyclic buffer sliding window of already read characters */
-extern unsigned char slidingWindow[];
-extern unsigned char uncodedLookahead[];
+
+/***************************************************************************
+*                                FUNCTIONS
+***************************************************************************/
 
 /****************************************************************************
 *   Function   : InitializeSearchStructures
 *   Description: This function initializes structures used to speed up the
-*                process of matching uncoded strings to strings in the
-*                sliding window.  The KMP search doesn't use any special
-*                structures that remain between searches, so this function
-*                doesn't do anything.
-*   Parameters : None
+*                process of mathcing uncoded strings to strings in the
+*                sliding window.  The brute force search doesn't use any
+*                special structures, so this function doesn't do anything.
+*   Parameters : buffers - pointer to structure with sliding window and
+*                          uncoded lookahead buffers
 *   Effects    : None
 *   Returned   : 0 for success, -1 for failure.  errno will be set in the
 *                event of a failure.
 ****************************************************************************/
-int InitializeSearchStructures(void)
+int InitializeSearchStructures(buffers_t *buffers)
 {
+    (void)buffers;      /* not used */
     return 0;
 }
 
@@ -116,30 +118,37 @@ static void FillTable(unsigned char *uncoded, int* kmpTable)
 *   Description: This function will search through the slidingWindow
 *                dictionary for the longest sequence matching the MAX_CODED
 *                long string stored in uncodedLookahed.
-*   Parameters : windowHead - head of sliding window
+*   Parameters : buffers - pointer to structure with sliding window and
+*                          uncoded lookahead buffers
+*                windowHead - head of sliding window
 *                uncodedHead - head of uncoded lookahead buffer
+*                uncodedLen - length of uncoded lookahead buffer
 *   Effects    : None
 *   Returned   : The sliding window index where the match starts and the
 *                length of the match.  If there is no match a length of
 *                zero will be returned.
 ****************************************************************************/
-encoded_string_t FindMatch(const unsigned int windowHead,
-    const unsigned int uncodedHead)
+encoded_string_t FindMatch(buffers_t *buffers,
+    const unsigned int windowHead,
+    const unsigned int uncodedHead,
+    const unsigned int uncodedLen)
 {
     encoded_string_t matchData;
     unsigned int m;             /* starting position in string being searched */
     unsigned int i;             /* offset from m and uncoded data */
     int kmpTable[MAX_CODED];    /* kmp partial match table */
-    unsigned char localUncoded[MAX_CODED];  /* non-circular copy of uncoded */
+
+    /* unwrapped copy of uncoded lookahead */
+    unsigned char uncoded[MAX_CODED];
 
     /* build non-circular copy of the uncoded lookahead buffer */
-    for (i = 0; i < MAX_CODED; i++)
+    for (i = 0; i < uncodedLen; i++)
     {
-        localUncoded[i] =
-            uncodedLookahead[Wrap((uncodedHead + i), MAX_CODED)];
+        uncoded[i] =
+            buffers->uncodedLookahead[Wrap((uncodedHead + i), MAX_CODED)];
     }
 
-    FillTable(localUncoded, kmpTable);      /* build kmp partial match table */
+    FillTable(uncoded, kmpTable);      /* build kmp partial match table */
 
     matchData.length = 0;
     matchData.offset = 0;
@@ -148,16 +157,16 @@ encoded_string_t FindMatch(const unsigned int windowHead,
 
     while (m < WINDOW_SIZE)
     {
-        if (localUncoded[i] ==
-            slidingWindow[Wrap((m + i + windowHead), WINDOW_SIZE)])
+        if (uncoded[i] ==
+            buffers->slidingWindow[Wrap((m + i + windowHead), WINDOW_SIZE)])
         {
             /* one more character matches */
             i++;
 
-            if (MAX_CODED == i)
+            if (uncodedLen == i)
             {
                 /* entire string is matched */
-                matchData.length = MAX_CODED;
+                matchData.length = uncodedLen;
                 matchData.offset = Wrap((m + windowHead), WINDOW_SIZE);
                 break;
             }
@@ -194,13 +203,17 @@ encoded_string_t FindMatch(const unsigned int windowHead,
 *   Description: This function replaces the character stored in
 *                slidingWindow[charIndex] with the one specified by
 *                replacement.
-*   Parameters : charIndex - sliding window index of the character to be
+*   Parameters : slidingWindow - pointer to the head of the sliding window.
+*                charIndex - sliding window index of the character to be
 *                            removed from the linked list.
+*                replacement - new character
 *   Effects    : slidingWindow[charIndex] is replaced by replacement.
 *   Returned   : 0 for success, -1 for failure.  errno will be set in the
 *                event of a failure.
 ****************************************************************************/
-int ReplaceChar(const unsigned int charIndex, const unsigned char replacement)
+int ReplaceChar(unsigned char *slidingWindow,
+    const unsigned int charIndex,
+    const unsigned char replacement)
 {
     slidingWindow[charIndex] = replacement;
     return 0;

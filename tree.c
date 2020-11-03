@@ -11,7 +11,7 @@
 *
 * Tree: Tree table optimized matching routines used by LZSS
 *       Encoding/Decoding Routine
-* Copyright (C) 2010, 2014 by
+* Copyright (C) 2010, 2014, 2020 by
 * Michael Dipperstein (mdipperstein@gmail.com)
 *
 * This file is part of the lzss library.
@@ -68,10 +68,6 @@ typedef struct tree_node_t
 /***************************************************************************
 *                            GLOBAL VARIABLES
 ***************************************************************************/
-/* cyclic buffer sliding window of already read characters */
-extern unsigned char slidingWindow[];
-extern unsigned char uncodedLookahead[];
-
 tree_node_t tree[WINDOW_SIZE];      /* tree[n] is node for slidingWindow[n] */
 unsigned int treeRoot;              /* index of the root of the tree */
 
@@ -81,12 +77,14 @@ unsigned int treeRoot;              /* index of the root of the tree */
 static void ClearNode(const unsigned int index);
 
 /* add/remove strings starting at slidingWindow[charIndex] too/from tree */
-static void AddString(const unsigned int charIndex);
+static void AddString(unsigned char *slidingWindow,
+    const unsigned int charIndex);
 static void RemoveString(const unsigned int charIndex);
 
 /* debugging functions not used by algorithm */
-static void PrintLen(const unsigned int charIndex, const unsigned int len);
-static void DumpTree(const unsigned int root);
+static void PrintLen(unsigned char *slidingWindow,
+    const unsigned int charIndex, const unsigned int len);
+static void DumpTree(unsigned char *slidingWindow, const unsigned int root);
 
 /***************************************************************************
 *                                FUNCTIONS
@@ -101,7 +99,8 @@ static void DumpTree(const unsigned int root);
 *                made the root of the tree, and have no children.  This only
 *                works if the sliding window is filled with identical
 *                symbols.
-*   Parameters : None
+*   Parameters : buffers - pointer to structure with sliding window and
+*                          uncoded lookahead buffers
 *   Effects    : A tree consisting of just a root node is created.
 *   Returned   : 0 for success, -1 for failure.  errno will be set in the
 *                event of a failure.
@@ -109,9 +108,10 @@ static void DumpTree(const unsigned int root);
 *   NOTE: This function assumes that the sliding window is initially filled
 *         with all identical characters.
 ****************************************************************************/
-int InitializeSearchStructures(void)
+int InitializeSearchStructures(buffers_t *buffers)
 {
     unsigned int i;
+    (void)buffers;      /* not used */
 
     /* clear out all tree node pointers */
     for (i = 0; i < WINDOW_SIZE; i++)
@@ -130,7 +130,7 @@ int InitializeSearchStructures(void)
     if (0)
     {
         /* get rid of unused warning for DumpTree */
-        DumpTree(NULL_INDEX);
+        DumpTree(NULL, NULL_INDEX);
     }
 
     return 0;
@@ -141,45 +141,71 @@ int InitializeSearchStructures(void)
 *   Description: This function will search through the slidingWindow
 *                dictionary for the longest sequence matching the MAX_CODED
 *                long string stored in uncodedLookahead.
-*   Parameters : windowHead - not used
+*   Parameters : buffers - pointer to structure with sliding window and
+*                          uncoded lookahead buffers
+*                windowHead - head of sliding window
 *                uncodedHead - head of uncoded lookahead buffer
+*                uncodedLen - length of uncoded lookahead buffer
 *   Effects    : NONE
 *   Returned   : The sliding window index where the match starts and the
 *                length of the match.  If there is no match a length of
 *                zero will be returned.
 ****************************************************************************/
-encoded_string_t FindMatch(const unsigned int windowHead,
-    const unsigned int uncodedHead)
+encoded_string_t FindMatch(buffers_t *buffers,
+    const unsigned int windowHead,
+    const unsigned int uncodedHead,
+    const unsigned int uncodedLen)
 {
     encoded_string_t matchData;
     unsigned int i;
     unsigned int j;
     int compare;
 
+    /* unwrapped copy of uncoded lookahead */
+    unsigned char uncoded[MAX_CODED];
+
     (void)windowHead;       /* prevents unused variable warning */
     matchData.length = 0;
     matchData.offset = 0;
+
+    if (uncodedLen <= MAX_UNCODED)
+    {
+        /* don't even bother, there aren't enough symbols to encode */
+        return matchData;
+    }
+
+    for (i = 0; i < uncodedLen; i++)
+    {
+        uncoded[i] =
+            buffers->uncodedLookahead[Wrap((uncodedHead + i), MAX_CODED)];
+    }
 
     i = treeRoot;       /* start at root */
     j = 0;
 
     while (i != NULL_INDEX)
     {
-        compare = slidingWindow[i] - uncodedLookahead[uncodedHead];
+        compare = buffers->slidingWindow[i] - uncoded[0];
 
         if (0 == compare)
         {
             /* we matched the first symbol, how many more match? */
             j = 1;
 
-            while((compare = slidingWindow[Wrap((i + j), WINDOW_SIZE)] -
-                uncodedLookahead[Wrap((uncodedHead + j), MAX_CODED)]) == 0)
+            compare = buffers->slidingWindow[Wrap((i + j), WINDOW_SIZE)] -
+                uncoded[j];
+
+            while(compare == 0)
             {
-                if (j >= MAX_CODED)
+                j++;
+
+                if (j == uncodedLen)
                 {
                     break;
                 }
-                j++;
+
+                compare = buffers->slidingWindow[Wrap((i + j), WINDOW_SIZE)] -
+                    uncoded[j];
             }
 
             if (j > matchData.length)
@@ -189,10 +215,9 @@ encoded_string_t FindMatch(const unsigned int windowHead,
             }
         }
 
-        if (j >= MAX_CODED)
+        if (j == uncodedLen)
         {
             /* we found the largest allowed match */
-            matchData.length = MAX_CODED;
             break;
         }
 
@@ -215,14 +240,16 @@ encoded_string_t FindMatch(const unsigned int windowHead,
 *   Function   : CompareString
 *   Description: This function will compare two MAX_CODED long strings in
 *                the slidingWindow dictionary.
-*   Parameters : index1 - slidingWindow index where the first string starts
+*   Parameters : slidingWindow - pointer to the slidingWindow buffer.
+*                index1 - slidingWindow index where the first string starts
 *                index2 - slidingWindow index where the second string starts
 *   Effects    : NONE
 *   Returned   : 0 if first string equals second string.
 *                < 0 if first string is less than second string.
 *                > 0 if first string is greater than second string.
 ****************************************************************************/
-static int CompareString(const unsigned int index1, const unsigned int index2)
+static int CompareString(unsigned char *slidingWindow,
+    const unsigned int index1, const unsigned int index2)
 {
     unsigned int offset;
     int result = 0;
@@ -256,7 +283,7 @@ static void FixChildren(const unsigned int index)
     {
         tree[tree[index].leftChild].parent = index;
     }
-    
+
     if (tree[index].rightChild != NULL_INDEX)
     {
         tree[tree[index].rightChild].parent = index;
@@ -267,18 +294,20 @@ static void FixChildren(const unsigned int index)
 *   Function   : AddString
 *   Description: This function adds the MAX_UNCODED long string starting at
 *                slidingWindow[charIndex] to the binary tree.
-*   Parameters : charIndex - sliding window index of the string to be
+*   Parameters : slidingWindow - pointer to the slidingWindow buffer.
+*                charIndex - sliding window index of the string to be
 *                            added to the binary tree list.
 *   Effects    : The string starting at slidingWindow[charIndex] is inserted
 *                into the sorted binary tree.
 *   Returned   : NONE
 ****************************************************************************/
-static void AddString(const unsigned int charIndex)
+static void AddString(unsigned char *slidingWindow,
+    const unsigned int charIndex)
 {
     int compare;
     unsigned int here;
 
-    compare = CompareString(charIndex, treeRoot);
+    compare = CompareString(slidingWindow, charIndex, treeRoot);
 
     if (0 == compare)
     {
@@ -357,7 +386,7 @@ static void AddString(const unsigned int charIndex)
             return;
         }
 
-        compare = CompareString(charIndex, here);
+        compare = CompareString(slidingWindow, charIndex, here);
     }
 }
 
@@ -439,8 +468,10 @@ static void RemoveString(const unsigned int charIndex)
 *                slidingWindow[charIndex] with the one specified by
 *                replacement.  The binary tree entries effected by the
 *                replacement are also corrected.
-*   Parameters : charIndex - sliding window index of the character to be
+*   Parameters : slidingWindow - pointer to the head of the sliding window.
+*                charIndex - sliding window index of the character to be
 *                            removed from the linked list.
+*                replacement - new character
 *   Effects    : slidingWindow[charIndex] is replaced by replacement.  Old
 *                binary tree nodes for strings containing
 *                slidingWindow[charIndex] are removed and new ones are
@@ -448,7 +479,9 @@ static void RemoveString(const unsigned int charIndex)
 *   Returned   : 0 for success, -1 for failure.  errno will be set in the
 *                event of a failure.
 ****************************************************************************/
-int ReplaceChar(const unsigned int charIndex, const unsigned char replacement)
+int ReplaceChar(unsigned char *slidingWindow,
+    const unsigned int charIndex,
+    const unsigned char replacement)
 {
     unsigned int firstIndex, i;
 
@@ -472,7 +505,7 @@ int ReplaceChar(const unsigned int charIndex, const unsigned char replacement)
     /* add all hash entries containing character at char index */
     for (i = 0; i <= MAX_CODED; i++)
     {
-        AddString(Wrap((firstIndex + i), WINDOW_SIZE));
+        AddString(slidingWindow, Wrap((firstIndex + i), WINDOW_SIZE));
     }
 
     return 0;
@@ -497,14 +530,16 @@ static void ClearNode(const unsigned int index)
 *   Function   : PrintLen
 *   Description: This function prints the string of length len that starts at
 *                slidingWindow[charIndex].
-*   Parameters : charIndex - sliding window index of the string to be
+*   Parameters : slidingWindow - pointer to the head of the sliding window.
+*                charIndex - sliding window index of the string to be
 *                            printed.
 *                len - length of the string to be printed.
 *   Effects    : The string of length len starting at
 *                slidingWindow[charIndex] is printed to stdout.
 *   Returned   : NONE
 ****************************************************************************/
-static void PrintLen(const unsigned int charIndex, const unsigned int len)
+static void PrintLen(unsigned char *slidingWindow,
+    const unsigned int charIndex, const unsigned int len)
 {
     unsigned int i;
 
@@ -525,12 +560,13 @@ static void PrintLen(const unsigned int charIndex, const unsigned int len)
 *   Function   : DumpTree
 *   Description: This function dumps the contents of the (sub)tree starting
 *                at node 'root' to stdout.
-*   Parameters : root - root node for subtree to be dumped
-*   Effects    : The nodes contents of the (sub)tree rooted at node 'root' 
+*   Parameters : slidingWindow - pointer to the head of the sliding window.
+*                root - root node for subtree to be dumped
+*   Effects    : The nodes contents of the (sub)tree rooted at node 'root'
 *                are printed to stdout.
 *   Returned   : NONE
 ****************************************************************************/
-static void DumpTree(const unsigned int root)
+static void DumpTree(unsigned char *slidingWindow, const unsigned int root)
 {
     if (NULL_INDEX == root)
     {
@@ -540,15 +576,15 @@ static void DumpTree(const unsigned int root)
 
     if (tree[root].leftChild != NULL_INDEX)
     {
-        DumpTree(tree[root].leftChild);
+        DumpTree(slidingWindow, tree[root].leftChild);
     }
 
     printf("%03d: ", root);
-    PrintLen(root, MAX_CODED);
+    PrintLen(slidingWindow, root, MAX_CODED);
     printf("\n");
 
     if (tree[root].rightChild != NULL_INDEX)
     {
-        DumpTree(tree[root].rightChild);
+        DumpTree(slidingWindow, tree[root].rightChild);
     }
 }

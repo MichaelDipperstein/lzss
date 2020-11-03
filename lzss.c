@@ -10,7 +10,7 @@
 ****************************************************************************
 *
 * LZss: An ANSI C LZSS Encoding/Decoding Routines
-* Copyright (C) 2003 - 2007, 2014 by
+* Copyright (C) 2003 - 2007, 2014, 2020 by
 * Michael Dipperstein (mdipperstein@gmail.com)
 *
 * This file is part of the lzss library.
@@ -51,8 +51,7 @@
 *                            GLOBAL VARIABLES
 ***************************************************************************/
 /* cyclic buffer sliding window of already read characters */
-unsigned char slidingWindow[WINDOW_SIZE];
-unsigned char uncodedLookahead[MAX_CODED];
+static buffers_t buffers;
 
 /***************************************************************************
 *                               PROTOTYPES
@@ -111,7 +110,7 @@ int EncodeLZSS(FILE *fpIn, FILE *fpOut)
     * use the same values.  If common characters are used, there's an
     * increased chance of matching to the earlier strings.
     ************************************************************************/
-    memset(slidingWindow, ' ', WINDOW_SIZE * sizeof(unsigned char));
+    memset(buffers.slidingWindow, ' ', WINDOW_SIZE * sizeof(unsigned char));
 
     /************************************************************************
     * Copy MAX_CODED bytes from the input file into the uncoded lookahead
@@ -119,7 +118,7 @@ int EncodeLZSS(FILE *fpIn, FILE *fpOut)
     ************************************************************************/
     for (len = 0; len < MAX_CODED && (c = getc(fpIn)) != EOF; len++)
     {
-        uncodedLookahead[len] = c;
+        buffers.uncodedLookahead[len] = c;
     }
 
     if (0 == len)
@@ -128,7 +127,7 @@ int EncodeLZSS(FILE *fpIn, FILE *fpOut)
     }
 
     /* Look for matching string in sliding window */
-    i = InitializeSearchStructures();
+    i = InitializeSearchStructures(&buffers);
 
     if (0 != i)
     {
@@ -139,7 +138,7 @@ int EncodeLZSS(FILE *fpIn, FILE *fpOut)
     while (len > 0)
     {
         /* find the longest match for the uncoded lookahead */
-        matchData = FindMatch(windowHead, uncodedHead);
+        matchData = FindMatch(&buffers, windowHead, uncodedHead, len);
 
         if (matchData.length > len)
         {
@@ -151,7 +150,7 @@ int EncodeLZSS(FILE *fpIn, FILE *fpOut)
         {
             /* not long enough match.  write uncoded flag and character */
             BitFilePutBit(UNCODED, bfpOut);
-            BitFilePutChar(uncodedLookahead[uncodedHead], bfpOut);
+            BitFilePutChar(buffers.uncodedLookahead[uncodedHead], bfpOut);
 
             matchData.length = 1;   /* set to 1 for 1 byte uncoded */
         }
@@ -178,20 +177,23 @@ int EncodeLZSS(FILE *fpIn, FILE *fpOut)
         while ((i < matchData.length) && ((c = getc(fpIn)) != EOF))
         {
             /* add old byte into sliding window and new into lookahead */
-            ReplaceChar(windowHead, uncodedLookahead[uncodedHead]);
-            uncodedLookahead[uncodedHead] = c;
-            windowHead = Wrap((windowHead + 1), WINDOW_SIZE);
-            uncodedHead = Wrap((uncodedHead + 1), MAX_CODED);
+            ReplaceChar(buffers.slidingWindow, windowHead,
+                buffers.uncodedLookahead[uncodedHead]);
+            buffers.uncodedLookahead[uncodedHead] = c;
+            CyclicInc(windowHead, WINDOW_SIZE);
+            CyclicInc(uncodedHead, MAX_CODED);
             i++;
         }
 
         /* handle case where we hit EOF before filling lookahead */
         while (i < matchData.length)
         {
-            ReplaceChar(windowHead, uncodedLookahead[uncodedHead]);
+            ReplaceChar(buffers.slidingWindow,
+                windowHead,
+                buffers.uncodedLookahead[uncodedHead]);
             /* nothing to add to lookahead here */
-            windowHead = Wrap((windowHead + 1), WINDOW_SIZE);
-            uncodedHead = Wrap((uncodedHead + 1), MAX_CODED);
+            CyclicInc(windowHead, WINDOW_SIZE);
+            CyclicInc(uncodedHead, MAX_CODED);
             len--;
             i++;
         }
@@ -243,7 +245,7 @@ int DecodeLZSS(FILE *fpIn, FILE *fpOut)
     * use the same values.  If common characters are used, there's an
     * increased chance of matching to the earlier strings.
     ************************************************************************/
-    memset(slidingWindow, ' ', WINDOW_SIZE * sizeof(unsigned char));
+    memset(buffers.slidingWindow, ' ', WINDOW_SIZE * sizeof(unsigned char));
 
     nextChar = 0;
 
@@ -266,8 +268,8 @@ int DecodeLZSS(FILE *fpIn, FILE *fpOut)
 
             /* write out byte and put it in sliding window */
             putc(c, fpOut);
-            slidingWindow[nextChar] = c;
-            nextChar = Wrap((nextChar + 1), WINDOW_SIZE);
+            buffers.slidingWindow[nextChar] = c;
+            CyclicInc(nextChar, WINDOW_SIZE);
         }
         else
         {
@@ -300,16 +302,16 @@ int DecodeLZSS(FILE *fpIn, FILE *fpOut)
             ****************************************************************/
             for (i = 0; i < code.length; i++)
             {
-                c = slidingWindow[Wrap((code.offset + i), WINDOW_SIZE)];
+                c = buffers.slidingWindow[Wrap((code.offset + i), WINDOW_SIZE)];
                 putc(c, fpOut);
-                uncodedLookahead[i] = c;
+                buffers.uncodedLookahead[i] = c;
             }
 
             /* write out decoded string to sliding window */
             for (i = 0; i < code.length; i++)
             {
-                slidingWindow[Wrap((nextChar + i), WINDOW_SIZE)] =
-                    uncodedLookahead[i];
+                buffers.slidingWindow[Wrap((nextChar + i), WINDOW_SIZE)] =
+                    buffers.uncodedLookahead[i];
             }
 
             nextChar = Wrap((nextChar + code.length), WINDOW_SIZE);
