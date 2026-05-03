@@ -40,8 +40,9 @@ sample.c        - Sample program demonstrating usage of encode and decode
                   routines.
 tree.c          - File implementing a sorted binary tree to index and search
                   for strings matching the strings to be encoded.
-optlist/        - Subtree containing optlist command line option parser library
-bitfile/        - Subtree containing bitfile bitwise file library
+optlist/        - Submodule containing optlist command line option parser
+                  library
+bitfile/        - Submodule containing bitfile bitwise file library
 
 BUILDING
 --------
